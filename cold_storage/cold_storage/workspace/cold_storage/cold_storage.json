@@ -53,12 +53,11 @@
   {
    "hidden": 0,
    "is_query_report": 0,
-   "label": "Settings",
+   "label": "Operations",
+   "icon": "workflow",
    "link_count": 0,
-   "link_to": "Cold Storage Settings",
-   "link_type": "DocType",
-   "onboard": 1,
-   "type": "Link"
+   "onboard": 0,
+   "type": "Card Break"
   },
   {
    "hidden": 0,
@@ -89,6 +88,73 @@
    "link_type": "DocType",
    "onboard": 1,
    "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Masters",
+   "icon": "database",
+   "link_count": 0,
+   "onboard": 0,
+   "type": "Card Break"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Warehouse",
+   "link_count": 0,
+   "link_to": "Warehouse",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Batch",
+   "link_count": 0,
+   "link_to": "Batch",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Charge Configuration",
+   "link_count": 0,
+   "link_to": "Charge Configuration",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Configuration",
+   "icon": "settings",
+   "link_count": 0,
+   "onboard": 0,
+   "type": "Card Break"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Settings",
+   "link_count": 0,
+   "link_to": "Cold Storage Settings",
+   "link_type": "DocType",
+   "onboard": 1,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Reports & Analytics",
+   "icon": "chart",
+   "link_count": 0,
+   "onboard": 0,
+   "type": "Card Break"
   },
   {
    "hidden": 0,
@@ -137,33 +203,23 @@
   {
    "hidden": 0,
    "is_query_report": 0,
-   "label": "Yearly Inward Outward Trend",
-   "link_count": 0,
-   "link_to": "Cold Storage Yearly Inward Outward Trend",
-   "link_type": "Report",
-   "onboard": 0,
-   "report_ref_doctype": "Cold Storage Inward",
-   "type": "Link"
-  },
-  {
-   "hidden": 0,
-   "is_query_report": 0,
-   "label": "Batch",
-   "link_count": 0,
-   "link_to": "Batch",
-   "link_type": "DocType",
-   "onboard": 0,
-   "type": "Link"
-  },
-  {
-   "hidden": 0,
-   "is_query_report": 0,
    "label": "Warehouse Occupancy Timeline",
    "link_count": 0,
    "link_to": "Cold Storage Warehouse Occupancy Timeline",
    "link_type": "Report",
    "onboard": 0,
    "report_ref_doctype": "Warehouse",
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Yearly Inward Outward Trend",
+   "link_count": 0,
+   "link_to": "Cold Storage Yearly Inward Outward Trend",
+   "link_type": "Report",
+   "onboard": 0,
+   "report_ref_doctype": "Cold Storage Inward",
    "type": "Link"
   }
  ],
