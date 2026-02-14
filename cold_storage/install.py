@@ -149,28 +149,7 @@ def _get_workspace_content_blocks(content: str | None) -> list[dict]:
 	return [block for block in blocks if isinstance(block, dict)]
 
 
-def _ensure_default_uom_setting(*, create_uom_if_missing: bool) -> None:
-	"""Keep Cold Storage Settings.default_uom linked to a valid UOM."""
-	if not frappe.db.exists("DocType", "Cold Storage Settings"):
-		return
-
-	from cold_storage.cold_storage.doctype.cold_storage_settings.cold_storage_settings import (
-		resolve_default_uom,
-	)
-
-	resolved_uom = resolve_default_uom(create_if_missing=create_uom_if_missing)
-	if not resolved_uom:
-		return
-
-	current_uom = frappe.db.get_single_value("Cold Storage Settings", "default_uom")
-	if current_uom and frappe.db.exists("UOM", current_uom):
-		return
-
-	frappe.db.set_single_value("Cold Storage Settings", "default_uom", resolved_uom)
-
-
 def after_install() -> None:
-	_ensure_default_uom_setting(create_uom_if_missing=True)
 	_ensure_batch_customizations()
 	_ensure_dashboard_chart_types()
 	_ensure_workspace_assets()
@@ -178,7 +157,6 @@ def after_install() -> None:
 
 
 def after_migrate() -> None:
-	_ensure_default_uom_setting(create_uom_if_missing=True)
 	_ensure_batch_customizations()
 	_ensure_dashboard_chart_types()
 	_ensure_workspace_assets()

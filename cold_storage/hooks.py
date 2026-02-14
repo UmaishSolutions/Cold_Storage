@@ -46,6 +46,12 @@ portal_menu_items = [
 		"reference_doctype": "Cold Storage Inward",
 		"role": "Cold Storage Client Portal User",
 	},
+	{
+		"title": "Cold Storage Portal",
+		"route": "/client-portal",
+		"reference_doctype": "Cold Storage Inward",
+		"role": "Cold Storage Admin",
+	},
 ]
 
 # ── Custom Fields ────────────────────────────────────────────────

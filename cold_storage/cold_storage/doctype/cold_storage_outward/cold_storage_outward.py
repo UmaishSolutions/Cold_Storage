@@ -171,13 +171,9 @@ class ColdStorageOutward(Document):
 	def _create_sales_invoice(self) -> None:
 		from cold_storage.cold_storage.doctype.cold_storage_settings.cold_storage_settings import (
 			get_settings,
-			resolve_default_uom,
 		)
 
 		settings = get_settings()
-		invoice_uom = resolve_default_uom(create_if_missing=False) or settings.default_uom
-		if not invoice_uom:
-			frappe.throw(_("Please configure at least one UOM before invoicing dispatch charges"))
 
 		si = frappe.new_doc("Sales Invoice")
 		si.customer = self.customer
@@ -197,7 +193,7 @@ class ColdStorageOutward(Document):
 						),
 						"qty": row.qty,
 						"rate": row.handling_rate,
-						"uom": row.uom or invoice_uom,
+						"uom": row.uom or settings.default_uom or "Nos",
 						"income_account": settings.default_income_account,
 						"cost_center": settings.cost_center,
 					},
@@ -212,7 +208,7 @@ class ColdStorageOutward(Document):
 						),
 						"qty": row.qty,
 						"rate": row.loading_rate,
-						"uom": row.uom or invoice_uom,
+						"uom": row.uom or settings.default_uom or "Nos",
 						"income_account": settings.default_income_account,
 						"cost_center": settings.cost_center,
 					},

@@ -148,13 +148,9 @@ class ColdStorageInward(Document):
 		"""Create a Sales Invoice with one line per item row for unloading charges."""
 		from cold_storage.cold_storage.doctype.cold_storage_settings.cold_storage_settings import (
 			get_settings,
-			resolve_default_uom,
 		)
 
 		settings = get_settings()
-		invoice_uom = resolve_default_uom(create_if_missing=False) or settings.default_uom
-		if not invoice_uom:
-			frappe.throw(_("Please configure at least one UOM before invoicing inward charges"))
 
 		si = frappe.new_doc("Sales Invoice")
 		si.customer = self.customer
@@ -173,7 +169,7 @@ class ColdStorageInward(Document):
 					),
 					"qty": row.qty,
 					"rate": row.unloading_rate,
-					"uom": row.uom or invoice_uom,
+					"uom": row.uom or settings.default_uom or "Nos",
 					"income_account": settings.default_income_account,
 					"cost_center": settings.cost_center,
 				},
