@@ -264,10 +264,13 @@ def create_stock_entry_for_cold_storage(
 	reference_name: str,
 ) -> str:
 	"""Create and submit Stock Entry for a Cold Storage transaction."""
+	from cold_storage.cold_storage.naming import get_series_for_company
+
 	cost_center = frappe.get_cached_value("Company", company, "cost_center")
 	expense_account = frappe.get_cached_value("Company", company, "stock_adjustment_account")
 
 	se = frappe.new_doc("Stock Entry")
+	se.naming_series = get_series_for_company("stock_entry", company)
 	se.company = company
 	se.purpose = purpose
 	se.posting_date = posting_date or nowdate()

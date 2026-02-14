@@ -30,6 +30,15 @@ class ColdStorageOutward(Document):
 		total_qty: DF.Float
 	# end: auto-generated types
 
+	def before_naming(self) -> None:
+		from cold_storage.cold_storage.doctype.cold_storage_settings.cold_storage_settings import (
+			get_default_company,
+		)
+		from cold_storage.cold_storage.naming import get_series_for_company
+
+		self.company = self.company or get_default_company()
+		self.naming_series = get_series_for_company("outward", self.company)
+
 	def validate(self) -> None:
 		self._set_company()
 		self._validate_items()
@@ -180,6 +189,9 @@ class ColdStorageOutward(Document):
 			frappe.throw(_("Please configure at least one UOM before invoicing dispatch charges"))
 
 		si = frappe.new_doc("Sales Invoice")
+		from cold_storage.cold_storage.naming import get_series_for_company
+
+		si.naming_series = get_series_for_company("sales_invoice", settings.company)
 		si.customer = self.customer
 		si.company = settings.company
 		si.posting_date = self.posting_date or nowdate()

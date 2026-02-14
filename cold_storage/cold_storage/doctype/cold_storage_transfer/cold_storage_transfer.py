@@ -33,6 +33,15 @@ class ColdStorageTransfer(Document):
 		transfer_type: DF.Literal["", "Ownership Transfer", "Inter-Warehouse Transfer", "Intra-Warehouse Transfer"]
 	# end: auto-generated types
 
+	def before_naming(self) -> None:
+		from cold_storage.cold_storage.doctype.cold_storage_settings.cold_storage_settings import (
+			get_default_company,
+		)
+		from cold_storage.cold_storage.naming import get_series_for_company
+
+		self.company = self.company or get_default_company()
+		self.naming_series = get_series_for_company("transfer", self.company)
+
 	def validate(self) -> None:
 		self._set_company()
 		self._validate_transfer_type_fields()
@@ -325,6 +334,9 @@ class ColdStorageTransfer(Document):
 		)
 
 		je = frappe.new_doc("Journal Entry")
+		from cold_storage.cold_storage.naming import get_series_for_company
+
+		je.naming_series = get_series_for_company("journal_entry", settings.company)
 		je.posting_date = self.posting_date or nowdate()
 		je.company = settings.company
 		je.user_remark = _("{0} — {1}").format(self.transfer_type, self.name)

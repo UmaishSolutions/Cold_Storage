@@ -97,4 +97,7 @@ doc_events = {
 	"Customer": {
 		"on_update": "cold_storage.setup.client_portal_user_permissions.sync_customer_user_permissions_for_customer",
 	},
+	"GL Entry": {
+		"autoname": "cold_storage.events.naming.autoname_cold_storage_gl_entry",
+	},
 }
