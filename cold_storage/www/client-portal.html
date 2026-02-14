@@ -2,878 +2,883 @@
 
 {% block page_content %}
 <style>
-	@import url("https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap");
+	@import url("https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Sora:wght@500;600;700&display=swap");
+
+	#page-client-portal .page-content-wrapper {
+		margin: 0;
+	}
+
+	#page-client-portal .page-header-wrapper {
+		display: none;
+	}
+
+	#page-client-portal .page_content {
+		min-height: 100vh;
+	}
 
 	.client-portal {
-		--cp-bg-1: #f6faf9;
-		--cp-bg-2: #e7f1ee;
-		--cp-bg-3: #d9ebe6;
-		--cp-surface: rgba(255, 255, 255, 0.8);
-		--cp-surface-border: rgba(18, 76, 64, 0.14);
-		--cp-headline: #10342d;
-		--cp-copy: #335a52;
-		--cp-muted: #5c7f77;
-		--cp-accent: #188567;
-		--cp-accent-strong: #166b58;
-		--cp-warn: #c27d22;
-		--cp-grid: rgba(22, 107, 88, 0.055);
-		--cp-shadow-soft: 0 16px 40px rgba(12, 55, 46, 0.08);
-		--cp-shadow-strong: 0 26px 60px rgba(13, 52, 44, 0.14);
-		--cp-focus-ring: rgba(24, 133, 103, 0.22);
+		--cs-bg-1: #f5faf8;
+		--cs-bg-2: #eaf5f1;
+		--cs-bg-3: #dcefe8;
+		--cs-surface: rgba(255, 255, 255, 0.8);
+		--cs-surface-solid: #ffffff;
+		--cs-border: rgba(19, 84, 70, 0.14);
+		--cs-border-strong: rgba(19, 84, 70, 0.24);
+		--cs-headline: #0f332c;
+		--cs-copy: #2f5a51;
+		--cs-muted: #5d7f78;
+		--cs-accent: #17886a;
+		--cs-accent-strong: #0f6a54;
+		--cs-ok: #239a6f;
+		--cs-warn: #bf7f2b;
+		--cs-danger: #bf4c4c;
+		--cs-shadow-soft: 0 16px 36px rgba(11, 52, 44, 0.1);
+		--cs-shadow-strong: 0 30px 65px rgba(11, 52, 44, 0.14);
+		--cs-focus: rgba(23, 136, 106, 0.24);
 		position: relative;
 		isolation: isolate;
-		overflow: hidden;
-		padding: 2.2rem 0 2.8rem;
+		width: 100%;
+		padding: 1rem 1rem 1.4rem;
 		background:
-			radial-gradient(circle at 8% 12%, rgba(23, 126, 98, 0.15), transparent 34%),
-			radial-gradient(circle at 89% 18%, rgba(28, 139, 110, 0.14), transparent 36%),
-			linear-gradient(140deg, var(--cp-bg-1), var(--cp-bg-2) 45%, var(--cp-bg-3));
-		font-family: "IBM Plex Sans", "Segoe UI", sans-serif;
-		color: var(--cp-copy);
+			radial-gradient(circle at 8% 8%, rgba(23, 136, 106, 0.12), transparent 32%),
+			radial-gradient(circle at 90% 12%, rgba(15, 106, 84, 0.12), transparent 34%),
+			linear-gradient(145deg, var(--cs-bg-1), var(--cs-bg-2) 44%, var(--cs-bg-3));
+		font-family: "Manrope", "Segoe UI", sans-serif;
+		color: var(--cs-copy);
 	}
 
 	.client-portal::before,
 	.client-portal::after {
 		content: "";
 		position: absolute;
-		width: 36rem;
-		height: 36rem;
-		border-radius: 50%;
-		filter: blur(2px);
 		z-index: 0;
 		pointer-events: none;
+		border-radius: 999px;
+		filter: blur(1px);
 	}
 
 	.client-portal::before {
-		top: -17rem;
-		right: -14rem;
-		background: radial-gradient(circle, rgba(31, 138, 112, 0.22) 0%, rgba(31, 138, 112, 0) 72%);
+		width: 34rem;
+		height: 34rem;
+		right: -13rem;
+		top: -16rem;
+		background: radial-gradient(circle, rgba(23, 136, 106, 0.2), rgba(23, 136, 106, 0));
 	}
 
 	.client-portal::after {
-		bottom: -18rem;
-		left: -10rem;
-		background: radial-gradient(circle, rgba(22, 107, 88, 0.19) 0%, rgba(22, 107, 88, 0) 74%);
+		width: 30rem;
+		height: 30rem;
+		left: -8rem;
+		bottom: -12rem;
+		background: radial-gradient(circle, rgba(15, 106, 84, 0.17), rgba(15, 106, 84, 0));
 	}
 
-	.cp-shell {
+	.cs-shell {
 		position: relative;
 		z-index: 1;
 		width: 100%;
 		max-width: none;
-		margin: 0;
-		padding: 0 1.1rem;
-	}
-
-	.cp-shell::before {
-		content: "";
-		position: absolute;
-		inset: 0.1rem 1rem auto;
-		height: 6rem;
-		border-radius: 1rem;
-		background:
-			repeating-linear-gradient(
-				90deg,
-				transparent 0,
-				transparent 18px,
-				var(--cp-grid) 18px,
-				var(--cp-grid) 19px
-			),
-			repeating-linear-gradient(
-				0deg,
-				transparent 0,
-				transparent 18px,
-				var(--cp-grid) 18px,
-				var(--cp-grid) 19px
-			);
-		mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.32), rgba(0, 0, 0, 0));
-		pointer-events: none;
-		z-index: -1;
-	}
-
-	.cp-hero {
 		display: grid;
-		grid-template-columns: 1.2fr auto;
-		gap: 1.5rem;
-		padding: 1.45rem 1.45rem;
-		margin-bottom: 1rem;
-		border: 1px solid var(--cp-surface-border);
+		gap: 0.95rem;
+	}
+
+	.cs-topbar {
+		display: grid;
+		grid-template-columns: 1.25fr auto;
+		gap: 1rem;
+		padding: 1.1rem 1.15rem;
+		border-radius: 1.1rem;
+		border: 1px solid var(--cs-border);
 		background:
-			linear-gradient(130deg, rgba(255, 255, 255, 0.93), rgba(237, 244, 242, 0.82)),
-			linear-gradient(65deg, var(--cp-bg-1), var(--cp-bg-2));
-		border-radius: 1.4rem;
-		box-shadow: var(--cp-shadow-strong);
-		backdrop-filter: blur(5px);
-		position: relative;
-		overflow: hidden;
+			linear-gradient(150deg, rgba(255, 255, 255, 0.95), rgba(237, 246, 242, 0.82)),
+			linear-gradient(60deg, var(--cs-bg-1), var(--cs-bg-2));
+		box-shadow: var(--cs-shadow-strong);
+		backdrop-filter: blur(6px);
 	}
 
-	.cp-hero::after {
-		content: "";
-		position: absolute;
-		inset: auto -3.5rem -3.5rem auto;
-		width: 12rem;
-		height: 12rem;
-		border-radius: 2.6rem;
-		transform: rotate(22deg);
-		background: linear-gradient(145deg, rgba(24, 133, 103, 0.18), rgba(24, 133, 103, 0));
-		pointer-events: none;
+	.cs-brand {
+		display: flex;
+		flex-direction: column;
+		gap: 0.4rem;
 	}
 
-	.cp-eyebrow {
-		display: inline-block;
-		font-size: 0.72rem;
-		font-weight: 600;
-		letter-spacing: 0.09em;
+	.cs-eyebrow {
+		font-size: 0.7rem;
+		font-weight: 700;
+		letter-spacing: 0.08em;
 		text-transform: uppercase;
-		color: var(--cp-accent);
-		margin-bottom: 0.35rem;
+		color: var(--cs-accent);
 	}
 
-	.cp-title {
+	.cs-title {
 		margin: 0;
-		font-family: "Space Grotesk", sans-serif;
-		font-size: clamp(1.45rem, 2.5vw, 2rem);
+		font-family: "Sora", "Manrope", sans-serif;
+		font-size: clamp(1.35rem, 2.8vw, 2rem);
 		font-weight: 700;
 		letter-spacing: -0.02em;
-		color: var(--cp-headline);
+		color: var(--cs-headline);
 	}
 
-	.cp-subtitle {
-		margin: 0.45rem 0 0;
-		font-size: 0.95rem;
-		color: var(--cp-muted);
-		max-width: 60ch;
+	.cs-subtitle {
+		margin: 0;
+		max-width: 72ch;
+		font-size: 0.9rem;
+		font-weight: 500;
+		color: var(--cs-muted);
 	}
 
-	.cp-hero-status {
-		margin-top: 0.7rem;
+	.cs-system-state {
 		display: inline-flex;
 		align-items: center;
-		gap: 0.4rem;
-		font-size: 0.78rem;
-		font-weight: 600;
-		color: var(--cp-muted);
-	}
-
-	.cp-status-dot {
-		width: 0.5rem;
-		height: 0.5rem;
+		gap: 0.45rem;
+		padding: 0.36rem 0.56rem;
+		width: fit-content;
 		border-radius: 999px;
-		background: #8aa39e;
-		box-shadow: 0 0 0 3px rgba(138, 163, 158, 0.22);
-	}
-
-	.cp-hero-status.is-loading .cp-status-dot {
-		background: #b1833d;
-		box-shadow: 0 0 0 3px rgba(177, 131, 61, 0.22);
-	}
-
-	.cp-hero-status.is-live .cp-status-dot {
-		background: var(--cp-accent);
-		box-shadow: 0 0 0 3px rgba(24, 133, 103, 0.24);
-	}
-
-	.cp-hero-status.is-error .cp-status-dot {
-		background: #b63f3f;
-		box-shadow: 0 0 0 3px rgba(182, 63, 63, 0.2);
-	}
-
-	.cp-controls {
-		display: flex;
-		flex-direction: column;
-		gap: 0.6rem;
-		align-items: stretch;
-		justify-content: center;
-		min-width: 260px;
-	}
-
-	.cp-field {
-		display: flex;
-		flex-direction: column;
-		gap: 0.35rem;
-	}
-
-	.cp-label {
 		font-size: 0.75rem;
-		font-weight: 600;
-		letter-spacing: 0.06em;
-		text-transform: uppercase;
-		color: var(--cp-muted);
-	}
-
-	.cp-select {
-		border: 1px solid rgba(20, 87, 73, 0.25);
-		background: rgba(255, 255, 255, 0.95);
-		border-radius: 0.65rem;
-		padding: 0.55rem 0.7rem;
-		font-size: 0.9rem;
-		color: var(--cp-headline);
-	}
-
-	.cp-select:focus {
-		outline: none;
-		border-color: var(--cp-accent);
-		box-shadow: 0 0 0 3px var(--cp-focus-ring);
-	}
-
-	.cp-refresh {
-		padding: 0.48rem 0.72rem;
-		font-size: 0.78rem;
-		font-weight: 600;
-		color: var(--cp-muted);
-		border: 1px solid rgba(24, 133, 103, 0.22);
-		border-radius: 0.72rem;
-		background: rgba(255, 255, 255, 0.66);
-		box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.72);
-	}
-
-	.cp-kpis {
-		display: grid;
-		grid-template-columns: repeat(4, minmax(0, 1fr));
-		gap: 0.8rem;
-		margin: 0.8rem 0 1rem;
-	}
-
-	.cp-kpi {
-		position: relative;
-		overflow: hidden;
-		padding: 0.9rem 1rem;
-		border-radius: 1rem;
-		background: var(--cp-surface);
-		border: 1px solid var(--cp-surface-border);
-		box-shadow: var(--cp-shadow-soft);
-		transition: transform 0.25s ease, box-shadow 0.25s ease;
-	}
-
-	.cp-kpi::before {
-		content: "";
-		position: absolute;
-		inset: 0 0 auto;
-		height: 3px;
-		background: linear-gradient(90deg, rgba(24, 133, 103, 0.92), rgba(24, 133, 103, 0.25));
-	}
-
-	.cp-kpi:hover {
-		transform: translateY(-2px);
-		box-shadow: 0 18px 40px rgba(20, 58, 50, 0.13);
-	}
-
-	.cp-kpi-label {
-		font-size: 0.76rem;
-		letter-spacing: 0.06em;
-		text-transform: uppercase;
-		font-weight: 600;
-		color: var(--cp-muted);
-	}
-
-	.cp-kpi-value {
-		margin-top: 0.2rem;
-		font-family: "Space Grotesk", sans-serif;
-		font-size: 1.45rem;
 		font-weight: 700;
-		color: var(--cp-headline);
+		color: var(--cs-muted);
+		border: 1px solid rgba(93, 127, 120, 0.28);
+		background: rgba(255, 255, 255, 0.74);
 	}
 
-	.cp-banner {
-		display: block;
-		padding: 0.78rem 0.95rem;
-		border-radius: 0.88rem;
-		font-size: 0.9rem;
-		margin-bottom: 0.85rem;
-		border: 1px solid transparent;
-		box-shadow: 0 10px 24px rgba(16, 52, 45, 0.08);
+	.cs-system-dot {
+		width: 0.47rem;
+		height: 0.47rem;
+		border-radius: 999px;
+		background: #90a8a1;
+		box-shadow: 0 0 0 3px rgba(144, 168, 161, 0.22);
 	}
 
-	.cp-banner-info {
-		background: rgba(31, 138, 112, 0.08);
-		border-color: rgba(31, 138, 112, 0.26);
-		color: var(--cp-accent-strong);
+	.cs-system-state.is-loading .cs-system-dot {
+		background: var(--cs-warn);
+		box-shadow: 0 0 0 3px rgba(191, 127, 43, 0.22);
 	}
 
-	.cp-banner-warn {
-		background: rgba(194, 125, 34, 0.1);
-		border-color: rgba(194, 125, 34, 0.28);
-		color: var(--cp-warn);
+	.cs-system-state.is-live .cs-system-dot {
+		background: var(--cs-ok);
+		box-shadow: 0 0 0 3px rgba(35, 154, 111, 0.24);
 	}
 
-	.cp-panel {
-		height: 100%;
-		border: 1px solid var(--cp-surface-border);
-		border-radius: 1.1rem;
-		overflow: hidden;
-		background: var(--cp-surface);
-		box-shadow: 0 18px 40px rgba(16, 52, 45, 0.1);
-		backdrop-filter: blur(6px);
-		transition: transform 0.24s ease, box-shadow 0.24s ease;
+	.cs-system-state.is-error .cs-system-dot {
+		background: var(--cs-danger);
+		box-shadow: 0 0 0 3px rgba(191, 76, 76, 0.22);
 	}
 
-	.cp-panel:hover {
-		transform: translateY(-2px);
-		box-shadow: 0 24px 48px rgba(16, 52, 45, 0.14);
+	.cs-controls {
+		display: grid;
+		grid-template-columns: repeat(3, minmax(180px, 1fr));
+		gap: 0.55rem;
+		align-content: center;
 	}
 
-	.cp-panel-head {
+	.cs-field {
 		display: flex;
-		align-items: center;
-		justify-content: space-between;
-		gap: 0.75rem;
-		padding: 0.88rem 1rem;
-		border-bottom: 1px solid rgba(20, 87, 73, 0.12);
-		background: linear-gradient(180deg, rgba(255, 255, 255, 0.86), rgba(248, 252, 250, 0.76));
+		flex-direction: column;
+		gap: 0.3rem;
 	}
 
-	.cp-panel-title {
-		font-family: "Space Grotesk", sans-serif;
-		font-size: 1rem;
+	.cs-label {
+		font-size: 0.7rem;
+		font-weight: 700;
+		letter-spacing: 0.08em;
+		text-transform: uppercase;
+		color: var(--cs-muted);
+	}
+
+	.cs-select,
+	.cs-input,
+	.cs-btn {
+		border-radius: 0.66rem;
+		border: 1px solid var(--cs-border);
+		padding: 0.48rem 0.6rem;
+		font-size: 0.83rem;
 		font-weight: 600;
-		color: var(--cp-headline);
 	}
 
-	.cp-btn {
+	.cs-select,
+	.cs-input {
+		background: rgba(255, 255, 255, 0.94);
+		color: var(--cs-headline);
+	}
+
+	.cs-select:focus,
+	.cs-input:focus {
+		outline: none;
+		border-color: var(--cs-accent);
+		box-shadow: 0 0 0 3px var(--cs-focus);
+	}
+
+	.cs-btn {
 		display: inline-flex;
 		align-items: center;
-		gap: 0.36rem;
-		border: 1px solid rgba(31, 138, 112, 0.35);
-		background: linear-gradient(140deg, rgba(31, 138, 112, 0.11), rgba(31, 138, 112, 0.06));
-		color: var(--cp-accent-strong);
-		border-radius: 0.64rem;
-		padding: 0.31rem 0.62rem;
-		font-size: 0.78rem;
-		font-weight: 600;
-		transition: 0.2s ease;
+		justify-content: center;
+		gap: 0.4rem;
+		background: linear-gradient(135deg, rgba(23, 136, 106, 0.12), rgba(23, 136, 106, 0.04));
+		border-color: rgba(23, 136, 106, 0.32);
+		color: var(--cs-accent-strong);
 		text-decoration: none;
+		transition: 0.2s ease;
 	}
 
-	.cp-btn-mark {
-		width: 0.34rem;
-		height: 0.34rem;
+	.cs-btn:hover {
+		background: rgba(23, 136, 106, 0.18);
+		border-color: rgba(23, 136, 106, 0.5);
+	}
+
+	.cs-btn:disabled {
+		opacity: 0.58;
+		cursor: not-allowed;
+	}
+
+	.cs-btn-dot {
+		width: 0.38rem;
+		height: 0.38rem;
 		border-radius: 999px;
 		background: currentColor;
 		opacity: 0.85;
 	}
 
-	.cp-btn:hover {
-		background: rgba(31, 138, 112, 0.2);
-		border-color: rgba(31, 138, 112, 0.6);
+	.cs-refresh-meta {
+		padding: 0.46rem 0.62rem;
+		font-size: 0.76rem;
+		font-weight: 600;
+		color: var(--cs-muted);
+		border: 1px dashed rgba(23, 136, 106, 0.28);
+		border-radius: 0.66rem;
+		background: rgba(255, 255, 255, 0.7);
 	}
 
-	.cp-btn:disabled {
-		opacity: 0.55;
-		cursor: not-allowed;
-	}
-
-	.cp-quick-nav {
+	.cs-nav {
 		display: flex;
 		flex-wrap: wrap;
 		gap: 0.55rem;
-		margin: 0 0 1rem;
-		padding: 0.5rem;
-		border-radius: 0.95rem;
-		border: 1px solid rgba(18, 76, 64, 0.16);
-		background: rgba(255, 255, 255, 0.74);
+		padding: 0.52rem;
+		border-radius: 0.92rem;
+		border: 1px solid var(--cs-border);
+		background: rgba(255, 255, 255, 0.76);
+		box-shadow: var(--cs-shadow-soft);
 		backdrop-filter: blur(8px);
 		position: sticky;
-		top: 0.6rem;
-		z-index: 8;
-		box-shadow: 0 12px 32px rgba(16, 52, 45, 0.1);
+		top: 0.5rem;
+		z-index: 9;
 	}
 
-	.cp-chip {
+	.cs-chip {
 		display: inline-flex;
 		align-items: center;
 		gap: 0.44rem;
-		border: 1px solid rgba(31, 138, 112, 0.24);
-		background: rgba(255, 255, 255, 0.85);
-		color: var(--cp-headline);
+		border: 1px solid rgba(23, 136, 106, 0.24);
+		background: rgba(255, 255, 255, 0.92);
+		color: var(--cs-headline);
 		border-radius: 999px;
-		padding: 0.36rem 0.78rem;
+		padding: 0.35rem 0.72rem;
 		font-size: 0.78rem;
-		font-weight: 600;
+		font-weight: 700;
 		transition: 0.2s ease;
 	}
 
-	.cp-chip::before {
+	.cs-chip::before {
 		content: "";
 		width: 0.42rem;
 		height: 0.42rem;
 		border-radius: 999px;
-		background: rgba(31, 138, 112, 0.35);
-		box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.64);
+		background: rgba(23, 136, 106, 0.38);
+		box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.6);
 	}
 
-	.cp-chip:hover {
-		background: rgba(31, 138, 112, 0.12);
-		border-color: rgba(31, 138, 112, 0.42);
+	.cs-chip:hover {
+		border-color: rgba(23, 136, 106, 0.42);
+		background: rgba(23, 136, 106, 0.12);
 	}
 
-	.cp-chip-active {
-		background: linear-gradient(140deg, rgba(24, 133, 103, 0.2), rgba(24, 133, 103, 0.1));
-		border-color: rgba(24, 133, 103, 0.45);
-		color: var(--cp-accent-strong);
-		box-shadow: inset 0 0 0 1px rgba(24, 133, 103, 0.08);
+	.cs-chip-active {
+		background: linear-gradient(130deg, rgba(23, 136, 106, 0.2), rgba(23, 136, 106, 0.08));
+		border-color: rgba(23, 136, 106, 0.52);
+		color: var(--cs-accent-strong);
 	}
 
-	.cp-chip-active::before {
-		background: var(--cp-accent-strong);
+	.cs-chip-active::before {
+		background: var(--cs-accent-strong);
 	}
 
-	.cp-chip-strong {
-		background: linear-gradient(120deg, rgba(31, 138, 112, 0.2), rgba(22, 107, 88, 0.22));
-		border-color: rgba(22, 107, 88, 0.42);
-		color: var(--cp-accent-strong);
+	.cs-chip-main {
+		margin-left: auto;
+		background: linear-gradient(130deg, rgba(23, 136, 106, 0.22), rgba(15, 106, 84, 0.18));
+		border-color: rgba(15, 106, 84, 0.5);
+		color: var(--cs-accent-strong);
 	}
 
-	.cp-chip-strong::before {
-		background: rgba(22, 107, 88, 0.82);
+	.cs-chip-main::before {
+		background: rgba(15, 106, 84, 0.85);
 	}
 
-	.cp-section {
-		scroll-margin-top: 6.8rem;
+	.cs-chip-count {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		min-width: 1.3rem;
+		height: 1.3rem;
+		padding: 0 0.34rem;
+		border-radius: 999px;
+		font-size: 0.7rem;
+		font-weight: 800;
+		color: var(--cs-muted);
+		background: rgba(23, 136, 106, 0.14);
 	}
 
-	.cp-panel-head-main {
+	.cs-chip-active .cs-chip-count {
+		color: var(--cs-accent-strong);
+		background: rgba(23, 136, 106, 0.22);
+	}
+
+	.cs-kpi-grid {
+		display: grid;
+		grid-template-columns: repeat(6, minmax(0, 1fr));
+		gap: 0.65rem;
+	}
+
+	.cs-kpi {
+		position: relative;
+		overflow: hidden;
+		display: grid;
+		gap: 0.28rem;
+		padding: 0.86rem 0.88rem;
+		border-radius: 0.9rem;
+		border: 1px solid var(--cs-border);
+		background: var(--cs-surface);
+		box-shadow: var(--cs-shadow-soft);
+	}
+
+	.cs-kpi::before {
+		content: "";
+		position: absolute;
+		inset: 0 0 auto;
+		height: 3px;
+		background: linear-gradient(90deg, rgba(23, 136, 106, 0.92), rgba(23, 136, 106, 0.26));
+	}
+
+	.cs-kpi-label {
+		font-size: 0.69rem;
+		font-weight: 800;
+		letter-spacing: 0.08em;
+		text-transform: uppercase;
+		color: var(--cs-muted);
+	}
+
+	.cs-kpi-value {
+		font-family: "Sora", "Manrope", sans-serif;
+		font-size: clamp(1.05rem, 1.9vw, 1.4rem);
+		font-weight: 700;
+		color: var(--cs-headline);
+	}
+
+	.cs-banner {
+		display: block;
+		padding: 0.7rem 0.88rem;
+		border-radius: 0.82rem;
+		font-size: 0.86rem;
+		font-weight: 600;
+		border: 1px solid transparent;
+		box-shadow: 0 10px 22px rgba(11, 52, 44, 0.08);
+	}
+
+	.cs-banner-info {
+		background: rgba(23, 136, 106, 0.08);
+		color: var(--cs-accent-strong);
+		border-color: rgba(23, 136, 106, 0.28);
+	}
+
+	.cs-banner-warn {
+		background: rgba(191, 127, 43, 0.1);
+		color: var(--cs-warn);
+		border-color: rgba(191, 127, 43, 0.3);
+	}
+
+	.cs-layout {
+		display: grid;
+		grid-template-columns: repeat(12, minmax(0, 1fr));
+		gap: 0.72rem;
+	}
+
+	.cs-board {
+		grid-column: span 12;
+		height: 100%;
+		border: 1px solid var(--cs-border);
+		border-radius: 1rem;
+		overflow: hidden;
+		background: var(--cs-surface);
+		box-shadow: var(--cs-shadow-soft);
+		backdrop-filter: blur(6px);
+	}
+
+	.cs-board[data-span="6"] {
+		grid-column: span 6;
+	}
+
+	.cs-board-head {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: 0.7rem;
+		padding: 0.84rem 0.96rem;
+		border-bottom: 1px solid rgba(19, 84, 70, 0.11);
+		background: linear-gradient(180deg, rgba(255, 255, 255, 0.88), rgba(245, 251, 248, 0.78));
+	}
+
+	.cs-board-head-main {
 		display: flex;
 		flex-direction: column;
 		gap: 0.14rem;
 	}
 
-	.cp-panel-meta {
-		font-size: 0.74rem;
-		color: var(--cp-muted);
-	}
-
-	.cp-panel-actions {
-		display: inline-flex;
-		gap: 0.45rem;
-		align-items: center;
-	}
-
-	.cp-panel-tools {
-		padding: 0.58rem 0.9rem;
-		border-bottom: 1px solid rgba(20, 87, 73, 0.1);
-		background: linear-gradient(180deg, rgba(250, 253, 252, 0.98), rgba(244, 249, 247, 0.9));
-	}
-
-	.cp-search {
-		width: 100%;
-		border: 1px solid rgba(20, 87, 73, 0.2);
-		background: rgba(255, 255, 255, 0.96);
-		border-radius: 0.64rem;
-		padding: 0.46rem 0.68rem;
-		font-size: 0.82rem;
-		color: var(--cp-headline);
-		transition: border-color 0.2s ease, box-shadow 0.2s ease;
-	}
-
-	.cp-search::placeholder {
-		color: #7d9a93;
-	}
-
-	.cp-search:focus {
-		outline: none;
-		border-color: var(--cp-accent);
-		box-shadow: 0 0 0 3px var(--cp-focus-ring);
-	}
-
-	.cp-table-wrap {
-		overflow: auto;
-		max-height: 27rem;
-	}
-
-	.cp-table {
+	.cs-board-title {
 		margin: 0;
-		min-width: 640px;
-		font-size: 0.87rem;
+		font-family: "Sora", "Manrope", sans-serif;
+		font-size: 0.98rem;
+		font-weight: 700;
+		color: var(--cs-headline);
 	}
 
-	.cp-table thead th {
+	.cs-board-meta {
+		font-size: 0.72rem;
+		font-weight: 700;
+		color: var(--cs-muted);
+	}
+
+	.cs-board-actions {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.45rem;
+	}
+
+	.cs-tools {
+		padding: 0.56rem 0.92rem;
+		border-bottom: 1px solid rgba(19, 84, 70, 0.1);
+		background: rgba(248, 252, 250, 0.9);
+	}
+
+	.cs-section-search {
+		width: 100%;
+	}
+
+	.cs-table-wrap {
+		overflow: auto;
+		max-height: 28rem;
+	}
+
+	.cs-table {
+		margin: 0;
+		min-width: 680px;
+		font-size: 0.84rem;
+	}
+
+	.cs-table thead th {
 		position: sticky;
 		top: 0;
 		z-index: 2;
-		padding: 0.65rem 0.75rem;
+		padding: 0.62rem 0.72rem;
+		font-size: 0.69rem;
+		font-weight: 800;
+		letter-spacing: 0.07em;
 		text-transform: uppercase;
-		font-size: 0.71rem;
-		letter-spacing: 0.06em;
-		font-weight: 600;
-		background: rgba(234, 246, 242, 0.93);
-		color: var(--cp-muted);
-		border-bottom: 1px solid rgba(20, 87, 73, 0.14);
+		color: var(--cs-muted);
+		background: rgba(235, 246, 242, 0.94);
+		border-bottom: 1px solid rgba(19, 84, 70, 0.15);
 		white-space: nowrap;
-		backdrop-filter: blur(6px);
+		backdrop-filter: blur(5px);
 	}
 
-	.cp-table tbody td {
-		padding: 0.62rem 0.75rem;
-		color: #23423b;
+	.cs-table tbody td {
+		padding: 0.58rem 0.72rem;
 		vertical-align: middle;
-		border-top: 1px solid rgba(20, 87, 73, 0.08);
+		color: #214239;
+		border-top: 1px solid rgba(19, 84, 70, 0.08);
 	}
 
-	.cp-table tbody tr:nth-child(even) td {
-		background: rgba(244, 250, 248, 0.58);
+	.cs-table tbody tr:nth-child(even) td {
+		background: rgba(244, 250, 248, 0.54);
 	}
 
-	.cp-table tbody tr:hover td {
-		background: rgba(31, 138, 112, 0.11);
+	.cs-table tbody tr:hover td {
+		background: rgba(23, 136, 106, 0.1);
 	}
 
-	.cp-link {
-		color: var(--cp-accent-strong);
-		font-weight: 600;
+	.cs-link {
+		color: var(--cs-accent-strong);
+		font-weight: 700;
 		text-decoration: none;
-		text-decoration-thickness: 1px;
 		text-underline-offset: 0.2em;
+		text-decoration-thickness: 1px;
 	}
 
-	.cp-link:hover {
+	.cs-link:hover {
 		text-decoration: underline;
 	}
 
-	.cp-actions {
+	.cs-pill {
 		display: inline-flex;
-		gap: 0.4rem;
+		align-items: center;
+		padding: 0.16rem 0.48rem;
+		border-radius: 999px;
+		font-size: 0.71rem;
+		font-weight: 700;
+		line-height: 1.2;
+		border: 1px solid transparent;
+	}
+
+	.cs-pill--ok {
+		background: rgba(35, 154, 111, 0.14);
+		color: #166247;
+		border-color: rgba(35, 154, 111, 0.3);
+	}
+
+	.cs-pill--warn {
+		background: rgba(191, 127, 43, 0.16);
+		color: #8a5a1e;
+		border-color: rgba(191, 127, 43, 0.34);
+	}
+
+	.cs-pill--danger {
+		background: rgba(191, 76, 76, 0.16);
+		color: #8b3232;
+		border-color: rgba(191, 76, 76, 0.34);
+	}
+
+	.cs-pill--neutral {
+		background: rgba(48, 100, 90, 0.12);
+		color: #215048;
+		border-color: rgba(48, 100, 90, 0.3);
+	}
+
+	.cs-actions {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.38rem;
 		justify-content: flex-end;
 		flex-wrap: wrap;
 	}
 
-	.cp-btn[aria-disabled="true"] {
-		opacity: 0.55;
+	.cs-empty-cell {
+		padding: 0.95rem 0.72rem;
+		text-align: center;
+		color: var(--cs-muted);
+		font-weight: 600;
+	}
+
+	.cs-btn[aria-disabled="true"] {
+		opacity: 0.56;
 		pointer-events: none;
 	}
 
-	.cp-pill {
-		display: inline-flex;
-		align-items: center;
-		padding: 0.18rem 0.5rem;
-		border-radius: 999px;
-		font-size: 0.72rem;
-		font-weight: 600;
-		line-height: 1.25;
-		border: 1px solid transparent;
+	.cs-section {
+		scroll-margin-top: 6.5rem;
 	}
 
-	.cp-pill--ok {
-		background: rgba(36, 157, 113, 0.14);
-		color: #1c6448;
-		border-color: rgba(36, 157, 113, 0.3);
-	}
-
-	.cp-pill--warn {
-		background: rgba(194, 125, 34, 0.16);
-		color: #8e5b1a;
-		border-color: rgba(194, 125, 34, 0.34);
-	}
-
-	.cp-pill--danger {
-		background: rgba(196, 67, 67, 0.15);
-		color: #8f2525;
-		border-color: rgba(196, 67, 67, 0.3);
-	}
-
-	.cp-pill--neutral {
-		background: rgba(46, 97, 87, 0.12);
-		color: #22544a;
-		border-color: rgba(46, 97, 87, 0.26);
-	}
-
-	.cp-empty-cell {
-		text-align: center;
-		color: var(--cp-muted);
-		padding: 1rem 0.75rem;
-	}
-
-	.cp-animate {
+	.cs-animate {
 		opacity: 0;
-		transform: translateY(14px);
+		transform: translateY(12px);
 	}
 
-	.cp-loaded .cp-animate {
-		animation: cpFadeUp 0.55s ease forwards;
+	.cs-loaded .cs-animate {
+		animation: csFadeUp 0.52s ease forwards;
 	}
 
-	.cp-loaded .cp-animate[data-delay="1"] {
+	.cs-loaded .cs-animate[data-delay="1"] {
 		animation-delay: 80ms;
 	}
 
-	.cp-loaded .cp-animate[data-delay="2"] {
+	.cs-loaded .cs-animate[data-delay="2"] {
 		animation-delay: 160ms;
 	}
 
-	.cp-loaded .cp-animate[data-delay="3"] {
+	.cs-loaded .cs-animate[data-delay="3"] {
 		animation-delay: 240ms;
 	}
 
-	@keyframes cpFadeUp {
+	@keyframes csFadeUp {
 		to {
 			opacity: 1;
 			transform: translateY(0);
 		}
 	}
 
-	@media (max-width: 991px) {
-		.cp-hero {
-			grid-template-columns: 1fr;
+	@media (max-width: 1280px) {
+		.cs-controls {
+			grid-template-columns: repeat(2, minmax(180px, 1fr));
 		}
 
-		.cp-controls {
-			min-width: 0;
-		}
-
-		.cp-kpis {
-			grid-template-columns: repeat(2, minmax(0, 1fr));
-		}
-
-		.cp-quick-nav {
-			gap: 0.45rem;
-			top: 0.4rem;
-			padding: 0.42rem;
+		.cs-kpi-grid {
+			grid-template-columns: repeat(3, minmax(0, 1fr));
 		}
 	}
 
-	@media (max-width: 640px) {
-		.client-portal {
-			padding-top: 1.2rem;
-		}
-
-		.cp-shell {
-			padding: 0 0.5rem;
-		}
-
-		.cp-hero {
-			padding: 1rem;
-		}
-
-		.cp-kpis {
+	@media (max-width: 1040px) {
+		.cs-topbar {
 			grid-template-columns: 1fr;
 		}
 
-		.cp-quick-nav {
-			border-radius: 0.84rem;
+		.cs-controls {
+			grid-template-columns: 1fr;
 		}
 
-		.cp-chip {
-			padding: 0.33rem 0.68rem;
-			font-size: 0.74rem;
+		.cs-board[data-span="6"] {
+			grid-column: span 12;
+		}
+	}
+
+	@media (max-width: 760px) {
+		.client-portal {
+			padding: 0.7rem 0.55rem 1rem;
+		}
+
+		.cs-nav {
+			top: 0.3rem;
+			padding: 0.4rem;
+		}
+
+		.cs-chip {
+			font-size: 0.73rem;
+			padding: 0.32rem 0.62rem;
+		}
+
+		.cs-chip-main {
+			margin-left: 0;
+		}
+
+		.cs-kpi-grid {
+			grid-template-columns: repeat(2, minmax(0, 1fr));
+		}
+	}
+
+	@media (max-width: 520px) {
+		.cs-kpi-grid {
+			grid-template-columns: 1fr;
 		}
 	}
 
 	@media (prefers-reduced-motion: reduce) {
-		.cp-kpi,
-		.cp-panel,
-		.cp-btn,
-		.cp-chip,
-		.cp-search {
+		.cs-btn,
+		.cs-chip,
+		.cs-select,
+		.cs-input,
+		.cs-board {
 			transition: none;
 		}
 	}
 </style>
 
 <section class="client-portal">
-	<div class="cp-shell" id="cp-shell">
-		<header class="cp-hero cp-animate">
-			<div>
-				<span class="cp-eyebrow">Cold Storage Network</span>
-				<h1 class="cp-title">Client Portal</h1>
-				<p class="cp-subtitle">Live visibility of stock, movements, invoices, and reports in one workspace.</p>
-				<div class="cp-hero-status is-loading" id="cp-hero-status">
-					<span class="cp-status-dot" aria-hidden="true"></span>
-					<span id="cp-hero-status-text">Preparing live data feed...</span>
+	<div class="cs-shell" id="cs-shell">
+		<header class="cs-topbar cs-animate" data-delay="1">
+			<div class="cs-brand">
+				<span class="cs-eyebrow">Cold Storage Network</span>
+				<h1 class="cs-title">Client Operations Portal</h1>
+				<p class="cs-subtitle">
+					A full-width workspace for stock visibility, movement tracking, billing insight, and report access.
+				</p>
+				<div class="cs-system-state is-loading" id="cs-system-state">
+					<span class="cs-system-dot" aria-hidden="true"></span>
+					<span id="cs-system-state-text">Initializing live snapshot...</span>
 				</div>
 			</div>
-			<div class="cp-controls">
-				<div class="cp-field d-none" id="cp-customer-filter-wrap">
-					<label class="cp-label" for="cp-customer-filter">Customer Scope</label>
-					<select class="cp-select" id="cp-customer-filter"></select>
+			<div class="cs-controls">
+				<div class="cs-field d-none" id="cs-customer-filter-wrap">
+					<label class="cs-label" for="cs-customer-filter">Customer Scope</label>
+					<select class="cs-select" id="cs-customer-filter"></select>
 				</div>
-				<div class="cp-refresh" id="cp-last-refresh">Loading data...</div>
+				<div class="cs-field">
+					<label class="cs-label" for="cs-global-search">Global Search</label>
+					<input class="cs-input" id="cs-global-search" type="search" placeholder="Search across all portal sections" />
+				</div>
+				<div class="cs-field">
+					<label class="cs-label" for="cs-refresh-btn">Data Controls</label>
+					<div class="d-flex gap-2">
+						<button class="cs-btn flex-grow-1" id="cs-refresh-btn" type="button">
+							<span class="cs-btn-dot" aria-hidden="true"></span>
+							Refresh
+						</button>
+						<div class="cs-refresh-meta flex-grow-1" id="cs-last-refresh">Loading...</div>
+					</div>
+				</div>
 			</div>
 		</header>
 
-		<section class="cp-kpis cp-animate" data-delay="1">
-			<div class="cp-kpi">
-				<div class="cp-kpi-label">Stock Rows</div>
-				<div class="cp-kpi-value" id="cp-kpi-stock">0</div>
+		<nav class="cs-nav cs-animate" data-delay="2" aria-label="Portal sections">
+			<button class="cs-chip cs-chip-active" type="button" data-section="stock" data-jump="#cs-section-stock" aria-current="true">
+				Stock
+				<span class="cs-chip-count" id="cs-nav-stock-count">0</span>
+			</button>
+			<button class="cs-chip" type="button" data-section="movements" data-jump="#cs-section-movements">
+				Movements
+				<span class="cs-chip-count" id="cs-nav-movement-count">0</span>
+			</button>
+			<button class="cs-chip" type="button" data-section="invoices" data-jump="#cs-section-invoices">
+				Invoices
+				<span class="cs-chip-count" id="cs-nav-invoice-count">0</span>
+			</button>
+			<button class="cs-chip" type="button" data-section="reports" data-jump="#cs-section-reports">
+				Reports
+				<span class="cs-chip-count" id="cs-nav-report-count">0</span>
+			</button>
+			<button class="cs-chip cs-chip-main" type="button" id="cs-focus-search-btn">Focus Search (/)</button>
+		</nav>
+
+		<section class="cs-kpi-grid cs-animate" data-delay="2">
+			<div class="cs-kpi">
+				<div class="cs-kpi-label">Stock Rows</div>
+				<div class="cs-kpi-value" id="cs-kpi-stock-rows">0</div>
 			</div>
-			<div class="cp-kpi">
-				<div class="cp-kpi-label">Movements</div>
-				<div class="cp-kpi-value" id="cp-kpi-movements">0</div>
+			<div class="cs-kpi">
+				<div class="cs-kpi-label">Total Quantity</div>
+				<div class="cs-kpi-value" id="cs-kpi-total-qty">0</div>
 			</div>
-			<div class="cp-kpi">
-				<div class="cp-kpi-label">Invoices</div>
-				<div class="cp-kpi-value" id="cp-kpi-invoices">0</div>
+			<div class="cs-kpi">
+				<div class="cs-kpi-label">Movements</div>
+				<div class="cs-kpi-value" id="cs-kpi-movements">0</div>
 			</div>
-			<div class="cp-kpi">
-				<div class="cp-kpi-label">Reports</div>
-				<div class="cp-kpi-value" id="cp-kpi-reports">0</div>
+			<div class="cs-kpi">
+				<div class="cs-kpi-label">Invoices</div>
+				<div class="cs-kpi-value" id="cs-kpi-invoices">0</div>
+			</div>
+			<div class="cs-kpi">
+				<div class="cs-kpi-label">Outstanding</div>
+				<div class="cs-kpi-value" id="cs-kpi-outstanding">0</div>
+			</div>
+			<div class="cs-kpi">
+				<div class="cs-kpi-label">Reports</div>
+				<div class="cs-kpi-value" id="cs-kpi-reports">0</div>
 			</div>
 		</section>
 
-		<div class="cp-banner cp-banner-info d-none cp-animate" data-delay="2" id="cp-customers"></div>
-		<div class="cp-banner cp-banner-warn d-none cp-animate" data-delay="2" id="cp-empty-state">
+		<div class="cs-banner cs-banner-info d-none cs-animate" data-delay="2" id="cs-customers"></div>
+		<div class="cs-banner cs-banner-warn d-none cs-animate" data-delay="2" id="cs-empty-state">
 			No customers found for this user scope.
 		</div>
 
-		<nav class="cp-quick-nav cp-animate" data-delay="2" aria-label="Portal sections">
-			<button class="cp-chip cp-chip-active" type="button" data-section="stock" data-jump="#cp-section-stock" aria-current="true">Stock</button>
-			<button class="cp-chip" type="button" data-section="movements" data-jump="#cp-section-movements">Movements</button>
-			<button class="cp-chip" type="button" data-section="invoices" data-jump="#cp-section-invoices">Invoices</button>
-			<button class="cp-chip" type="button" data-section="reports" data-jump="#cp-section-reports">Reports</button>
-			<button class="cp-chip cp-chip-strong" type="button" id="cp-refresh-btn">Refresh Data</button>
-		</nav>
-
-		<div class="row g-3">
-			<div class="col-12 col-xl-6 cp-animate cp-section" data-delay="1" id="cp-section-stock" data-section="stock">
-				<div class="cp-panel">
-					<div class="cp-panel-head">
-						<div class="cp-panel-head-main">
-							<div class="cp-panel-title">Current Stock</div>
-							<div class="cp-panel-meta" id="cp-stock-count">0 rows</div>
-						</div>
-						<div class="cp-panel-actions">
-							<button class="cp-btn" data-download="stock" type="button">
-								<span class="cp-btn-mark" aria-hidden="true"></span>
-								Download CSV
-							</button>
-						</div>
+		<section class="cs-layout">
+			<article class="cs-board cs-section cs-animate" data-delay="1" id="cs-section-stock" data-section="stock" data-span="6">
+				<header class="cs-board-head">
+					<div class="cs-board-head-main">
+						<h2 class="cs-board-title">Current Stock</h2>
+						<div class="cs-board-meta" id="cs-stock-count">0 rows</div>
 					</div>
-					<div class="cp-panel-tools">
-						<input
-							class="cp-search"
-							id="cp-stock-search"
-							type="search"
-							placeholder="Search customer, item, batch, or warehouse"
-						/>
+					<div class="cs-board-actions">
+						<button class="cs-btn" data-download="stock" type="button">
+							<span class="cs-btn-dot" aria-hidden="true"></span>
+							Download CSV
+						</button>
 					</div>
-					<div class="cp-table-wrap">
-						<table class="table cp-table" id="cp-stock-table">
-							<thead>
-								<tr>
-									<th>Customer</th>
-									<th>Item</th>
-									<th>Batch</th>
-									<th>Warehouse</th>
-									<th class="text-end">Qty</th>
-								</tr>
-							</thead>
-							<tbody></tbody>
-						</table>
-					</div>
+				</header>
+				<div class="cs-tools">
+					<input class="cs-input cs-section-search" id="cs-stock-search" type="search" placeholder="Search customer, item, batch, warehouse" />
 				</div>
-			</div>
-
-			<div class="col-12 col-xl-6 cp-animate cp-section" data-delay="1" id="cp-section-movements" data-section="movements">
-				<div class="cp-panel">
-					<div class="cp-panel-head">
-						<div class="cp-panel-head-main">
-							<div class="cp-panel-title">Recent Movements</div>
-							<div class="cp-panel-meta" id="cp-movement-count">0 rows</div>
-						</div>
-						<div class="cp-panel-actions">
-							<button class="cp-btn" data-download="movements" type="button">
-								<span class="cp-btn-mark" aria-hidden="true"></span>
-								Download CSV
-							</button>
-						</div>
-					</div>
-					<div class="cp-panel-tools">
-						<input
-							class="cp-search"
-							id="cp-movement-search"
-							type="search"
-							placeholder="Search movement type, document, customer, or date"
-						/>
-					</div>
-					<div class="cp-table-wrap">
-						<table class="table cp-table" id="cp-movement-table">
-							<thead>
-								<tr>
-									<th>Date</th>
-									<th>Type</th>
-									<th>Document</th>
-									<th>Customer</th>
-									<th class="text-end">Qty</th>
-								</tr>
-							</thead>
-							<tbody></tbody>
-						</table>
-					</div>
+				<div class="cs-table-wrap">
+					<table class="table cs-table" id="cs-stock-table">
+						<thead>
+							<tr>
+								<th>Customer</th>
+								<th>Item</th>
+								<th>Batch</th>
+								<th>Warehouse</th>
+								<th class="text-end">Qty</th>
+							</tr>
+						</thead>
+						<tbody></tbody>
+					</table>
 				</div>
-			</div>
+			</article>
 
-			<div class="col-12 cp-animate cp-section" data-delay="2" id="cp-section-invoices" data-section="invoices">
-				<div class="cp-panel">
-					<div class="cp-panel-head">
-						<div class="cp-panel-head-main">
-							<div class="cp-panel-title">Invoices</div>
-							<div class="cp-panel-meta" id="cp-invoice-count">0 rows</div>
-						</div>
-						<div class="cp-panel-actions">
-							<button class="cp-btn" data-download="invoices" type="button">
-								<span class="cp-btn-mark" aria-hidden="true"></span>
-								Download CSV
-							</button>
-						</div>
+			<article class="cs-board cs-section cs-animate" data-delay="1" id="cs-section-movements" data-section="movements" data-span="6">
+				<header class="cs-board-head">
+					<div class="cs-board-head-main">
+						<h2 class="cs-board-title">Recent Movements</h2>
+						<div class="cs-board-meta" id="cs-movement-count">0 rows</div>
 					</div>
-					<div class="cp-panel-tools">
-						<input
-							class="cp-search"
-							id="cp-invoice-search"
-							type="search"
-							placeholder="Search invoice number, customer, status, or currency"
-						/>
+					<div class="cs-board-actions">
+						<button class="cs-btn" data-download="movements" type="button">
+							<span class="cs-btn-dot" aria-hidden="true"></span>
+							Download CSV
+						</button>
 					</div>
-					<div class="cp-table-wrap">
-						<table class="table cp-table" id="cp-invoice-table">
-							<thead>
-								<tr>
-									<th>Invoice</th>
-									<th>Date</th>
-									<th>Due Date</th>
-									<th>Customer</th>
-									<th>Currency</th>
-									<th class="text-end">Grand Total</th>
-									<th class="text-end">Outstanding</th>
+				</header>
+				<div class="cs-tools">
+					<input class="cs-input cs-section-search" id="cs-movement-search" type="search" placeholder="Search movement type, document, customer, date" />
+				</div>
+				<div class="cs-table-wrap">
+					<table class="table cs-table" id="cs-movement-table">
+						<thead>
+							<tr>
+								<th>Date</th>
+								<th>Type</th>
+								<th>Document</th>
+								<th>Customer</th>
+								<th class="text-end">Qty</th>
+							</tr>
+						</thead>
+						<tbody></tbody>
+					</table>
+				</div>
+			</article>
+
+			<article class="cs-board cs-section cs-animate" data-delay="2" id="cs-section-invoices" data-section="invoices" data-span="12">
+				<header class="cs-board-head">
+					<div class="cs-board-head-main">
+						<h2 class="cs-board-title">Invoices</h2>
+						<div class="cs-board-meta" id="cs-invoice-count">0 rows</div>
+					</div>
+					<div class="cs-board-actions">
+						<button class="cs-btn" data-download="invoices" type="button">
+							<span class="cs-btn-dot" aria-hidden="true"></span>
+							Download CSV
+						</button>
+					</div>
+				</header>
+				<div class="cs-tools">
+					<input class="cs-input cs-section-search" id="cs-invoice-search" type="search" placeholder="Search invoice, customer, status, currency" />
+				</div>
+				<div class="cs-table-wrap">
+					<table class="table cs-table" id="cs-invoice-table">
+						<thead>
+							<tr>
+								<th>Invoice</th>
+								<th>Date</th>
+								<th>Due Date</th>
+								<th>Customer</th>
+								<th>Currency</th>
+								<th class="text-end">Grand Total</th>
+								<th class="text-end">Outstanding</th>
 									<th>Status</th>
-								</tr>
-							</thead>
-							<tbody></tbody>
-						</table>
-					</div>
+							</tr>
+						</thead>
+						<tbody></tbody>
+					</table>
 				</div>
-			</div>
+			</article>
 
-			<div class="col-12 cp-animate cp-section" data-delay="3" id="cp-section-reports" data-section="reports">
-				<div class="cp-panel">
-					<div class="cp-panel-head">
-						<div class="cp-panel-head-main">
-							<div class="cp-panel-title">Reports</div>
-							<div class="cp-panel-meta" id="cp-report-count">0 rows</div>
-						</div>
+			<article class="cs-board cs-section cs-animate" data-delay="3" id="cs-section-reports" data-section="reports" data-span="12">
+				<header class="cs-board-head">
+					<div class="cs-board-head-main">
+						<h2 class="cs-board-title">Reports</h2>
+						<div class="cs-board-meta" id="cs-report-count">0 rows</div>
 					</div>
-					<div class="cp-panel-tools">
-						<input
-							class="cp-search"
-							id="cp-report-search"
-							type="search"
-							placeholder="Search report name or description"
-						/>
-					</div>
-					<div class="cp-table-wrap">
-						<table class="table cp-table" id="cp-report-table">
-							<thead>
-								<tr>
-									<th>Report</th>
-									<th>Description</th>
-									<th class="text-end">Actions</th>
-								</tr>
-							</thead>
-							<tbody></tbody>
-						</table>
-					</div>
+				</header>
+				<div class="cs-tools">
+					<input class="cs-input cs-section-search" id="cs-report-search" type="search" placeholder="Search report name or description" />
 				</div>
-			</div>
-		</div>
+				<div class="cs-table-wrap">
+					<table class="table cs-table" id="cs-report-table">
+						<thead>
+							<tr>
+								<th>Report</th>
+								<th>Description</th>
+								<th class="text-end">Actions</th>
+							</tr>
+						</thead>
+						<tbody></tbody>
+					</table>
+				</div>
+			</article>
+		</section>
 	</div>
 </section>
 
@@ -894,48 +899,65 @@
 		invoices: [],
 		reports: [],
 	};
+
 	const searchTerms = {
+		global: "",
 		stock: "",
 		movements: "",
 		invoices: "",
 		reports: "",
 	};
 
-	const shell = document.getElementById("cp-shell");
-	const stockBody = document.querySelector("#cp-stock-table tbody");
-	const movementBody = document.querySelector("#cp-movement-table tbody");
-	const invoiceBody = document.querySelector("#cp-invoice-table tbody");
-	const reportBody = document.querySelector("#cp-report-table tbody");
-	const stockCount = document.getElementById("cp-stock-count");
-	const movementCount = document.getElementById("cp-movement-count");
-	const invoiceCount = document.getElementById("cp-invoice-count");
-	const reportCount = document.getElementById("cp-report-count");
-	const customerBanner = document.getElementById("cp-customers");
-	const emptyState = document.getElementById("cp-empty-state");
-	const heroStatus = document.getElementById("cp-hero-status");
-	const heroStatusText = document.getElementById("cp-hero-status-text");
-	const refreshLabel = document.getElementById("cp-last-refresh");
-	const refreshButton = document.getElementById("cp-refresh-btn");
-	const customerFilterWrap = document.getElementById("cp-customer-filter-wrap");
-	const customerFilter = document.getElementById("cp-customer-filter");
-	const sectionButtons = Array.from(document.querySelectorAll(".cp-chip[data-jump]"));
-	const sections = Array.from(document.querySelectorAll(".cp-section[data-section]"));
+	const shell = document.getElementById("cs-shell");
+	const stockBody = document.querySelector("#cs-stock-table tbody");
+	const movementBody = document.querySelector("#cs-movement-table tbody");
+	const invoiceBody = document.querySelector("#cs-invoice-table tbody");
+	const reportBody = document.querySelector("#cs-report-table tbody");
+
+	const stockCount = document.getElementById("cs-stock-count");
+	const movementCount = document.getElementById("cs-movement-count");
+	const invoiceCount = document.getElementById("cs-invoice-count");
+	const reportCount = document.getElementById("cs-report-count");
+
+	const navStockCount = document.getElementById("cs-nav-stock-count");
+	const navMovementCount = document.getElementById("cs-nav-movement-count");
+	const navInvoiceCount = document.getElementById("cs-nav-invoice-count");
+	const navReportCount = document.getElementById("cs-nav-report-count");
+
+	const customersBanner = document.getElementById("cs-customers");
+	const emptyState = document.getElementById("cs-empty-state");
+	const systemState = document.getElementById("cs-system-state");
+	const systemStateText = document.getElementById("cs-system-state-text");
+	const refreshLabel = document.getElementById("cs-last-refresh");
+	const refreshButton = document.getElementById("cs-refresh-btn");
+	const focusSearchButton = document.getElementById("cs-focus-search-btn");
+	const customerFilterWrap = document.getElementById("cs-customer-filter-wrap");
+	const customerFilter = document.getElementById("cs-customer-filter");
+	const globalSearchInput = document.getElementById("cs-global-search");
+
+	const sectionButtons = Array.from(document.querySelectorAll(".cs-chip[data-jump]"));
+	const sections = Array.from(document.querySelectorAll(".cs-section[data-section]"));
+
 	const searchInputs = {
-		stock: document.getElementById("cp-stock-search"),
-		movements: document.getElementById("cp-movement-search"),
-		invoices: document.getElementById("cp-invoice-search"),
-		reports: document.getElementById("cp-report-search"),
+		stock: document.getElementById("cs-stock-search"),
+		movements: document.getElementById("cs-movement-search"),
+		invoices: document.getElementById("cs-invoice-search"),
+		reports: document.getElementById("cs-report-search"),
 	};
+
 	const sectionSearchInputs = {
 		stock: searchInputs.stock,
 		movements: searchInputs.movements,
 		invoices: searchInputs.invoices,
 		reports: searchInputs.reports,
 	};
-	const kpiStock = document.getElementById("cp-kpi-stock");
-	const kpiMovements = document.getElementById("cp-kpi-movements");
-	const kpiInvoices = document.getElementById("cp-kpi-invoices");
-	const kpiReports = document.getElementById("cp-kpi-reports");
+
+	const kpiStockRows = document.getElementById("cs-kpi-stock-rows");
+	const kpiTotalQty = document.getElementById("cs-kpi-total-qty");
+	const kpiMovements = document.getElementById("cs-kpi-movements");
+	const kpiInvoices = document.getElementById("cs-kpi-invoices");
+	const kpiOutstanding = document.getElementById("cs-kpi-outstanding");
+	const kpiReports = document.getElementById("cs-kpi-reports");
 
 	const escapeHtml = (value) => {
 		const text = String(value ?? "");
@@ -947,6 +969,8 @@
 			.replaceAll("'", "&#39;");
 	};
 
+	const toSearch = (value) => String(value ?? "").trim().toLowerCase();
+
 	const formatDate = (value) => {
 		if (!value) return "";
 		const date = new Date(value);
@@ -955,31 +979,56 @@
 
 	const formatNumber = (value) => {
 		const num = Number(value || 0);
-		return Number.isFinite(num) ? num.toLocaleString(undefined, { maximumFractionDigits: 3 }) : "0";
+		return Number.isFinite(num)
+			? num.toLocaleString(undefined, { maximumFractionDigits: 3 })
+			: "0";
 	};
 
-	const toSearch = (value) => String(value ?? "").trim().toLowerCase();
+	const formatMoney = (value) => {
+		const num = Number(value || 0);
+		if (!Number.isFinite(num)) return "0";
+		return num.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+	};
 
-	const updateHeroStatus = (message, stateClass) => {
-		if (heroStatusText) {
-			heroStatusText.textContent = message;
+	const setSystemState = (text, stateClass) => {
+		if (systemStateText) {
+			systemStateText.textContent = text;
 		}
-		if (!heroStatus) return;
-		heroStatus.classList.remove("is-loading", "is-live", "is-error");
+		if (!systemState) return;
+		systemState.classList.remove("is-loading", "is-live", "is-error");
 		if (stateClass) {
-			heroStatus.classList.add(stateClass);
+			systemState.classList.add(stateClass);
 		}
 	};
 
-	const setRefreshButtonText = (text) => {
+	const setRefreshButton = (label, isLoading) => {
 		if (!refreshButton) return;
-		refreshButton.textContent = text;
+		refreshButton.disabled = Boolean(isLoading);
+		refreshButton.innerHTML = `<span class="cs-btn-dot" aria-hidden="true"></span>${escapeHtml(label)}`;
+	};
+
+	const setPanelCount = (element, visibleRows, totalRows) => {
+		if (!element) return;
+		if (!totalRows) {
+			element.textContent = "0 rows";
+			return;
+		}
+		if (visibleRows === totalRows) {
+			element.textContent = `${formatNumber(totalRows)} rows`;
+			return;
+		}
+		element.textContent = `${formatNumber(visibleRows)} of ${formatNumber(totalRows)} rows`;
+	};
+
+	const setNavCount = (element, value) => {
+		if (!element) return;
+		element.textContent = formatNumber(value || 0);
 	};
 
 	const setActiveSection = (key) => {
 		sectionButtons.forEach((button) => {
 			const isActive = (button.getAttribute("data-section") || "") === key;
-			button.classList.toggle("cp-chip-active", isActive);
+			button.classList.toggle("cs-chip-active", isActive);
 			button.setAttribute("aria-current", isActive ? "true" : "false");
 		});
 	};
@@ -996,9 +1045,8 @@
 				if (key) setActiveSection(key);
 			},
 			{
-				root: null,
 				rootMargin: "-30% 0px -55% 0px",
-				threshold: [0.25, 0.4, 0.6],
+				threshold: [0.2, 0.4, 0.6],
 			}
 		);
 		sections.forEach((section) => observer.observe(section));
@@ -1017,7 +1065,7 @@
 
 	const nearestSectionKey = () => {
 		if (!sections.length) return "stock";
-		const anchor = 140;
+		const anchor = 150;
 		let currentKey = sections[0].getAttribute("data-section") || "stock";
 		let smallestGap = Number.POSITIVE_INFINITY;
 		sections.forEach((section) => {
@@ -1032,7 +1080,7 @@
 	};
 
 	const focusSectionSearch = (sectionKey) => {
-		const input = sectionSearchInputs[sectionKey];
+		const input = sectionSearchInputs[sectionKey] || globalSearchInput;
 		if (!input) return;
 		input.focus({ preventScroll: true });
 		input.select();
@@ -1041,35 +1089,22 @@
 	const linkCell = (value, route) => {
 		if (!value) return "";
 		if (!route) return escapeHtml(value);
-		return `<a class="cp-link" href="${encodeURI(route)}" target="_blank" rel="noopener">${escapeHtml(value)}</a>`;
+		return `<a class="cs-link" href="${encodeURI(route)}" target="_blank" rel="noopener">${escapeHtml(value)}</a>`;
 	};
 
 	const emptyRow = (columns, label = "No records") =>
-		`<tr><td colspan="${columns}" class="cp-empty-cell">${label}</td></tr>`;
-
-	const setPanelCount = (element, visibleRows, totalRows) => {
-		if (!element) return;
-		if (!totalRows) {
-			element.textContent = "0 rows";
-			return;
-		}
-		if (visibleRows === totalRows) {
-			element.textContent = `${formatNumber(totalRows)} rows`;
-			return;
-		}
-		element.textContent = `${formatNumber(visibleRows)} of ${formatNumber(totalRows)} rows`;
-	};
+		`<tr><td colspan="${columns}" class="cs-empty-cell">${label}</td></tr>`;
 
 	const getStatusClass = (value) => {
 		const status = toSearch(value);
-		if (!status) return "cp-pill--neutral";
+		if (!status) return "cs-pill--neutral";
 		if (
 			status.includes("paid")
 			|| status.includes("completed")
 			|| status.includes("success")
 			|| status.includes("active")
 		) {
-			return "cp-pill--ok";
+			return "cs-pill--ok";
 		}
 		if (
 			status.includes("overdue")
@@ -1077,7 +1112,7 @@
 			|| status.includes("cancel")
 			|| status.includes("rejected")
 		) {
-			return "cp-pill--danger";
+			return "cs-pill--danger";
 		}
 		if (
 			status.includes("draft")
@@ -1085,33 +1120,37 @@
 			|| status.includes("unpaid")
 			|| status.includes("partly")
 		) {
-			return "cp-pill--warn";
+			return "cs-pill--warn";
 		}
-		return "cp-pill--neutral";
+		return "cs-pill--neutral";
 	};
 
 	const statusPill = (value) => {
 		const text = value || "Unknown";
-		return `<span class="cp-pill ${getStatusClass(text)}">${escapeHtml(text)}</span>`;
+		return `<span class="cs-pill ${getStatusClass(text)}">${escapeHtml(text)}</span>`;
 	};
 
 	const movementTypePill = (value) => {
 		const type = value || "Movement";
 		const search = toSearch(type);
-		let className = "cp-pill--neutral";
-		if (search.includes("inward")) className = "cp-pill--ok";
-		if (search.includes("outward")) className = "cp-pill--warn";
-		return `<span class="cp-pill ${className}">${escapeHtml(type)}</span>`;
+		let className = "cs-pill--neutral";
+		if (search.includes("inward")) className = "cs-pill--ok";
+		if (search.includes("outward")) className = "cs-pill--warn";
+		return `<span class="cs-pill ${className}">${escapeHtml(type)}</span>`;
 	};
 
-	const filterRows = (rows, term, fields) => {
-		if (!term) return rows;
-		return rows.filter((row) =>
-			fields.some((field) => toSearch(row[field]).includes(term))
-		);
+	const matches = (row, fields, term) => {
+		if (!term) return true;
+		return fields.some((field) => toSearch(row[field]).includes(term));
 	};
+
+	const filterRows = (rows, term, fields) => rows.filter((row) => (
+		matches(row, fields, term)
+		&& matches(row, fields, searchTerms.global)
+	));
 
 	const updateCustomerFilter = (customers, selected) => {
+		if (!customerFilterWrap || !customerFilter) return;
 		if (!customers.length || customers.length === 1) {
 			customerFilterWrap.classList.add("d-none");
 			customerFilter.innerHTML = "";
@@ -1138,17 +1177,26 @@
 	};
 
 	const updateKpis = (stock, movements, invoices, reports) => {
-		kpiStock.textContent = formatNumber(stock.length);
+		const totalQty = stock.reduce((sum, row) => sum + Number(row.qty || 0), 0);
+		const totalOutstanding = invoices.reduce((sum, row) => sum + Number(row.outstanding_amount || 0), 0);
+
+		kpiStockRows.textContent = formatNumber(stock.length);
+		kpiTotalQty.textContent = formatNumber(totalQty);
 		kpiMovements.textContent = formatNumber(movements.length);
 		kpiInvoices.textContent = formatNumber(invoices.length);
+		kpiOutstanding.textContent = formatMoney(totalOutstanding);
 		kpiReports.textContent = formatNumber(reports.length);
+
+		setNavCount(navStockCount, stock.length);
+		setNavCount(navMovementCount, movements.length);
+		setNavCount(navInvoiceCount, invoices.length);
+		setNavCount(navReportCount, reports.length);
 	};
 
 	const renderStock = (rows, totalRows) => {
 		setPanelCount(stockCount, rows.length, totalRows);
 		if (!rows.length) {
-			const label = totalRows ? "No records match your search" : "No records";
-			stockBody.innerHTML = emptyRow(5, label);
+			stockBody.innerHTML = emptyRow(5, totalRows ? "No records match your search" : "No records");
 			return;
 		}
 		stockBody.innerHTML = rows
@@ -1168,8 +1216,7 @@
 	const renderMovements = (rows, totalRows) => {
 		setPanelCount(movementCount, rows.length, totalRows);
 		if (!rows.length) {
-			const label = totalRows ? "No records match your search" : "No records";
-			movementBody.innerHTML = emptyRow(5, label);
+			movementBody.innerHTML = emptyRow(5, totalRows ? "No records match your search" : "No records");
 			return;
 		}
 		movementBody.innerHTML = rows
@@ -1189,8 +1236,7 @@
 	const renderInvoices = (rows, totalRows) => {
 		setPanelCount(invoiceCount, rows.length, totalRows);
 		if (!rows.length) {
-			const label = totalRows ? "No records match your search" : "No records";
-			invoiceBody.innerHTML = emptyRow(8, label);
+			invoiceBody.innerHTML = emptyRow(8, totalRows ? "No records match your search" : "No records");
 			return;
 		}
 		invoiceBody.innerHTML = rows
@@ -1202,8 +1248,8 @@
 					<td>${formatDate(row.due_date)}</td>
 					<td>${escapeHtml(row.customer || "")}</td>
 					<td>${escapeHtml(row.currency || "")}</td>
-					<td class="text-end">${formatNumber(row.grand_total)}</td>
-					<td class="text-end">${formatNumber(row.outstanding_amount)}</td>
+					<td class="text-end">${formatMoney(row.grand_total)}</td>
+					<td class="text-end">${formatMoney(row.outstanding_amount)}</td>
 					<td>${statusPill(row.status || "")}</td>
 				</tr>`
 			)
@@ -1213,10 +1259,10 @@
 	const renderReports = (rows, totalRows) => {
 		setPanelCount(reportCount, rows.length, totalRows);
 		if (!rows.length) {
-			const label = totalRows
-				? "No reports match your search"
-				: "No reports available for this user";
-			reportBody.innerHTML = emptyRow(3, label);
+			reportBody.innerHTML = emptyRow(
+				3,
+				totalRows ? "No reports match your search" : "No reports available for this user"
+			);
 			return;
 		}
 		reportBody.innerHTML = rows
@@ -1226,21 +1272,27 @@
 					<td>${linkCell(row.label || row.report_name || "", row.route)}</td>
 					<td>${escapeHtml(row.description || "")}</td>
 					<td class="text-end">
-						<span class="cp-actions">
+						<span class="cs-actions">
 							<a
-								class="cp-btn"
-								href="${encodeURI(row.route || "#")}"
+								class="cs-btn"
+								href="${encodeURI(row.route || "#")}" 
 								target="_blank"
 								rel="noopener"
 								aria-disabled="${row.route ? "false" : "true"}"
-							><span class="cp-btn-mark" aria-hidden="true"></span>Open</a>
+							>
+								<span class="cs-btn-dot" aria-hidden="true"></span>
+								Open
+							</a>
 							<a
-								class="cp-btn"
-								href="${encodeURI(row.pdf_route || "#")}"
+								class="cs-btn"
+								href="${encodeURI(row.pdf_route || "#")}" 
 								target="_blank"
 								rel="noopener"
 								aria-disabled="${row.pdf_route ? "false" : "true"}"
-							><span class="cp-btn-mark" aria-hidden="true"></span>PDF</a>
+							>
+								<span class="cs-btn-dot" aria-hidden="true"></span>
+								PDF
+							</a>
 						</span>
 					</td>
 				</tr>`
@@ -1256,6 +1308,7 @@
 			"batch_no",
 			"warehouse",
 		]);
+
 		const movementRows = filterRows(state.movements, searchTerms.movements, [
 			"posting_date",
 			"movement_type",
@@ -1263,6 +1316,7 @@
 			"customer",
 			"reference",
 		]);
+
 		const invoiceRows = filterRows(state.invoices, searchTerms.invoices, [
 			"name",
 			"posting_date",
@@ -1271,6 +1325,7 @@
 			"currency",
 			"status",
 		]);
+
 		const reportRows = filterRows(state.reports, searchTerms.reports, [
 			"label",
 			"report_name",
@@ -1292,23 +1347,13 @@
 		return `${endpoint}?${query}`;
 	};
 
-	const setLoading = (isLoading) => {
-		if (refreshButton) {
-			refreshButton.disabled = isLoading;
-		}
-		setRefreshButtonText(isLoading ? "Refreshing..." : "Refresh Data");
-		if (isLoading) {
-			updateHeroStatus("Refreshing live data feed...", "is-loading");
-		}
-	};
-
 	const callApi = async (method, args = {}) => {
 		if (typeof frappe !== "undefined" && frappe.call) {
 			return frappe.call({ method, args });
 		}
 
 		const query = new URLSearchParams(args).toString();
-		const response = await fetch(`/api/method/${method}${query ? "?" + query : ""}`, {
+		const response = await fetch(`/api/method/${method}${query ? `?${query}` : ""}`, {
 			method: "GET",
 			credentials: "include",
 		});
@@ -1319,7 +1364,9 @@
 	};
 
 	const loadSnapshot = async () => {
-		setLoading(true);
+		setRefreshButton("Refreshing...", true);
+		setSystemState("Refreshing live snapshot...", "is-loading");
+
 		try {
 			const response = await callApi(snapshotMethod, {
 				limit: 25,
@@ -1338,28 +1385,28 @@
 			state.reports = data.reports || [];
 
 			if (state.customers.length) {
-				customerBanner.classList.remove("d-none");
+				customersBanner.classList.remove("d-none");
 				if (selectedCustomer) {
-					customerBanner.textContent = `Customer Scope: ${selectedCustomer}`;
+					customersBanner.textContent = `Customer Scope: ${selectedCustomer}`;
 				} else {
-					const scopePreview = state.customers.length > 10
+					const preview = state.customers.length > 10
 						? `${state.customers.slice(0, 10).join(", ")} (+${state.customers.length - 10} more)`
 						: state.customers.join(", ");
-					customerBanner.textContent = `Customer Scope: ${scopePreview}`;
+					customersBanner.textContent = `Customer Scope: ${preview}`;
 				}
 				emptyState.classList.add("d-none");
 			} else {
-				customerBanner.classList.add("d-none");
+				customersBanner.classList.add("d-none");
 				emptyState.classList.remove("d-none");
 			}
 
 			renderAll();
 			refreshLabel.textContent = `Last refresh: ${new Date().toLocaleString()}`;
-			updateHeroStatus("Live data synced", "is-live");
-			shell.classList.add("cp-loaded");
+			setSystemState("Live snapshot synced", "is-live");
+			shell.classList.add("cs-loaded");
 		} catch (error) {
 			refreshLabel.textContent = "Unable to load data.";
-			updateHeroStatus("Live data unavailable", "is-error");
+			setSystemState("Snapshot unavailable", "is-error");
 			if (typeof frappe !== "undefined" && frappe.msgprint) {
 				frappe.msgprint({
 					title: "Client Portal",
@@ -1368,14 +1415,23 @@
 				});
 			}
 		} finally {
-			setLoading(false);
+			setRefreshButton("Refresh", false);
 		}
 	};
 
-	customerFilter.addEventListener("change", () => {
-		selectedCustomer = customerFilter.value || "";
-		loadSnapshot();
-	});
+	if (customerFilter) {
+		customerFilter.addEventListener("change", () => {
+			selectedCustomer = customerFilter.value || "";
+			loadSnapshot();
+		});
+	}
+
+	if (globalSearchInput) {
+		globalSearchInput.addEventListener("input", () => {
+			searchTerms.global = toSearch(globalSearchInput.value);
+			renderAll();
+		});
+	}
 
 	Object.entries(searchInputs).forEach(([key, input]) => {
 		if (!input) return;
@@ -1402,6 +1458,12 @@
 		focusSectionSearch(nearestSectionKey());
 	});
 
+	if (focusSearchButton) {
+		focusSearchButton.addEventListener("click", () => {
+			focusSectionSearch(nearestSectionKey());
+		});
+	}
+
 	if (refreshButton) {
 		refreshButton.addEventListener("click", () => {
 			loadSnapshot();
@@ -1418,7 +1480,6 @@
 	});
 
 	setActiveSection("stock");
-	setRefreshButtonText("Refresh Data");
 	observeSections();
 	loadSnapshot();
 })();
