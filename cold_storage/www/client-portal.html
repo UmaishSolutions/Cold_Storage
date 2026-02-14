@@ -5,20 +5,29 @@
 	@import url("https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap");
 
 	.client-portal {
-		--cp-bg-1: #f6f9f8;
-		--cp-bg-2: #edf4f2;
-		--cp-surface: rgba(255, 255, 255, 0.86);
-		--cp-surface-border: rgba(18, 76, 64, 0.12);
+		--cp-bg-1: #f6faf9;
+		--cp-bg-2: #e7f1ee;
+		--cp-bg-3: #d9ebe6;
+		--cp-surface: rgba(255, 255, 255, 0.8);
+		--cp-surface-border: rgba(18, 76, 64, 0.14);
 		--cp-headline: #10342d;
 		--cp-copy: #335a52;
 		--cp-muted: #5c7f77;
-		--cp-accent: #1f8a70;
+		--cp-accent: #188567;
 		--cp-accent-strong: #166b58;
 		--cp-warn: #c27d22;
-		--cp-shadow: 0 20px 45px rgba(16, 52, 45, 0.1);
+		--cp-grid: rgba(22, 107, 88, 0.055);
+		--cp-shadow-soft: 0 16px 40px rgba(12, 55, 46, 0.08);
+		--cp-shadow-strong: 0 26px 60px rgba(13, 52, 44, 0.14);
+		--cp-focus-ring: rgba(24, 133, 103, 0.22);
 		position: relative;
+		isolation: isolate;
 		overflow: hidden;
-		padding: 2rem 0 2.5rem;
+		padding: 2.2rem 0 2.8rem;
+		background:
+			radial-gradient(circle at 8% 12%, rgba(23, 126, 98, 0.15), transparent 34%),
+			radial-gradient(circle at 89% 18%, rgba(28, 139, 110, 0.14), transparent 36%),
+			linear-gradient(140deg, var(--cp-bg-1), var(--cp-bg-2) 45%, var(--cp-bg-3));
 		font-family: "IBM Plex Sans", "Segoe UI", sans-serif;
 		color: var(--cp-copy);
 	}
@@ -27,10 +36,10 @@
 	.client-portal::after {
 		content: "";
 		position: absolute;
-		width: 34rem;
-		height: 34rem;
+		width: 36rem;
+		height: 36rem;
 		border-radius: 50%;
-		filter: blur(3px);
+		filter: blur(2px);
 		z-index: 0;
 		pointer-events: none;
 	}
@@ -38,35 +47,77 @@
 	.client-portal::before {
 		top: -17rem;
 		right: -14rem;
-		background: radial-gradient(circle, rgba(31, 138, 112, 0.2) 0%, rgba(31, 138, 112, 0) 72%);
+		background: radial-gradient(circle, rgba(31, 138, 112, 0.22) 0%, rgba(31, 138, 112, 0) 72%);
 	}
 
 	.client-portal::after {
 		bottom: -18rem;
 		left: -10rem;
-		background: radial-gradient(circle, rgba(22, 107, 88, 0.16) 0%, rgba(22, 107, 88, 0) 74%);
+		background: radial-gradient(circle, rgba(22, 107, 88, 0.19) 0%, rgba(22, 107, 88, 0) 74%);
 	}
 
 	.cp-shell {
 		position: relative;
 		z-index: 1;
-		max-width: 1320px;
-		margin: 0 auto;
-		padding: 0 1rem;
+		width: 100%;
+		max-width: none;
+		margin: 0;
+		padding: 0 1.1rem;
+	}
+
+	.cp-shell::before {
+		content: "";
+		position: absolute;
+		inset: 0.1rem 1rem auto;
+		height: 6rem;
+		border-radius: 1rem;
+		background:
+			repeating-linear-gradient(
+				90deg,
+				transparent 0,
+				transparent 18px,
+				var(--cp-grid) 18px,
+				var(--cp-grid) 19px
+			),
+			repeating-linear-gradient(
+				0deg,
+				transparent 0,
+				transparent 18px,
+				var(--cp-grid) 18px,
+				var(--cp-grid) 19px
+			);
+		mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.32), rgba(0, 0, 0, 0));
+		pointer-events: none;
+		z-index: -1;
 	}
 
 	.cp-hero {
 		display: grid;
 		grid-template-columns: 1.2fr auto;
 		gap: 1.5rem;
-		padding: 1.4rem 1.4rem;
+		padding: 1.45rem 1.45rem;
 		margin-bottom: 1rem;
 		border: 1px solid var(--cp-surface-border);
 		background:
-			linear-gradient(130deg, rgba(255, 255, 255, 0.94), rgba(237, 244, 242, 0.9)),
+			linear-gradient(130deg, rgba(255, 255, 255, 0.93), rgba(237, 244, 242, 0.82)),
 			linear-gradient(65deg, var(--cp-bg-1), var(--cp-bg-2));
-		border-radius: 1.2rem;
-		box-shadow: var(--cp-shadow);
+		border-radius: 1.4rem;
+		box-shadow: var(--cp-shadow-strong);
+		backdrop-filter: blur(5px);
+		position: relative;
+		overflow: hidden;
+	}
+
+	.cp-hero::after {
+		content: "";
+		position: absolute;
+		inset: auto -3.5rem -3.5rem auto;
+		width: 12rem;
+		height: 12rem;
+		border-radius: 2.6rem;
+		transform: rotate(22deg);
+		background: linear-gradient(145deg, rgba(24, 133, 103, 0.18), rgba(24, 133, 103, 0));
+		pointer-events: none;
 	}
 
 	.cp-eyebrow {
@@ -92,6 +143,40 @@
 		margin: 0.45rem 0 0;
 		font-size: 0.95rem;
 		color: var(--cp-muted);
+		max-width: 60ch;
+	}
+
+	.cp-hero-status {
+		margin-top: 0.7rem;
+		display: inline-flex;
+		align-items: center;
+		gap: 0.4rem;
+		font-size: 0.78rem;
+		font-weight: 600;
+		color: var(--cp-muted);
+	}
+
+	.cp-status-dot {
+		width: 0.5rem;
+		height: 0.5rem;
+		border-radius: 999px;
+		background: #8aa39e;
+		box-shadow: 0 0 0 3px rgba(138, 163, 158, 0.22);
+	}
+
+	.cp-hero-status.is-loading .cp-status-dot {
+		background: #b1833d;
+		box-shadow: 0 0 0 3px rgba(177, 131, 61, 0.22);
+	}
+
+	.cp-hero-status.is-live .cp-status-dot {
+		background: var(--cp-accent);
+		box-shadow: 0 0 0 3px rgba(24, 133, 103, 0.24);
+	}
+
+	.cp-hero-status.is-error .cp-status-dot {
+		background: #b63f3f;
+		box-shadow: 0 0 0 3px rgba(182, 63, 63, 0.2);
 	}
 
 	.cp-controls {
@@ -129,17 +214,18 @@
 	.cp-select:focus {
 		outline: none;
 		border-color: var(--cp-accent);
-		box-shadow: 0 0 0 3px rgba(31, 138, 112, 0.16);
+		box-shadow: 0 0 0 3px var(--cp-focus-ring);
 	}
 
 	.cp-refresh {
-		padding: 0.45rem 0.7rem;
+		padding: 0.48rem 0.72rem;
 		font-size: 0.78rem;
-		font-weight: 500;
+		font-weight: 600;
 		color: var(--cp-muted);
-		border: 1px dashed rgba(31, 138, 112, 0.28);
-		border-radius: 0.65rem;
-		background: rgba(255, 255, 255, 0.72);
+		border: 1px solid rgba(24, 133, 103, 0.22);
+		border-radius: 0.72rem;
+		background: rgba(255, 255, 255, 0.66);
+		box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.72);
 	}
 
 	.cp-kpis {
@@ -150,11 +236,27 @@
 	}
 
 	.cp-kpi {
+		position: relative;
+		overflow: hidden;
 		padding: 0.9rem 1rem;
-		border-radius: 0.9rem;
+		border-radius: 1rem;
 		background: var(--cp-surface);
 		border: 1px solid var(--cp-surface-border);
-		box-shadow: 0 14px 35px rgba(20, 58, 50, 0.08);
+		box-shadow: var(--cp-shadow-soft);
+		transition: transform 0.25s ease, box-shadow 0.25s ease;
+	}
+
+	.cp-kpi::before {
+		content: "";
+		position: absolute;
+		inset: 0 0 auto;
+		height: 3px;
+		background: linear-gradient(90deg, rgba(24, 133, 103, 0.92), rgba(24, 133, 103, 0.25));
+	}
+
+	.cp-kpi:hover {
+		transform: translateY(-2px);
+		box-shadow: 0 18px 40px rgba(20, 58, 50, 0.13);
 	}
 
 	.cp-kpi-label {
@@ -175,11 +277,12 @@
 
 	.cp-banner {
 		display: block;
-		padding: 0.75rem 0.9rem;
-		border-radius: 0.8rem;
+		padding: 0.78rem 0.95rem;
+		border-radius: 0.88rem;
 		font-size: 0.9rem;
 		margin-bottom: 0.85rem;
 		border: 1px solid transparent;
+		box-shadow: 0 10px 24px rgba(16, 52, 45, 0.08);
 	}
 
 	.cp-banner-info {
@@ -197,11 +300,17 @@
 	.cp-panel {
 		height: 100%;
 		border: 1px solid var(--cp-surface-border);
-		border-radius: 1rem;
+		border-radius: 1.1rem;
 		overflow: hidden;
 		background: var(--cp-surface);
-		box-shadow: 0 20px 40px rgba(16, 52, 45, 0.09);
-		backdrop-filter: blur(4px);
+		box-shadow: 0 18px 40px rgba(16, 52, 45, 0.1);
+		backdrop-filter: blur(6px);
+		transition: transform 0.24s ease, box-shadow 0.24s ease;
+	}
+
+	.cp-panel:hover {
+		transform: translateY(-2px);
+		box-shadow: 0 24px 48px rgba(16, 52, 45, 0.14);
 	}
 
 	.cp-panel-head {
@@ -209,8 +318,9 @@
 		align-items: center;
 		justify-content: space-between;
 		gap: 0.75rem;
-		padding: 0.85rem 1rem;
+		padding: 0.88rem 1rem;
 		border-bottom: 1px solid rgba(20, 87, 73, 0.12);
+		background: linear-gradient(180deg, rgba(255, 255, 255, 0.86), rgba(248, 252, 250, 0.76));
 	}
 
 	.cp-panel-title {
@@ -221,23 +331,154 @@
 	}
 
 	.cp-btn {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.36rem;
 		border: 1px solid rgba(31, 138, 112, 0.35);
-		background: rgba(31, 138, 112, 0.08);
+		background: linear-gradient(140deg, rgba(31, 138, 112, 0.11), rgba(31, 138, 112, 0.06));
 		color: var(--cp-accent-strong);
-		border-radius: 0.58rem;
-		padding: 0.28rem 0.58rem;
+		border-radius: 0.64rem;
+		padding: 0.31rem 0.62rem;
+		font-size: 0.78rem;
+		font-weight: 600;
+		transition: 0.2s ease;
+		text-decoration: none;
+	}
+
+	.cp-btn-mark {
+		width: 0.34rem;
+		height: 0.34rem;
+		border-radius: 999px;
+		background: currentColor;
+		opacity: 0.85;
+	}
+
+	.cp-btn:hover {
+		background: rgba(31, 138, 112, 0.2);
+		border-color: rgba(31, 138, 112, 0.6);
+	}
+
+	.cp-btn:disabled {
+		opacity: 0.55;
+		cursor: not-allowed;
+	}
+
+	.cp-quick-nav {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.55rem;
+		margin: 0 0 1rem;
+		padding: 0.5rem;
+		border-radius: 0.95rem;
+		border: 1px solid rgba(18, 76, 64, 0.16);
+		background: rgba(255, 255, 255, 0.74);
+		backdrop-filter: blur(8px);
+		position: sticky;
+		top: 0.6rem;
+		z-index: 8;
+		box-shadow: 0 12px 32px rgba(16, 52, 45, 0.1);
+	}
+
+	.cp-chip {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.44rem;
+		border: 1px solid rgba(31, 138, 112, 0.24);
+		background: rgba(255, 255, 255, 0.85);
+		color: var(--cp-headline);
+		border-radius: 999px;
+		padding: 0.36rem 0.78rem;
 		font-size: 0.78rem;
 		font-weight: 600;
 		transition: 0.2s ease;
 	}
 
-	.cp-btn:hover {
-		background: rgba(31, 138, 112, 0.18);
-		border-color: rgba(31, 138, 112, 0.6);
+	.cp-chip::before {
+		content: "";
+		width: 0.42rem;
+		height: 0.42rem;
+		border-radius: 999px;
+		background: rgba(31, 138, 112, 0.35);
+		box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.64);
+	}
+
+	.cp-chip:hover {
+		background: rgba(31, 138, 112, 0.12);
+		border-color: rgba(31, 138, 112, 0.42);
+	}
+
+	.cp-chip-active {
+		background: linear-gradient(140deg, rgba(24, 133, 103, 0.2), rgba(24, 133, 103, 0.1));
+		border-color: rgba(24, 133, 103, 0.45);
+		color: var(--cp-accent-strong);
+		box-shadow: inset 0 0 0 1px rgba(24, 133, 103, 0.08);
+	}
+
+	.cp-chip-active::before {
+		background: var(--cp-accent-strong);
+	}
+
+	.cp-chip-strong {
+		background: linear-gradient(120deg, rgba(31, 138, 112, 0.2), rgba(22, 107, 88, 0.22));
+		border-color: rgba(22, 107, 88, 0.42);
+		color: var(--cp-accent-strong);
+	}
+
+	.cp-chip-strong::before {
+		background: rgba(22, 107, 88, 0.82);
+	}
+
+	.cp-section {
+		scroll-margin-top: 6.8rem;
+	}
+
+	.cp-panel-head-main {
+		display: flex;
+		flex-direction: column;
+		gap: 0.14rem;
+	}
+
+	.cp-panel-meta {
+		font-size: 0.74rem;
+		color: var(--cp-muted);
+	}
+
+	.cp-panel-actions {
+		display: inline-flex;
+		gap: 0.45rem;
+		align-items: center;
+	}
+
+	.cp-panel-tools {
+		padding: 0.58rem 0.9rem;
+		border-bottom: 1px solid rgba(20, 87, 73, 0.1);
+		background: linear-gradient(180deg, rgba(250, 253, 252, 0.98), rgba(244, 249, 247, 0.9));
+	}
+
+	.cp-search {
+		width: 100%;
+		border: 1px solid rgba(20, 87, 73, 0.2);
+		background: rgba(255, 255, 255, 0.96);
+		border-radius: 0.64rem;
+		padding: 0.46rem 0.68rem;
+		font-size: 0.82rem;
+		color: var(--cp-headline);
+		transition: border-color 0.2s ease, box-shadow 0.2s ease;
+	}
+
+	.cp-search::placeholder {
+		color: #7d9a93;
+	}
+
+	.cp-search:focus {
+		outline: none;
+		border-color: var(--cp-accent);
+		box-shadow: 0 0 0 3px var(--cp-focus-ring);
 	}
 
 	.cp-table-wrap {
 		overflow: auto;
+		max-height: 27rem;
 	}
 
 	.cp-table {
@@ -249,16 +490,17 @@
 	.cp-table thead th {
 		position: sticky;
 		top: 0;
-		z-index: 1;
+		z-index: 2;
 		padding: 0.65rem 0.75rem;
 		text-transform: uppercase;
 		font-size: 0.71rem;
 		letter-spacing: 0.06em;
 		font-weight: 600;
-		background: rgba(31, 138, 112, 0.08);
+		background: rgba(234, 246, 242, 0.93);
 		color: var(--cp-muted);
 		border-bottom: 1px solid rgba(20, 87, 73, 0.14);
 		white-space: nowrap;
+		backdrop-filter: blur(6px);
 	}
 
 	.cp-table tbody td {
@@ -268,14 +510,20 @@
 		border-top: 1px solid rgba(20, 87, 73, 0.08);
 	}
 
+	.cp-table tbody tr:nth-child(even) td {
+		background: rgba(244, 250, 248, 0.58);
+	}
+
 	.cp-table tbody tr:hover td {
-		background: rgba(31, 138, 112, 0.06);
+		background: rgba(31, 138, 112, 0.11);
 	}
 
 	.cp-link {
 		color: var(--cp-accent-strong);
 		font-weight: 600;
 		text-decoration: none;
+		text-decoration-thickness: 1px;
+		text-underline-offset: 0.2em;
 	}
 
 	.cp-link:hover {
@@ -286,11 +534,47 @@
 		display: inline-flex;
 		gap: 0.4rem;
 		justify-content: flex-end;
+		flex-wrap: wrap;
 	}
 
 	.cp-btn[aria-disabled="true"] {
 		opacity: 0.55;
 		pointer-events: none;
+	}
+
+	.cp-pill {
+		display: inline-flex;
+		align-items: center;
+		padding: 0.18rem 0.5rem;
+		border-radius: 999px;
+		font-size: 0.72rem;
+		font-weight: 600;
+		line-height: 1.25;
+		border: 1px solid transparent;
+	}
+
+	.cp-pill--ok {
+		background: rgba(36, 157, 113, 0.14);
+		color: #1c6448;
+		border-color: rgba(36, 157, 113, 0.3);
+	}
+
+	.cp-pill--warn {
+		background: rgba(194, 125, 34, 0.16);
+		color: #8e5b1a;
+		border-color: rgba(194, 125, 34, 0.34);
+	}
+
+	.cp-pill--danger {
+		background: rgba(196, 67, 67, 0.15);
+		color: #8f2525;
+		border-color: rgba(196, 67, 67, 0.3);
+	}
+
+	.cp-pill--neutral {
+		background: rgba(46, 97, 87, 0.12);
+		color: #22544a;
+		border-color: rgba(46, 97, 87, 0.26);
 	}
 
 	.cp-empty-cell {
@@ -339,6 +623,12 @@
 		.cp-kpis {
 			grid-template-columns: repeat(2, minmax(0, 1fr));
 		}
+
+		.cp-quick-nav {
+			gap: 0.45rem;
+			top: 0.4rem;
+			padding: 0.42rem;
+		}
 	}
 
 	@media (max-width: 640px) {
@@ -357,6 +647,25 @@
 		.cp-kpis {
 			grid-template-columns: 1fr;
 		}
+
+		.cp-quick-nav {
+			border-radius: 0.84rem;
+		}
+
+		.cp-chip {
+			padding: 0.33rem 0.68rem;
+			font-size: 0.74rem;
+		}
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.cp-kpi,
+		.cp-panel,
+		.cp-btn,
+		.cp-chip,
+		.cp-search {
+			transition: none;
+		}
 	}
 </style>
 
@@ -367,6 +676,10 @@
 				<span class="cp-eyebrow">Cold Storage Network</span>
 				<h1 class="cp-title">Client Portal</h1>
 				<p class="cp-subtitle">Live visibility of stock, movements, invoices, and reports in one workspace.</p>
+				<div class="cp-hero-status is-loading" id="cp-hero-status">
+					<span class="cp-status-dot" aria-hidden="true"></span>
+					<span id="cp-hero-status-text">Preparing live data feed...</span>
+				</div>
 			</div>
 			<div class="cp-controls">
 				<div class="cp-field d-none" id="cp-customer-filter-wrap">
@@ -401,12 +714,36 @@
 			No customers found for this user scope.
 		</div>
 
+		<nav class="cp-quick-nav cp-animate" data-delay="2" aria-label="Portal sections">
+			<button class="cp-chip cp-chip-active" type="button" data-section="stock" data-jump="#cp-section-stock" aria-current="true">Stock</button>
+			<button class="cp-chip" type="button" data-section="movements" data-jump="#cp-section-movements">Movements</button>
+			<button class="cp-chip" type="button" data-section="invoices" data-jump="#cp-section-invoices">Invoices</button>
+			<button class="cp-chip" type="button" data-section="reports" data-jump="#cp-section-reports">Reports</button>
+			<button class="cp-chip cp-chip-strong" type="button" id="cp-refresh-btn">Refresh Data</button>
+		</nav>
+
 		<div class="row g-3">
-			<div class="col-12 col-xl-6 cp-animate" data-delay="1">
+			<div class="col-12 col-xl-6 cp-animate cp-section" data-delay="1" id="cp-section-stock" data-section="stock">
 				<div class="cp-panel">
 					<div class="cp-panel-head">
-						<div class="cp-panel-title">Current Stock</div>
-						<button class="cp-btn" data-download="stock" type="button">Download CSV</button>
+						<div class="cp-panel-head-main">
+							<div class="cp-panel-title">Current Stock</div>
+							<div class="cp-panel-meta" id="cp-stock-count">0 rows</div>
+						</div>
+						<div class="cp-panel-actions">
+							<button class="cp-btn" data-download="stock" type="button">
+								<span class="cp-btn-mark" aria-hidden="true"></span>
+								Download CSV
+							</button>
+						</div>
+					</div>
+					<div class="cp-panel-tools">
+						<input
+							class="cp-search"
+							id="cp-stock-search"
+							type="search"
+							placeholder="Search customer, item, batch, or warehouse"
+						/>
 					</div>
 					<div class="cp-table-wrap">
 						<table class="table cp-table" id="cp-stock-table">
@@ -425,11 +762,27 @@
 				</div>
 			</div>
 
-			<div class="col-12 col-xl-6 cp-animate" data-delay="1">
+			<div class="col-12 col-xl-6 cp-animate cp-section" data-delay="1" id="cp-section-movements" data-section="movements">
 				<div class="cp-panel">
 					<div class="cp-panel-head">
-						<div class="cp-panel-title">Recent Movements</div>
-						<button class="cp-btn" data-download="movements" type="button">Download CSV</button>
+						<div class="cp-panel-head-main">
+							<div class="cp-panel-title">Recent Movements</div>
+							<div class="cp-panel-meta" id="cp-movement-count">0 rows</div>
+						</div>
+						<div class="cp-panel-actions">
+							<button class="cp-btn" data-download="movements" type="button">
+								<span class="cp-btn-mark" aria-hidden="true"></span>
+								Download CSV
+							</button>
+						</div>
+					</div>
+					<div class="cp-panel-tools">
+						<input
+							class="cp-search"
+							id="cp-movement-search"
+							type="search"
+							placeholder="Search movement type, document, customer, or date"
+						/>
 					</div>
 					<div class="cp-table-wrap">
 						<table class="table cp-table" id="cp-movement-table">
@@ -448,11 +801,27 @@
 				</div>
 			</div>
 
-			<div class="col-12 cp-animate" data-delay="2">
+			<div class="col-12 cp-animate cp-section" data-delay="2" id="cp-section-invoices" data-section="invoices">
 				<div class="cp-panel">
 					<div class="cp-panel-head">
-						<div class="cp-panel-title">Invoices</div>
-						<button class="cp-btn" data-download="invoices" type="button">Download CSV</button>
+						<div class="cp-panel-head-main">
+							<div class="cp-panel-title">Invoices</div>
+							<div class="cp-panel-meta" id="cp-invoice-count">0 rows</div>
+						</div>
+						<div class="cp-panel-actions">
+							<button class="cp-btn" data-download="invoices" type="button">
+								<span class="cp-btn-mark" aria-hidden="true"></span>
+								Download CSV
+							</button>
+						</div>
+					</div>
+					<div class="cp-panel-tools">
+						<input
+							class="cp-search"
+							id="cp-invoice-search"
+							type="search"
+							placeholder="Search invoice number, customer, status, or currency"
+						/>
 					</div>
 					<div class="cp-table-wrap">
 						<table class="table cp-table" id="cp-invoice-table">
@@ -474,25 +843,36 @@
 				</div>
 			</div>
 
-			<div class="col-12 cp-animate" data-delay="3">
+			<div class="col-12 cp-animate cp-section" data-delay="3" id="cp-section-reports" data-section="reports">
 				<div class="cp-panel">
 					<div class="cp-panel-head">
-						<div class="cp-panel-title">Reports</div>
-					</div>
-						<div class="cp-table-wrap">
-							<table class="table cp-table" id="cp-report-table">
-								<thead>
-									<tr>
-										<th>Report</th>
-										<th>Description</th>
-										<th class="text-end">Actions</th>
-									</tr>
-								</thead>
-								<tbody></tbody>
-							</table>
+						<div class="cp-panel-head-main">
+							<div class="cp-panel-title">Reports</div>
+							<div class="cp-panel-meta" id="cp-report-count">0 rows</div>
 						</div>
 					</div>
+					<div class="cp-panel-tools">
+						<input
+							class="cp-search"
+							id="cp-report-search"
+							type="search"
+							placeholder="Search report name or description"
+						/>
+					</div>
+					<div class="cp-table-wrap">
+						<table class="table cp-table" id="cp-report-table">
+							<thead>
+								<tr>
+									<th>Report</th>
+									<th>Description</th>
+									<th class="text-end">Actions</th>
+								</tr>
+							</thead>
+							<tbody></tbody>
+						</table>
+					</div>
 				</div>
+			</div>
 		</div>
 	</div>
 </section>
@@ -507,17 +887,51 @@
 	};
 
 	let selectedCustomer = "";
+	const state = {
+		customers: [],
+		stock: [],
+		movements: [],
+		invoices: [],
+		reports: [],
+	};
+	const searchTerms = {
+		stock: "",
+		movements: "",
+		invoices: "",
+		reports: "",
+	};
 
 	const shell = document.getElementById("cp-shell");
 	const stockBody = document.querySelector("#cp-stock-table tbody");
 	const movementBody = document.querySelector("#cp-movement-table tbody");
 	const invoiceBody = document.querySelector("#cp-invoice-table tbody");
 	const reportBody = document.querySelector("#cp-report-table tbody");
+	const stockCount = document.getElementById("cp-stock-count");
+	const movementCount = document.getElementById("cp-movement-count");
+	const invoiceCount = document.getElementById("cp-invoice-count");
+	const reportCount = document.getElementById("cp-report-count");
 	const customerBanner = document.getElementById("cp-customers");
 	const emptyState = document.getElementById("cp-empty-state");
+	const heroStatus = document.getElementById("cp-hero-status");
+	const heroStatusText = document.getElementById("cp-hero-status-text");
 	const refreshLabel = document.getElementById("cp-last-refresh");
+	const refreshButton = document.getElementById("cp-refresh-btn");
 	const customerFilterWrap = document.getElementById("cp-customer-filter-wrap");
 	const customerFilter = document.getElementById("cp-customer-filter");
+	const sectionButtons = Array.from(document.querySelectorAll(".cp-chip[data-jump]"));
+	const sections = Array.from(document.querySelectorAll(".cp-section[data-section]"));
+	const searchInputs = {
+		stock: document.getElementById("cp-stock-search"),
+		movements: document.getElementById("cp-movement-search"),
+		invoices: document.getElementById("cp-invoice-search"),
+		reports: document.getElementById("cp-report-search"),
+	};
+	const sectionSearchInputs = {
+		stock: searchInputs.stock,
+		movements: searchInputs.movements,
+		invoices: searchInputs.invoices,
+		reports: searchInputs.reports,
+	};
 	const kpiStock = document.getElementById("cp-kpi-stock");
 	const kpiMovements = document.getElementById("cp-kpi-movements");
 	const kpiInvoices = document.getElementById("cp-kpi-invoices");
@@ -544,6 +958,86 @@
 		return Number.isFinite(num) ? num.toLocaleString(undefined, { maximumFractionDigits: 3 }) : "0";
 	};
 
+	const toSearch = (value) => String(value ?? "").trim().toLowerCase();
+
+	const updateHeroStatus = (message, stateClass) => {
+		if (heroStatusText) {
+			heroStatusText.textContent = message;
+		}
+		if (!heroStatus) return;
+		heroStatus.classList.remove("is-loading", "is-live", "is-error");
+		if (stateClass) {
+			heroStatus.classList.add(stateClass);
+		}
+	};
+
+	const setRefreshButtonText = (text) => {
+		if (!refreshButton) return;
+		refreshButton.textContent = text;
+	};
+
+	const setActiveSection = (key) => {
+		sectionButtons.forEach((button) => {
+			const isActive = (button.getAttribute("data-section") || "") === key;
+			button.classList.toggle("cp-chip-active", isActive);
+			button.setAttribute("aria-current", isActive ? "true" : "false");
+		});
+	};
+
+	const observeSections = () => {
+		if (!sections.length || typeof IntersectionObserver === "undefined") return;
+		const observer = new IntersectionObserver(
+			(entries) => {
+				const visible = entries
+					.filter((entry) => entry.isIntersecting)
+					.sort((a, b) => b.intersectionRatio - a.intersectionRatio);
+				if (!visible.length) return;
+				const key = visible[0].target.getAttribute("data-section") || "";
+				if (key) setActiveSection(key);
+			},
+			{
+				root: null,
+				rootMargin: "-30% 0px -55% 0px",
+				threshold: [0.25, 0.4, 0.6],
+			}
+		);
+		sections.forEach((section) => observer.observe(section));
+	};
+
+	const isTypingContext = (element) => {
+		if (!element) return false;
+		const tagName = element.tagName || "";
+		return (
+			element.isContentEditable
+			|| tagName === "INPUT"
+			|| tagName === "TEXTAREA"
+			|| tagName === "SELECT"
+		);
+	};
+
+	const nearestSectionKey = () => {
+		if (!sections.length) return "stock";
+		const anchor = 140;
+		let currentKey = sections[0].getAttribute("data-section") || "stock";
+		let smallestGap = Number.POSITIVE_INFINITY;
+		sections.forEach((section) => {
+			const rect = section.getBoundingClientRect();
+			const gap = Math.abs(rect.top - anchor);
+			if (gap < smallestGap) {
+				smallestGap = gap;
+				currentKey = section.getAttribute("data-section") || currentKey;
+			}
+		});
+		return currentKey;
+	};
+
+	const focusSectionSearch = (sectionKey) => {
+		const input = sectionSearchInputs[sectionKey];
+		if (!input) return;
+		input.focus({ preventScroll: true });
+		input.select();
+	};
+
 	const linkCell = (value, route) => {
 		if (!value) return "";
 		if (!route) return escapeHtml(value);
@@ -552,6 +1046,70 @@
 
 	const emptyRow = (columns, label = "No records") =>
 		`<tr><td colspan="${columns}" class="cp-empty-cell">${label}</td></tr>`;
+
+	const setPanelCount = (element, visibleRows, totalRows) => {
+		if (!element) return;
+		if (!totalRows) {
+			element.textContent = "0 rows";
+			return;
+		}
+		if (visibleRows === totalRows) {
+			element.textContent = `${formatNumber(totalRows)} rows`;
+			return;
+		}
+		element.textContent = `${formatNumber(visibleRows)} of ${formatNumber(totalRows)} rows`;
+	};
+
+	const getStatusClass = (value) => {
+		const status = toSearch(value);
+		if (!status) return "cp-pill--neutral";
+		if (
+			status.includes("paid")
+			|| status.includes("completed")
+			|| status.includes("success")
+			|| status.includes("active")
+		) {
+			return "cp-pill--ok";
+		}
+		if (
+			status.includes("overdue")
+			|| status.includes("failed")
+			|| status.includes("cancel")
+			|| status.includes("rejected")
+		) {
+			return "cp-pill--danger";
+		}
+		if (
+			status.includes("draft")
+			|| status.includes("pending")
+			|| status.includes("unpaid")
+			|| status.includes("partly")
+		) {
+			return "cp-pill--warn";
+		}
+		return "cp-pill--neutral";
+	};
+
+	const statusPill = (value) => {
+		const text = value || "Unknown";
+		return `<span class="cp-pill ${getStatusClass(text)}">${escapeHtml(text)}</span>`;
+	};
+
+	const movementTypePill = (value) => {
+		const type = value || "Movement";
+		const search = toSearch(type);
+		let className = "cp-pill--neutral";
+		if (search.includes("inward")) className = "cp-pill--ok";
+		if (search.includes("outward")) className = "cp-pill--warn";
+		return `<span class="cp-pill ${className}">${escapeHtml(type)}</span>`;
+	};
+
+	const filterRows = (rows, term, fields) => {
+		if (!term) return rows;
+		return rows.filter((row) =>
+			fields.some((field) => toSearch(row[field]).includes(term))
+		);
+	};
 
 	const updateCustomerFilter = (customers, selected) => {
 		if (!customers.length || customers.length === 1) {
@@ -586,9 +1144,11 @@
 		kpiReports.textContent = formatNumber(reports.length);
 	};
 
-	const renderStock = (rows) => {
+	const renderStock = (rows, totalRows) => {
+		setPanelCount(stockCount, rows.length, totalRows);
 		if (!rows.length) {
-			stockBody.innerHTML = emptyRow(5);
+			const label = totalRows ? "No records match your search" : "No records";
+			stockBody.innerHTML = emptyRow(5, label);
 			return;
 		}
 		stockBody.innerHTML = rows
@@ -605,9 +1165,11 @@
 			.join("");
 	};
 
-	const renderMovements = (rows) => {
+	const renderMovements = (rows, totalRows) => {
+		setPanelCount(movementCount, rows.length, totalRows);
 		if (!rows.length) {
-			movementBody.innerHTML = emptyRow(5);
+			const label = totalRows ? "No records match your search" : "No records";
+			movementBody.innerHTML = emptyRow(5, label);
 			return;
 		}
 		movementBody.innerHTML = rows
@@ -615,7 +1177,7 @@
 				(row) => `
 				<tr>
 					<td>${formatDate(row.posting_date)}</td>
-					<td>${escapeHtml(row.movement_type || "")}</td>
+					<td>${movementTypePill(row.movement_type || "")}</td>
 					<td>${escapeHtml(row.document_name || "")}</td>
 					<td>${escapeHtml(row.customer || "")}</td>
 					<td class="text-end">${formatNumber(row.qty)}</td>
@@ -624,9 +1186,11 @@
 			.join("");
 	};
 
-	const renderInvoices = (rows) => {
+	const renderInvoices = (rows, totalRows) => {
+		setPanelCount(invoiceCount, rows.length, totalRows);
 		if (!rows.length) {
-			invoiceBody.innerHTML = emptyRow(8);
+			const label = totalRows ? "No records match your search" : "No records";
+			invoiceBody.innerHTML = emptyRow(8, label);
 			return;
 		}
 		invoiceBody.innerHTML = rows
@@ -640,39 +1204,85 @@
 					<td>${escapeHtml(row.currency || "")}</td>
 					<td class="text-end">${formatNumber(row.grand_total)}</td>
 					<td class="text-end">${formatNumber(row.outstanding_amount)}</td>
-					<td>${escapeHtml(row.status || "")}</td>
+					<td>${statusPill(row.status || "")}</td>
 				</tr>`
 			)
 			.join("");
 	};
 
-		const renderReports = (rows) => {
-			if (!rows.length) {
-				reportBody.innerHTML = emptyRow(3, "No reports available for this user");
-				return;
-			}
-			reportBody.innerHTML = rows
-				.map(
-					(row) => `
-					<tr>
-						<td>${linkCell(row.label || row.report_name || "", row.route)}</td>
-						<td>${escapeHtml(row.description || "")}</td>
-						<td class="text-end">
-							<span class="cp-actions">
-								<a class="cp-btn" href="${encodeURI(row.route || "#")}" target="_blank" rel="noopener">Open</a>
-								<a
-									class="cp-btn"
-									href="${encodeURI(row.pdf_route || "#")}"
-									target="_blank"
-									rel="noopener"
-									aria-disabled="${row.pdf_route ? "false" : "true"}"
-								>PDF</a>
-							</span>
-						</td>
-					</tr>`
-				)
-				.join("");
-		};
+	const renderReports = (rows, totalRows) => {
+		setPanelCount(reportCount, rows.length, totalRows);
+		if (!rows.length) {
+			const label = totalRows
+				? "No reports match your search"
+				: "No reports available for this user";
+			reportBody.innerHTML = emptyRow(3, label);
+			return;
+		}
+		reportBody.innerHTML = rows
+			.map(
+				(row) => `
+				<tr>
+					<td>${linkCell(row.label || row.report_name || "", row.route)}</td>
+					<td>${escapeHtml(row.description || "")}</td>
+					<td class="text-end">
+						<span class="cp-actions">
+							<a
+								class="cp-btn"
+								href="${encodeURI(row.route || "#")}"
+								target="_blank"
+								rel="noopener"
+								aria-disabled="${row.route ? "false" : "true"}"
+							><span class="cp-btn-mark" aria-hidden="true"></span>Open</a>
+							<a
+								class="cp-btn"
+								href="${encodeURI(row.pdf_route || "#")}"
+								target="_blank"
+								rel="noopener"
+								aria-disabled="${row.pdf_route ? "false" : "true"}"
+							><span class="cp-btn-mark" aria-hidden="true"></span>PDF</a>
+						</span>
+					</td>
+				</tr>`
+			)
+			.join("");
+	};
+
+	const renderAll = () => {
+		const stockRows = filterRows(state.stock, searchTerms.stock, [
+			"customer",
+			"item_name",
+			"item_code",
+			"batch_no",
+			"warehouse",
+		]);
+		const movementRows = filterRows(state.movements, searchTerms.movements, [
+			"posting_date",
+			"movement_type",
+			"document_name",
+			"customer",
+			"reference",
+		]);
+		const invoiceRows = filterRows(state.invoices, searchTerms.invoices, [
+			"name",
+			"posting_date",
+			"due_date",
+			"customer",
+			"currency",
+			"status",
+		]);
+		const reportRows = filterRows(state.reports, searchTerms.reports, [
+			"label",
+			"report_name",
+			"description",
+		]);
+
+		updateKpis(state.stock, state.movements, state.invoices, state.reports);
+		renderStock(stockRows, state.stock.length);
+		renderMovements(movementRows, state.movements.length);
+		renderInvoices(invoiceRows, state.invoices.length);
+		renderReports(reportRows, state.reports.length);
+	};
 
 	const getDownloadEndpoint = (key) => {
 		const endpoint = downloadMethods[key];
@@ -680,6 +1290,16 @@
 		if (!selectedCustomer) return endpoint;
 		const query = new URLSearchParams({ customer: selectedCustomer }).toString();
 		return `${endpoint}?${query}`;
+	};
+
+	const setLoading = (isLoading) => {
+		if (refreshButton) {
+			refreshButton.disabled = isLoading;
+		}
+		setRefreshButtonText(isLoading ? "Refreshing..." : "Refresh Data");
+		if (isLoading) {
+			updateHeroStatus("Refreshing live data feed...", "is-loading");
+		}
 	};
 
 	const callApi = async (method, args = {}) => {
@@ -699,6 +1319,7 @@
 	};
 
 	const loadSnapshot = async () => {
+		setLoading(true);
 		try {
 			const response = await callApi(snapshotMethod, {
 				limit: 25,
@@ -710,20 +1331,20 @@
 			selectedCustomer = data.selected_customer || "";
 			updateCustomerFilter(availableCustomers, selectedCustomer);
 
-			const customers = data.customers || [];
-			const stock = data.stock || [];
-			const movements = data.movements || [];
-			const invoices = data.invoices || [];
-			const reports = data.reports || [];
+			state.customers = data.customers || [];
+			state.stock = data.stock || [];
+			state.movements = data.movements || [];
+			state.invoices = data.invoices || [];
+			state.reports = data.reports || [];
 
-			if (customers.length) {
+			if (state.customers.length) {
 				customerBanner.classList.remove("d-none");
 				if (selectedCustomer) {
 					customerBanner.textContent = `Customer Scope: ${selectedCustomer}`;
 				} else {
-					const scopePreview = customers.length > 10
-						? `${customers.slice(0, 10).join(", ")} (+${customers.length - 10} more)`
-						: customers.join(", ");
+					const scopePreview = state.customers.length > 10
+						? `${state.customers.slice(0, 10).join(", ")} (+${state.customers.length - 10} more)`
+						: state.customers.join(", ");
 					customerBanner.textContent = `Customer Scope: ${scopePreview}`;
 				}
 				emptyState.classList.add("d-none");
@@ -732,16 +1353,13 @@
 				emptyState.classList.remove("d-none");
 			}
 
-			updateKpis(stock, movements, invoices, reports);
-			renderStock(stock);
-			renderMovements(movements);
-			renderInvoices(invoices);
-			renderReports(reports);
+			renderAll();
 			refreshLabel.textContent = `Last refresh: ${new Date().toLocaleString()}`;
-
+			updateHeroStatus("Live data synced", "is-live");
 			shell.classList.add("cp-loaded");
 		} catch (error) {
 			refreshLabel.textContent = "Unable to load data.";
+			updateHeroStatus("Live data unavailable", "is-error");
 			if (typeof frappe !== "undefined" && frappe.msgprint) {
 				frappe.msgprint({
 					title: "Client Portal",
@@ -749,6 +1367,8 @@
 					message: "Could not load client portal data.",
 				});
 			}
+		} finally {
+			setLoading(false);
 		}
 	};
 
@@ -756,6 +1376,37 @@
 		selectedCustomer = customerFilter.value || "";
 		loadSnapshot();
 	});
+
+	Object.entries(searchInputs).forEach(([key, input]) => {
+		if (!input) return;
+		input.addEventListener("input", () => {
+			searchTerms[key] = toSearch(input.value);
+			renderAll();
+		});
+	});
+
+	sectionButtons.forEach((button) => {
+		button.addEventListener("click", () => {
+			const selector = button.getAttribute("data-jump") || "";
+			const target = selector ? document.querySelector(selector) : null;
+			setActiveSection(button.getAttribute("data-section") || "");
+			if (!target) return;
+			target.scrollIntoView({ behavior: "smooth", block: "start" });
+		});
+	});
+
+	document.addEventListener("keydown", (event) => {
+		if (isTypingContext(event.target)) return;
+		if (event.key !== "/") return;
+		event.preventDefault();
+		focusSectionSearch(nearestSectionKey());
+	});
+
+	if (refreshButton) {
+		refreshButton.addEventListener("click", () => {
+			loadSnapshot();
+		});
+	}
 
 	document.querySelectorAll("[data-download]").forEach((button) => {
 		button.addEventListener("click", () => {
@@ -766,6 +1417,9 @@
 		});
 	});
 
+	setActiveSection("stock");
+	setRefreshButtonText("Refresh Data");
+	observeSections();
 	loadSnapshot();
 })();
 </script>

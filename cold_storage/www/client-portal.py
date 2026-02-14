@@ -14,6 +14,7 @@ ADMIN_ROLE = "Cold Storage Admin"
 def get_context(context: dict) -> None:
 	context.no_cache = 1
 	context.show_sidebar = False
+	context.full_width = True
 	context.title = _("Cold Storage Client Portal")
 	context.no_breadcrumbs = 1
 
