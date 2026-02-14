@@ -13,3 +13,5 @@ cold_storage.patches.v0_0_5.fix_workspace_sidebar_dashboard_link
 cold_storage.patches.v0_0_6.fix_charge_configuration_navigation_links
 
 cold_storage.patches.v0_0_7.remove_duplicate_workspace_sidebar_links
+
+cold_storage.patches.v0_0_8.sync_client_portal_role_for_admins
