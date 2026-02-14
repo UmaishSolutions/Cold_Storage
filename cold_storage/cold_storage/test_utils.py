@@ -6,6 +6,8 @@ from unittest.mock import patch
 
 from cold_storage.cold_storage.utils import (
 	get_batch_balance,
+	get_document_qr_code_data_uri,
+	get_document_qr_code_payload,
 	search_batches_for_customer_warehouse,
 	search_items_for_customer_stock,
 	search_warehouses_for_batch,
@@ -277,3 +279,37 @@ class TestUtils(TestCase):
 		self.assertEqual(rows, [])
 		db_sql.assert_not_called()
 		mocked_get_batch_qty.assert_not_called()
+
+	def test_get_document_qr_code_payload_returns_empty_when_document_is_missing(self):
+		self.assertEqual(get_document_qr_code_payload("", "CS-IN-00001"), "")
+		self.assertEqual(get_document_qr_code_payload("Cold Storage Inward", ""), "")
+
+	def test_get_document_qr_code_payload_uses_form_url(self):
+		with patch(
+			"cold_storage.cold_storage.utils.frappe.utils.get_url_to_form",
+			return_value="https://erp.example.com/app/cold-storage-inward/CS-IN-00001",
+		) as get_url_to_form:
+			payload = get_document_qr_code_payload("Cold Storage Inward", "CS-IN-00001")
+
+		self.assertEqual(payload, "https://erp.example.com/app/cold-storage-inward/CS-IN-00001")
+		get_url_to_form.assert_called_once_with("Cold Storage Inward", "CS-IN-00001")
+
+	def test_get_document_qr_code_data_uri_returns_empty_without_payload(self):
+		with patch(
+			"cold_storage.cold_storage.utils.get_document_qr_code_payload",
+			return_value="",
+		):
+			self.assertEqual(get_document_qr_code_data_uri("Cold Storage Inward", "CS-IN-00001"), "")
+
+	def test_get_document_qr_code_data_uri_returns_svg_data_uri(self):
+		with patch(
+			"cold_storage.cold_storage.utils.get_document_qr_code_payload",
+			return_value="https://erp.example.com/app/cold-storage-inward/CS-IN-00001",
+		):
+			data_uri = get_document_qr_code_data_uri(
+				"Cold Storage Inward",
+				"CS-IN-00001",
+			)
+
+		self.assertTrue(data_uri.startswith("data:image/svg+xml;base64,"))
+		self.assertGreater(len(data_uri), len("data:image/svg+xml;base64,"))

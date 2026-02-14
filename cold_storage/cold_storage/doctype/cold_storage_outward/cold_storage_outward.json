@@ -4,6 +4,7 @@
     "amend_after_cancel": 1,
     "autoname": "naming_series:",
     "creation": "2026-02-13 07:00:00.000000",
+    "default_print_format": "Cold Storage Outward Dispatch QR",
     "doctype": "DocType",
     "engine": "InnoDB",
     "field_order": [

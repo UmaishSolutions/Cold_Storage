@@ -1,6 +1,9 @@
 # Copyright (c) 2026, Umaish Solutions and contributors
 # For license information, please see license.txt
 
+from base64 import b64encode
+from io import BytesIO
+
 import frappe
 from erpnext.stock.doctype.batch.batch import get_batch_qty
 from frappe import _
@@ -314,3 +317,36 @@ def cancel_stock_entry_if_submitted(stock_entry_name: str | None) -> bool:
 		se.cancel()
 		return True
 	return False
+
+
+def get_document_qr_code_payload(doctype: str, docname: str) -> str:
+	"""Return the URL payload encoded inside document QR codes."""
+	if not doctype or not docname:
+		return ""
+	return frappe.utils.get_url_to_form(doctype, docname)
+
+
+def get_document_qr_code_data_uri(doctype: str, docname: str, scale: int = 4) -> str:
+	"""Return an SVG data URI for a document QR code, suitable for print formats."""
+	payload = get_document_qr_code_payload(doctype, docname)
+	if not payload:
+		return ""
+
+	try:
+		from pyqrcode import create as qr_create
+	except Exception:
+		return ""
+
+	stream = BytesIO()
+	try:
+		qr_create(payload).svg(
+			stream,
+			scale=max(int(scale or 1), 1),
+			background="#ffffff",
+			module_color="#111827",
+		)
+		encoded_svg = b64encode(stream.getvalue()).decode()
+	finally:
+		stream.close()
+
+	return f"data:image/svg+xml;base64,{encoded_svg}"

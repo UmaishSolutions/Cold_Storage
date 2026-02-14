@@ -39,6 +39,12 @@ fixtures = [
 	{"dt": "Role Profile", "filters": [["role_profile", "like", "Cold Storage %"]]},
 ]
 
+jinja = {
+	"methods": [
+		"cold_storage.cold_storage.utils.get_document_qr_code_data_uri",
+	],
+}
+
 portal_menu_items = [
 	{
 		"title": "Cold Storage Portal",
