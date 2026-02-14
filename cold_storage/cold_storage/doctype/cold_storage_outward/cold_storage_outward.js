@@ -46,6 +46,10 @@ frappe.ui.form.on("Cold Storage Outward", {
 	    });
 	},
 
+	company(frm) {
+		set_company_prefixed_series(frm);
+	},
+
     onload(frm) {
         if (frm.fields_dict.items && frm.fields_dict.items.grid) {
             frm.fields_dict.items.grid.meta.editable_grid = true;
@@ -82,6 +86,7 @@ frappe.ui.form.on("Cold Storage Outward", {
                 }
             });
         }
+		set_company_prefixed_series(frm);
 
 
         if (frm.doc.sales_invoice) {
@@ -101,6 +106,24 @@ frappe.ui.form.on("Cold Storage Outward", {
 
     },
 });
+
+function set_company_prefixed_series(frm) {
+	if (!frm.is_new() || !frm.doc.company) {
+		return;
+	}
+
+	frappe.db.get_value("Company", frm.doc.company, "abbr").then((r) => {
+		const abbr = ((r && r.message && r.message.abbr) || frm.doc.company || "CO")
+			.toString()
+			.replace(/[^A-Za-z0-9]/g, "")
+			.toUpperCase() || "CO";
+		const series = `${abbr}-CS-OUT-.YYYY.-`;
+		frm.set_df_property("naming_series", "options", series);
+		if (frm.doc.naming_series !== series) {
+			frm.set_value("naming_series", series);
+		}
+	});
+}
 
 frappe.ui.form.on("Cold Storage Outward Item", {
     item(frm, cdt, cdn) {
