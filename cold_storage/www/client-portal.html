@@ -1266,37 +1266,39 @@
 			return;
 		}
 		reportBody.innerHTML = rows
-			.map(
-				(row) => `
-				<tr>
-					<td>${linkCell(row.label || row.report_name || "", row.route)}</td>
-					<td>${escapeHtml(row.description || "")}</td>
-					<td class="text-end">
-						<span class="cs-actions">
-							<a
-								class="cs-btn"
-								href="${encodeURI(row.route || "#")}" 
-								target="_blank"
-								rel="noopener"
-								aria-disabled="${row.route ? "false" : "true"}"
-							>
-								<span class="cs-btn-dot" aria-hidden="true"></span>
-								Open
-							</a>
-							<a
-								class="cs-btn"
-								href="${encodeURI(row.pdf_route || "#")}" 
-								target="_blank"
-								rel="noopener"
-								aria-disabled="${row.pdf_route ? "false" : "true"}"
-							>
-								<span class="cs-btn-dot" aria-hidden="true"></span>
-								PDF
-							</a>
-						</span>
-					</td>
-				</tr>`
-			)
+			.map((row) => {
+				const openRoute = row.route || "";
+				const pdfRoute = row.pdf_route || _getReportPdfRoute(row.report_name || "", selectedCustomer);
+				return `
+					<tr>
+						<td>${linkCell(row.label || row.report_name || "", openRoute)}</td>
+						<td>${escapeHtml(row.description || "")}</td>
+						<td class="text-end">
+							<span class="cs-actions">
+								<a
+									class="cs-btn"
+									href="${encodeURI(openRoute || "#")}" 
+									target="_blank"
+									rel="noopener"
+									aria-disabled="${openRoute ? "false" : "true"}"
+								>
+									<span class="cs-btn-dot" aria-hidden="true"></span>
+									Open
+								</a>
+								<a
+									class="cs-btn"
+									href="${encodeURI(pdfRoute || "#")}" 
+									target="_blank"
+									rel="noopener"
+									aria-disabled="${pdfRoute ? "false" : "true"}"
+								>
+									<span class="cs-btn-dot" aria-hidden="true"></span>
+									PDF
+								</a>
+							</span>
+						</td>
+					</tr>`;
+			})
 			.join("");
 	};
 
@@ -1345,6 +1347,16 @@
 		if (!selectedCustomer) return endpoint;
 		const query = new URLSearchParams({ customer: selectedCustomer }).toString();
 		return `${endpoint}?${query}`;
+	};
+
+	const _getReportPdfRoute = (reportName, customer = "") => {
+		const cleanReportName = String(reportName || "").trim();
+		if (!cleanReportName) return "";
+		const queryArgs = new URLSearchParams({ report_name: cleanReportName });
+		if (customer) {
+			queryArgs.set("customer", customer);
+		}
+		return `/api/method/cold_storage.api.client_portal.download_report_pdf?${queryArgs.toString()}`;
 	};
 
 	const callApi = async (method, args = {}) => {

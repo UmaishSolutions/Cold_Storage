@@ -46,6 +46,21 @@ PORTAL_REPORT_DEFINITIONS: Final[tuple[dict[str, str], ...]] = (
 		"label": "Transfer Register",
 		"description": "Internal and ownership transfer records.",
 	},
+	{
+		"report_name": "Cold Storage Warehouse Occupancy Timeline",
+		"label": "Warehouse Occupancy Timeline",
+		"description": "Month-wise occupancy trend and capacity health across warehouses.",
+	},
+	{
+		"report_name": "Cold Storage Warehouse Utilization",
+		"label": "Warehouse Utilization",
+		"description": "As-on-date warehouse utilization, remaining capacity, and status.",
+	},
+	{
+		"report_name": "Cold Storage Yearly Inward Outward Trend",
+		"label": "Yearly Inward/Outward Trend",
+		"description": "Year-over-year inward vs outward movement trend by item group.",
+	},
 )
 
 
