@@ -87,6 +87,13 @@ def get_portal_snapshot(limit: int = DEFAULT_LIMIT, customer: str | None = None)
 	invoice_rows = _get_invoice_rows(customers, row_limit)
 	report_rows = _get_report_links(selected_customer)
 
+	available_customers = _dedupe_strings(available_customers)
+	customers = _dedupe_strings(customers)
+	stock_rows = _dedupe_stock_rows(stock_rows)
+	movement_rows = _dedupe_movement_rows(movement_rows)
+	invoice_rows = _dedupe_invoice_rows(invoice_rows)
+	report_rows = _dedupe_report_rows(report_rows)
+
 	return {
 		"available_customers": available_customers,
 		"selected_customer": selected_customer,
@@ -315,6 +322,81 @@ def _get_stock_rows(customers: list[str], row_limit: int) -> list[dict]:
 		row["qty"] = flt(row.get("qty"), 3)
 
 	return rows
+
+
+def _dedupe_strings(values: list[str]) -> list[str]:
+	seen: set[str] = set()
+	unique_values: list[str] = []
+	for value in values:
+		clean_value = cstr(value).strip()
+		if not clean_value:
+			continue
+		if clean_value in seen:
+			continue
+		seen.add(clean_value)
+		unique_values.append(clean_value)
+	return unique_values
+
+
+def _dedupe_stock_rows(rows: list[dict]) -> list[dict]:
+	seen: set[tuple[str, str, str, str, str]] = set()
+	unique_rows: list[dict] = []
+	for row in rows:
+		key = (
+			cstr(row.get("customer")),
+			cstr(row.get("item_code")),
+			cstr(row.get("batch_no")),
+			cstr(row.get("warehouse")),
+			cstr(row.get("expiry_date")),
+		)
+		if key in seen:
+			continue
+		seen.add(key)
+		unique_rows.append(row)
+	return unique_rows
+
+
+def _dedupe_movement_rows(rows: list[dict]) -> list[dict]:
+	seen: set[tuple[str, str]] = set()
+	unique_rows: list[dict] = []
+	for row in rows:
+		key = (
+			cstr(row.get("movement_type")),
+			cstr(row.get("document_name")),
+		)
+		if key in seen:
+			continue
+		seen.add(key)
+		unique_rows.append(row)
+	return unique_rows
+
+
+def _dedupe_invoice_rows(rows: list[dict]) -> list[dict]:
+	seen: set[str] = set()
+	unique_rows: list[dict] = []
+	for row in rows:
+		key = cstr(row.get("name"))
+		if not key:
+			continue
+		if key in seen:
+			continue
+		seen.add(key)
+		unique_rows.append(row)
+	return unique_rows
+
+
+def _dedupe_report_rows(rows: list[dict]) -> list[dict]:
+	seen: set[str] = set()
+	unique_rows: list[dict] = []
+	for row in rows:
+		key = cstr(row.get("report_name")).strip()
+		if not key:
+			continue
+		if key in seen:
+			continue
+		seen.add(key)
+		unique_rows.append(row)
+	return unique_rows
 
 
 def _get_movement_rows(customers: list[str], row_limit: int) -> list[dict]:
