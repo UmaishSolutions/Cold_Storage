@@ -316,6 +316,13 @@ def get_chart_data(data, months, warehouses, filters):
 		]
 		datasets.append({"name": warehouse, "values": values})
 
+	if not filters.get("warehouse"):
+		total_occupancy_by_month = get_total_occupancy_by_month(data)
+		total_values = [
+			flt(total_occupancy_by_month.get(month.strftime("%Y-%m-01"), 0)) for month in months
+		]
+		datasets.append({"name": _("All Warehouses (Total)"), "values": total_values})
+
 	return {
 		"data": {
 			"labels": labels,
@@ -323,6 +330,30 @@ def get_chart_data(data, months, warehouses, filters):
 		},
 		"type": "line",
 	}
+
+
+def get_total_occupancy_by_month(data):
+	total_capacity_by_month = {}
+	total_occupied_by_month = {}
+
+	for row in data:
+		month_start = row.get("month_start")
+		if not month_start:
+			continue
+		month_start = str(month_start)
+		total_occupied_by_month[month_start] = flt(total_occupied_by_month.get(month_start)) + flt(
+			row.get("occupied_stock_qty")
+		)
+		capacity = flt(row.get("warehouse_capacity"))
+		if capacity > 0:
+			total_capacity_by_month[month_start] = flt(total_capacity_by_month.get(month_start)) + capacity
+
+	total_occupancy_by_month = {}
+	for month_start, occupied in total_occupied_by_month.items():
+		capacity = flt(total_capacity_by_month.get(month_start))
+		total_occupancy_by_month[month_start] = (occupied / capacity * 100.0) if capacity else 0.0
+
+	return total_occupancy_by_month
 
 
 def get_report_summary(data, months, warehouses):
