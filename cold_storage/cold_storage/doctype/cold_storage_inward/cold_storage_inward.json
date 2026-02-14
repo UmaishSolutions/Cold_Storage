@@ -1,0 +1,194 @@
+{
+    "actions": [],
+    "allow_rename": 0,
+    "amend_after_cancel": 1,
+    "autoname": "naming_series:",
+    "creation": "2026-02-13 07:00:00.000000",
+    "doctype": "DocType",
+    "engine": "InnoDB",
+    "field_order": [
+        "naming_series",
+        "company",
+        "customer",
+        "posting_date",
+        "receipt_no",
+        "column_break_main",
+        "total_qty",
+        "total_unloading_charges",
+        "items_section",
+        "items",
+        "remarks_section",
+        "remarks",
+        "references_section",
+        "sales_invoice",
+        "stock_entry",
+        "column_break_refs",
+        "journal_entry",
+        "amended_from"
+    ],
+    "fields": [
+        {
+            "fieldname": "company",
+            "fieldtype": "Link",
+            "label": "Company",
+            "options": "Company",
+            "read_only": 1,
+            "reqd": 1
+        },
+        {
+            "fieldname": "naming_series",
+            "fieldtype": "Select",
+            "label": "Naming Series",
+            "options": "CS-IN-.YYYY.-",
+            "reqd": 1,
+            "set_only_once": 1
+        },
+        {
+            "fieldname": "customer",
+            "fieldtype": "Link",
+            "in_list_view": 1,
+            "in_standard_filter": 1,
+            "label": "Customer",
+            "options": "Customer",
+            "reqd": 1
+        },
+        {
+            "default": "Today",
+            "fieldname": "posting_date",
+            "fieldtype": "Date",
+            "label": "Posting Date",
+            "reqd": 1
+        },
+        {
+            "fieldname": "receipt_no",
+            "fieldtype": "Data",
+            "label": "Receipt #"
+        },
+        {
+            "fieldname": "column_break_main",
+            "fieldtype": "Column Break"
+        },
+        {
+            "fieldname": "total_qty",
+            "fieldtype": "Float",
+            "label": "Total Quantity",
+            "read_only": 1
+        },
+        {
+            "fieldname": "total_unloading_charges",
+            "fieldtype": "Currency",
+            "label": "Total Unloading Charges",
+            "read_only": 1
+        },
+        {
+            "fieldname": "items_section",
+            "fieldtype": "Section Break",
+            "label": "Items"
+        },
+        {
+            "fieldname": "items",
+            "fieldtype": "Table",
+            "label": "Items",
+            "options": "Cold Storage Inward Item",
+            "reqd": 1,
+            "editable_grid": 1
+        },
+        {
+            "fieldname": "remarks_section",
+            "fieldtype": "Section Break",
+            "label": "Remarks"
+        },
+        {
+            "fieldname": "remarks",
+            "fieldtype": "Small Text",
+            "label": "Remarks"
+        },
+        {
+            "fieldname": "references_section",
+            "fieldtype": "Section Break",
+            "label": "References"
+        },
+        {
+            "fieldname": "sales_invoice",
+            "fieldtype": "Link",
+            "label": "Sales Invoice",
+            "no_copy": 1,
+            "options": "Sales Invoice",
+            "read_only": 1
+        },
+        {
+            "fieldname": "stock_entry",
+            "fieldtype": "Link",
+            "label": "Stock Entry",
+            "no_copy": 1,
+            "options": "Stock Entry",
+            "read_only": 1
+        },
+        {
+            "fieldname": "column_break_refs",
+            "fieldtype": "Column Break"
+        },
+        {
+            "fieldname": "journal_entry",
+            "fieldtype": "Link",
+            "label": "Journal Entry",
+            "no_copy": 1,
+            "options": "Journal Entry",
+            "read_only": 1
+        },
+        {
+            "fieldname": "amended_from",
+            "fieldtype": "Link",
+            "label": "Amended From",
+            "no_copy": 1,
+            "options": "Cold Storage Inward",
+            "print_hide": 1,
+            "read_only": 1
+        }
+    ],
+    "index_web_pages_for_search": 0,
+    "is_submittable": 1,
+    "links": [],
+    "modified": "2026-02-13 08:10:00.000000",
+    "modified_by": "Administrator",
+    "module": "Cold Storage",
+    "name": "Cold Storage Inward",
+    "naming_rule": "By \"Naming Series\" field",
+    "owner": "Administrator",
+    "permissions": [
+        {
+            "amend": 1,
+            "cancel": 1,
+            "create": 1,
+            "delete": 1,
+            "email": 1,
+            "export": 1,
+            "print": 1,
+            "read": 1,
+            "report": 1,
+            "role": "System Manager",
+            "share": 1,
+            "submit": 1,
+            "write": 1
+        },
+        {
+            "amend": 1,
+            "cancel": 1,
+            "create": 1,
+            "email": 1,
+            "export": 1,
+            "print": 1,
+            "read": 1,
+            "report": 1,
+            "role": "Stock Manager",
+            "share": 1,
+            "submit": 1,
+            "write": 1
+        }
+    ],
+    "sort_field": "creation",
+    "sort_order": "DESC",
+    "states": [],
+    "title_field": "customer",
+    "track_changes": 1
+}

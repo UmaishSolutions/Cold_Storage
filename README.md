@@ -1,42 +1,52 @@
-### Cold Storage
+# Cold Storage
 
-Cold Storage App where the business model is Service-based (storing goods for others) rather than Trading-based
+Cold Storage is a Frappe/ERPNext app for service-based warehouse operations where inventory is stored for customers.
 
-### Installation
+## Highlights
 
-You can install this app using the [bench](https://github.com/frappe/bench) CLI:
+- Inward, outward, and transfer transaction flows
+- Customer ownership enforcement on `Batch`
+- Charge configuration and billing support
+- Operational reports and dashboard charts
+- Customer portal for stock, movements, invoices, and scoped reports
+- Role/role-profile fixtures with customer-level permission automation
+
+## Requirements
+
+- Frappe Bench
+- ERPNext (required app)
+- Python `3.14+` (as configured in `pyproject.toml`)
+
+## Installation
 
 ```bash
 cd $PATH_TO_YOUR_BENCH
-bench get-app $URL_OF_THIS_REPO --branch develop
-bench install-app cold_storage
+bench get-app https://github.com/UmaishSolutions/Cold_Storage.git
+bench --site <site-name> install-app cold_storage
+bench --site <site-name> migrate
 ```
 
-### Contributing
-
-This app uses `pre-commit` for code formatting and linting. Please [install pre-commit](https://pre-commit.com/#installation) and enable it for this repository:
+## Local Development
 
 ```bash
 cd apps/cold_storage
 pre-commit install
+pre-commit run --all-files
 ```
 
-Pre-commit is configured to use the following tools for checking and formatting your code:
+Run tests:
 
-- ruff
-- eslint
-- prettier
-- pyupgrade
-### CI
+```bash
+cd $PATH_TO_YOUR_BENCH
+bench --site <site-name> set-config allow_tests true
+bench --site <site-name> run-tests --app cold_storage
+```
 
-This app can use GitHub Actions for CI. The following workflows are configured:
+## CI Workflows
 
-- CI: Installs this app and runs unit tests on every push to `develop` branch.
-- Linters: Runs [Frappe Semgrep Rules](https://github.com/frappe/semgrep-rules) and [pip-audit](https://pypi.org/project/pip-audit/) on every pull request.
+- `CI`: installs app in a fresh bench and runs tests
+- `Linters`: runs pre-commit, Semgrep rules, and dependency audit
 
+## License
 
-### License
-
-mit
-# Cold_Storage
-# Cold_Storage
+MIT. See `LICENSE` and `license.txt`.

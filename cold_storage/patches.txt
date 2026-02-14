@@ -4,3 +4,6 @@
 
 [post_model_sync]
 # Patches added in this section will be executed after doctypes are migrated
+cold_storage.patches.v0_0_2.sync_role_based_access
+cold_storage.patches.v0_0_3.create_customer_user_permissions_for_client_portal_users
+cold_storage.patches.v0_0_4.sync_role_based_access_for_portal_reports

@@ -1,0 +1,32 @@
+name: Feature Request
+description: Propose an enhancement for the Cold Storage app.
+title: "[Feature] "
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem statement
+      description: What workflow or pain-point should be improved?
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed solution
+      description: Explain what should be added or changed.
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: List other approaches considered, if any.
+
+  - type: textarea
+    id: impact
+    attributes:
+      label: Impact
+      description: Operational, reporting, or UX impact of this feature.

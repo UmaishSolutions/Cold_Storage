@@ -1,0 +1,115 @@
+{
+    "actions": [],
+    "creation": "2026-02-13 08:00:00.000000",
+    "doctype": "DocType",
+    "engine": "InnoDB",
+    "field_order": [
+        "item",
+        "item_name",
+        "item_group",
+        "batch_no",
+        "warehouse",
+        "column_break_item",
+        "available_qty",
+        "qty",
+        "uom",
+        "unloading_rate",
+        "amount"
+    ],
+    "fields": [
+        {
+            "fieldname": "item",
+            "fieldtype": "Link",
+            "in_list_view": 1,
+            "label": "Item",
+            "options": "Item",
+            "reqd": 1
+        },
+        {
+            "fetch_from": "item.item_name",
+            "fieldname": "item_name",
+            "fieldtype": "Data",
+            "label": "Item Name",
+            "read_only": 1
+        },
+        {
+            "fetch_from": "item.item_group",
+            "fieldname": "item_group",
+            "fieldtype": "Link",
+            "label": "Item Group",
+            "options": "Item Group",
+            "read_only": 1
+        },
+        {
+            "fieldname": "batch_no",
+            "fieldtype": "Link",
+            "in_list_view": 1,
+            "label": "Batch No",
+            "options": "Batch",
+            "reqd": 1
+        },
+        {
+            "fieldname": "warehouse",
+            "fieldtype": "Link",
+            "in_list_view": 1,
+            "label": "Warehouse",
+            "options": "Warehouse",
+            "reqd": 1
+        },
+        {
+            "fieldname": "column_break_item",
+            "fieldtype": "Column Break"
+        },
+        {
+            "fieldname": "available_qty",
+            "fieldtype": "Float",
+            "in_list_view": 1,
+            "label": "Available Qty",
+            "read_only": 1
+        },
+        {
+            "default": "1",
+            "fieldname": "qty",
+            "fieldtype": "Float",
+            "in_list_view": 1,
+            "label": "Qty",
+            "reqd": 1
+        },
+        {
+            "fetch_from": "item.stock_uom",
+            "fieldname": "uom",
+            "fieldtype": "Link",
+            "in_list_view": 1,
+            "label": "UOM",
+            "options": "UOM",
+            "read_only": 1
+        },
+        {
+            "fieldname": "unloading_rate",
+            "fieldtype": "Currency",
+            "in_list_view": 1,
+            "label": "Unloading Rate",
+            "read_only": 1
+        },
+        {
+            "fieldname": "amount",
+            "fieldtype": "Currency",
+            "in_list_view": 1,
+            "label": "Amount",
+            "read_only": 1
+        }
+    ],
+    "index_web_pages_for_search": 0,
+    "istable": 1,
+    "links": [],
+    "modified": "2026-02-13 08:00:00.000000",
+    "modified_by": "Administrator",
+    "module": "Cold Storage",
+    "name": "Cold Storage Inward Item",
+    "naming_rule": "Random",
+    "owner": "Administrator",
+    "permissions": [],
+    "sort_field": "creation",
+    "sort_order": "DESC",
+    "states": []
+}

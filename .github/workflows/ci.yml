@@ -3,11 +3,12 @@ name: CI
 on:
   push:
     branches:
+      - main
       - develop
   pull_request:
 
 concurrency:
-  group: develop-cold_storage-${{ github.event.number }}
+  group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
@@ -41,7 +42,7 @@ jobs:
       - name: Find tests
         run: |
           echo "Finding tests"
-          grep -rn "def test" > /dev/null
+          grep -R --include='*.py' -n "def test_" cold_storage > /dev/null
 
       - name: Setup Python
         uses: actions/setup-python@v6
@@ -55,7 +56,7 @@ jobs:
           check-latest: true
 
       - name: Cache pip
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: ~/.cache/pip
           key: ${{ runner.os }}-pip-${{ hashFiles('**/*requirements.txt', '**/pyproject.toml', '**/setup.py', '**/setup.cfg') }}
@@ -67,7 +68,7 @@ jobs:
         id: yarn-cache-dir-path
         run: 'echo "dir=$(yarn cache dir)" >> $GITHUB_OUTPUT'
 
-      - uses: actions/cache@v4
+      - uses: actions/cache@v5
         id: yarn-cache
         with:
           path: ${{ steps.yarn-cache-dir-path.outputs.dir }}

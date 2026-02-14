@@ -1,0 +1,135 @@
+{
+    "actions": [],
+    "creation": "2026-02-13 07:00:00.000000",
+    "doctype": "DocType",
+    "engine": "InnoDB",
+    "field_order": [
+        "company_section",
+        "company",
+        "default_uom",
+        "column_break_company",
+        "cost_center",
+        "gst_template",
+        "accounts_section",
+        "default_income_account",
+        "labour_account",
+        "column_break_accounts",
+        "labour_manager_account",
+        "transfer_expense_account",
+        "charge_configuration_section",
+        "charge_configurations"
+    ],
+    "fields": [
+        {
+            "fieldname": "company_section",
+            "fieldtype": "Section Break",
+            "label": "Company & Defaults"
+        },
+        {
+            "fieldname": "company",
+            "fieldtype": "Link",
+            "label": "Default Company",
+            "options": "Company",
+            "reqd": 1
+        },
+        {
+            "default": "Nos",
+            "fieldname": "default_uom",
+            "fieldtype": "Link",
+            "label": "Default UOM",
+            "options": "UOM",
+            "read_only": 1,
+            "reqd": 1
+        },
+        {
+            "fieldname": "column_break_company",
+            "fieldtype": "Column Break"
+        },
+        {
+            "fieldname": "cost_center",
+            "fieldtype": "Link",
+            "label": "Default Cost Center",
+            "options": "Cost Center"
+        },
+        {
+            "fieldname": "gst_template",
+            "fieldtype": "Link",
+            "label": "GST Template",
+            "options": "Sales Taxes and Charges Template"
+        },
+        {
+            "fieldname": "accounts_section",
+            "fieldtype": "Section Break",
+            "label": "Accounting Mappings"
+        },
+        {
+            "fieldname": "default_income_account",
+            "fieldtype": "Link",
+            "label": "Default Income Account",
+            "options": "Account",
+            "reqd": 1
+        },
+        {
+            "fieldname": "labour_account",
+            "fieldtype": "Link",
+            "label": "Labour Account (Debit)",
+            "options": "Account",
+            "reqd": 1
+        },
+        {
+            "fieldname": "column_break_accounts",
+            "fieldtype": "Column Break"
+        },
+        {
+            "fieldname": "labour_manager_account",
+            "fieldtype": "Link",
+            "label": "Labour Manager Account (Credit)",
+            "options": "Account",
+            "reqd": 1
+        },
+        {
+            "fieldname": "transfer_expense_account",
+            "fieldtype": "Link",
+            "label": "Transfer Expense Account",
+            "options": "Account",
+            "reqd": 1
+        },
+        {
+            "fieldname": "charge_configuration_section",
+            "fieldtype": "Section Break",
+            "label": "Charge Configurations"
+        },
+        {
+            "fieldname": "charge_configurations",
+            "fieldtype": "Table",
+            "label": "Charge Configurations",
+            "options": "Charge Configuration",
+            "reqd": 1
+        }
+    ],
+    "index_web_pages_for_search": 0,
+    "issingle": 1,
+    "links": [],
+    "modified": "2026-02-13 07:00:00.000000",
+    "modified_by": "Administrator",
+    "module": "Cold Storage",
+    "name": "Cold Storage Settings",
+    "naming_rule": "Expression",
+    "owner": "Administrator",
+    "permissions": [
+        {
+            "create": 1,
+            "delete": 1,
+            "email": 1,
+            "print": 1,
+            "read": 1,
+            "role": "System Manager",
+            "share": 1,
+            "write": 1
+        }
+    ],
+    "sort_field": "creation",
+    "sort_order": "DESC",
+    "states": [],
+    "track_changes": 1
+}

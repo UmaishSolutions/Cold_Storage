@@ -1,0 +1,772 @@
+{% extends "templates/web.html" %}
+
+{% block page_content %}
+<style>
+	@import url("https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap");
+
+	.client-portal {
+		--cp-bg-1: #f6f9f8;
+		--cp-bg-2: #edf4f2;
+		--cp-surface: rgba(255, 255, 255, 0.86);
+		--cp-surface-border: rgba(18, 76, 64, 0.12);
+		--cp-headline: #10342d;
+		--cp-copy: #335a52;
+		--cp-muted: #5c7f77;
+		--cp-accent: #1f8a70;
+		--cp-accent-strong: #166b58;
+		--cp-warn: #c27d22;
+		--cp-shadow: 0 20px 45px rgba(16, 52, 45, 0.1);
+		position: relative;
+		overflow: hidden;
+		padding: 2rem 0 2.5rem;
+		font-family: "IBM Plex Sans", "Segoe UI", sans-serif;
+		color: var(--cp-copy);
+	}
+
+	.client-portal::before,
+	.client-portal::after {
+		content: "";
+		position: absolute;
+		width: 34rem;
+		height: 34rem;
+		border-radius: 50%;
+		filter: blur(3px);
+		z-index: 0;
+		pointer-events: none;
+	}
+
+	.client-portal::before {
+		top: -17rem;
+		right: -14rem;
+		background: radial-gradient(circle, rgba(31, 138, 112, 0.2) 0%, rgba(31, 138, 112, 0) 72%);
+	}
+
+	.client-portal::after {
+		bottom: -18rem;
+		left: -10rem;
+		background: radial-gradient(circle, rgba(22, 107, 88, 0.16) 0%, rgba(22, 107, 88, 0) 74%);
+	}
+
+	.cp-shell {
+		position: relative;
+		z-index: 1;
+		max-width: 1320px;
+		margin: 0 auto;
+		padding: 0 1rem;
+	}
+
+	.cp-hero {
+		display: grid;
+		grid-template-columns: 1.2fr auto;
+		gap: 1.5rem;
+		padding: 1.4rem 1.4rem;
+		margin-bottom: 1rem;
+		border: 1px solid var(--cp-surface-border);
+		background:
+			linear-gradient(130deg, rgba(255, 255, 255, 0.94), rgba(237, 244, 242, 0.9)),
+			linear-gradient(65deg, var(--cp-bg-1), var(--cp-bg-2));
+		border-radius: 1.2rem;
+		box-shadow: var(--cp-shadow);
+	}
+
+	.cp-eyebrow {
+		display: inline-block;
+		font-size: 0.72rem;
+		font-weight: 600;
+		letter-spacing: 0.09em;
+		text-transform: uppercase;
+		color: var(--cp-accent);
+		margin-bottom: 0.35rem;
+	}
+
+	.cp-title {
+		margin: 0;
+		font-family: "Space Grotesk", sans-serif;
+		font-size: clamp(1.45rem, 2.5vw, 2rem);
+		font-weight: 700;
+		letter-spacing: -0.02em;
+		color: var(--cp-headline);
+	}
+
+	.cp-subtitle {
+		margin: 0.45rem 0 0;
+		font-size: 0.95rem;
+		color: var(--cp-muted);
+	}
+
+	.cp-controls {
+		display: flex;
+		flex-direction: column;
+		gap: 0.6rem;
+		align-items: stretch;
+		justify-content: center;
+		min-width: 260px;
+	}
+
+	.cp-field {
+		display: flex;
+		flex-direction: column;
+		gap: 0.35rem;
+	}
+
+	.cp-label {
+		font-size: 0.75rem;
+		font-weight: 600;
+		letter-spacing: 0.06em;
+		text-transform: uppercase;
+		color: var(--cp-muted);
+	}
+
+	.cp-select {
+		border: 1px solid rgba(20, 87, 73, 0.25);
+		background: rgba(255, 255, 255, 0.95);
+		border-radius: 0.65rem;
+		padding: 0.55rem 0.7rem;
+		font-size: 0.9rem;
+		color: var(--cp-headline);
+	}
+
+	.cp-select:focus {
+		outline: none;
+		border-color: var(--cp-accent);
+		box-shadow: 0 0 0 3px rgba(31, 138, 112, 0.16);
+	}
+
+	.cp-refresh {
+		padding: 0.45rem 0.7rem;
+		font-size: 0.78rem;
+		font-weight: 500;
+		color: var(--cp-muted);
+		border: 1px dashed rgba(31, 138, 112, 0.28);
+		border-radius: 0.65rem;
+		background: rgba(255, 255, 255, 0.72);
+	}
+
+	.cp-kpis {
+		display: grid;
+		grid-template-columns: repeat(4, minmax(0, 1fr));
+		gap: 0.8rem;
+		margin: 0.8rem 0 1rem;
+	}
+
+	.cp-kpi {
+		padding: 0.9rem 1rem;
+		border-radius: 0.9rem;
+		background: var(--cp-surface);
+		border: 1px solid var(--cp-surface-border);
+		box-shadow: 0 14px 35px rgba(20, 58, 50, 0.08);
+	}
+
+	.cp-kpi-label {
+		font-size: 0.76rem;
+		letter-spacing: 0.06em;
+		text-transform: uppercase;
+		font-weight: 600;
+		color: var(--cp-muted);
+	}
+
+	.cp-kpi-value {
+		margin-top: 0.2rem;
+		font-family: "Space Grotesk", sans-serif;
+		font-size: 1.45rem;
+		font-weight: 700;
+		color: var(--cp-headline);
+	}
+
+	.cp-banner {
+		display: block;
+		padding: 0.75rem 0.9rem;
+		border-radius: 0.8rem;
+		font-size: 0.9rem;
+		margin-bottom: 0.85rem;
+		border: 1px solid transparent;
+	}
+
+	.cp-banner-info {
+		background: rgba(31, 138, 112, 0.08);
+		border-color: rgba(31, 138, 112, 0.26);
+		color: var(--cp-accent-strong);
+	}
+
+	.cp-banner-warn {
+		background: rgba(194, 125, 34, 0.1);
+		border-color: rgba(194, 125, 34, 0.28);
+		color: var(--cp-warn);
+	}
+
+	.cp-panel {
+		height: 100%;
+		border: 1px solid var(--cp-surface-border);
+		border-radius: 1rem;
+		overflow: hidden;
+		background: var(--cp-surface);
+		box-shadow: 0 20px 40px rgba(16, 52, 45, 0.09);
+		backdrop-filter: blur(4px);
+	}
+
+	.cp-panel-head {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: 0.75rem;
+		padding: 0.85rem 1rem;
+		border-bottom: 1px solid rgba(20, 87, 73, 0.12);
+	}
+
+	.cp-panel-title {
+		font-family: "Space Grotesk", sans-serif;
+		font-size: 1rem;
+		font-weight: 600;
+		color: var(--cp-headline);
+	}
+
+	.cp-btn {
+		border: 1px solid rgba(31, 138, 112, 0.35);
+		background: rgba(31, 138, 112, 0.08);
+		color: var(--cp-accent-strong);
+		border-radius: 0.58rem;
+		padding: 0.28rem 0.58rem;
+		font-size: 0.78rem;
+		font-weight: 600;
+		transition: 0.2s ease;
+	}
+
+	.cp-btn:hover {
+		background: rgba(31, 138, 112, 0.18);
+		border-color: rgba(31, 138, 112, 0.6);
+	}
+
+	.cp-table-wrap {
+		overflow: auto;
+	}
+
+	.cp-table {
+		margin: 0;
+		min-width: 640px;
+		font-size: 0.87rem;
+	}
+
+	.cp-table thead th {
+		position: sticky;
+		top: 0;
+		z-index: 1;
+		padding: 0.65rem 0.75rem;
+		text-transform: uppercase;
+		font-size: 0.71rem;
+		letter-spacing: 0.06em;
+		font-weight: 600;
+		background: rgba(31, 138, 112, 0.08);
+		color: var(--cp-muted);
+		border-bottom: 1px solid rgba(20, 87, 73, 0.14);
+		white-space: nowrap;
+	}
+
+	.cp-table tbody td {
+		padding: 0.62rem 0.75rem;
+		color: #23423b;
+		vertical-align: middle;
+		border-top: 1px solid rgba(20, 87, 73, 0.08);
+	}
+
+	.cp-table tbody tr:hover td {
+		background: rgba(31, 138, 112, 0.06);
+	}
+
+	.cp-link {
+		color: var(--cp-accent-strong);
+		font-weight: 600;
+		text-decoration: none;
+	}
+
+	.cp-link:hover {
+		text-decoration: underline;
+	}
+
+	.cp-actions {
+		display: inline-flex;
+		gap: 0.4rem;
+		justify-content: flex-end;
+	}
+
+	.cp-btn[aria-disabled="true"] {
+		opacity: 0.55;
+		pointer-events: none;
+	}
+
+	.cp-empty-cell {
+		text-align: center;
+		color: var(--cp-muted);
+		padding: 1rem 0.75rem;
+	}
+
+	.cp-animate {
+		opacity: 0;
+		transform: translateY(14px);
+	}
+
+	.cp-loaded .cp-animate {
+		animation: cpFadeUp 0.55s ease forwards;
+	}
+
+	.cp-loaded .cp-animate[data-delay="1"] {
+		animation-delay: 80ms;
+	}
+
+	.cp-loaded .cp-animate[data-delay="2"] {
+		animation-delay: 160ms;
+	}
+
+	.cp-loaded .cp-animate[data-delay="3"] {
+		animation-delay: 240ms;
+	}
+
+	@keyframes cpFadeUp {
+		to {
+			opacity: 1;
+			transform: translateY(0);
+		}
+	}
+
+	@media (max-width: 991px) {
+		.cp-hero {
+			grid-template-columns: 1fr;
+		}
+
+		.cp-controls {
+			min-width: 0;
+		}
+
+		.cp-kpis {
+			grid-template-columns: repeat(2, minmax(0, 1fr));
+		}
+	}
+
+	@media (max-width: 640px) {
+		.client-portal {
+			padding-top: 1.2rem;
+		}
+
+		.cp-shell {
+			padding: 0 0.5rem;
+		}
+
+		.cp-hero {
+			padding: 1rem;
+		}
+
+		.cp-kpis {
+			grid-template-columns: 1fr;
+		}
+	}
+</style>
+
+<section class="client-portal">
+	<div class="cp-shell" id="cp-shell">
+		<header class="cp-hero cp-animate">
+			<div>
+				<span class="cp-eyebrow">Cold Storage Network</span>
+				<h1 class="cp-title">Client Portal</h1>
+				<p class="cp-subtitle">Live visibility of stock, movements, invoices, and reports in one workspace.</p>
+			</div>
+			<div class="cp-controls">
+				<div class="cp-field d-none" id="cp-customer-filter-wrap">
+					<label class="cp-label" for="cp-customer-filter">Customer Scope</label>
+					<select class="cp-select" id="cp-customer-filter"></select>
+				</div>
+				<div class="cp-refresh" id="cp-last-refresh">Loading data...</div>
+			</div>
+		</header>
+
+		<section class="cp-kpis cp-animate" data-delay="1">
+			<div class="cp-kpi">
+				<div class="cp-kpi-label">Stock Rows</div>
+				<div class="cp-kpi-value" id="cp-kpi-stock">0</div>
+			</div>
+			<div class="cp-kpi">
+				<div class="cp-kpi-label">Movements</div>
+				<div class="cp-kpi-value" id="cp-kpi-movements">0</div>
+			</div>
+			<div class="cp-kpi">
+				<div class="cp-kpi-label">Invoices</div>
+				<div class="cp-kpi-value" id="cp-kpi-invoices">0</div>
+			</div>
+			<div class="cp-kpi">
+				<div class="cp-kpi-label">Reports</div>
+				<div class="cp-kpi-value" id="cp-kpi-reports">0</div>
+			</div>
+		</section>
+
+		<div class="cp-banner cp-banner-info d-none cp-animate" data-delay="2" id="cp-customers"></div>
+		<div class="cp-banner cp-banner-warn d-none cp-animate" data-delay="2" id="cp-empty-state">
+			No customers found for this user scope.
+		</div>
+
+		<div class="row g-3">
+			<div class="col-12 col-xl-6 cp-animate" data-delay="1">
+				<div class="cp-panel">
+					<div class="cp-panel-head">
+						<div class="cp-panel-title">Current Stock</div>
+						<button class="cp-btn" data-download="stock" type="button">Download CSV</button>
+					</div>
+					<div class="cp-table-wrap">
+						<table class="table cp-table" id="cp-stock-table">
+							<thead>
+								<tr>
+									<th>Customer</th>
+									<th>Item</th>
+									<th>Batch</th>
+									<th>Warehouse</th>
+									<th class="text-end">Qty</th>
+								</tr>
+							</thead>
+							<tbody></tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+
+			<div class="col-12 col-xl-6 cp-animate" data-delay="1">
+				<div class="cp-panel">
+					<div class="cp-panel-head">
+						<div class="cp-panel-title">Recent Movements</div>
+						<button class="cp-btn" data-download="movements" type="button">Download CSV</button>
+					</div>
+					<div class="cp-table-wrap">
+						<table class="table cp-table" id="cp-movement-table">
+							<thead>
+								<tr>
+									<th>Date</th>
+									<th>Type</th>
+									<th>Document</th>
+									<th>Customer</th>
+									<th class="text-end">Qty</th>
+								</tr>
+							</thead>
+							<tbody></tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+
+			<div class="col-12 cp-animate" data-delay="2">
+				<div class="cp-panel">
+					<div class="cp-panel-head">
+						<div class="cp-panel-title">Invoices</div>
+						<button class="cp-btn" data-download="invoices" type="button">Download CSV</button>
+					</div>
+					<div class="cp-table-wrap">
+						<table class="table cp-table" id="cp-invoice-table">
+							<thead>
+								<tr>
+									<th>Invoice</th>
+									<th>Date</th>
+									<th>Due Date</th>
+									<th>Customer</th>
+									<th>Currency</th>
+									<th class="text-end">Grand Total</th>
+									<th class="text-end">Outstanding</th>
+									<th>Status</th>
+								</tr>
+							</thead>
+							<tbody></tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+
+			<div class="col-12 cp-animate" data-delay="3">
+				<div class="cp-panel">
+					<div class="cp-panel-head">
+						<div class="cp-panel-title">Reports</div>
+					</div>
+						<div class="cp-table-wrap">
+							<table class="table cp-table" id="cp-report-table">
+								<thead>
+									<tr>
+										<th>Report</th>
+										<th>Description</th>
+										<th class="text-end">Actions</th>
+									</tr>
+								</thead>
+								<tbody></tbody>
+							</table>
+						</div>
+					</div>
+				</div>
+		</div>
+	</div>
+</section>
+
+<script>
+(() => {
+	const snapshotMethod = "cold_storage.api.client_portal.get_portal_snapshot";
+	const downloadMethods = {
+		stock: "/api/method/cold_storage.api.client_portal.download_stock_csv",
+		movements: "/api/method/cold_storage.api.client_portal.download_movements_csv",
+		invoices: "/api/method/cold_storage.api.client_portal.download_invoices_csv",
+	};
+
+	let selectedCustomer = "";
+
+	const shell = document.getElementById("cp-shell");
+	const stockBody = document.querySelector("#cp-stock-table tbody");
+	const movementBody = document.querySelector("#cp-movement-table tbody");
+	const invoiceBody = document.querySelector("#cp-invoice-table tbody");
+	const reportBody = document.querySelector("#cp-report-table tbody");
+	const customerBanner = document.getElementById("cp-customers");
+	const emptyState = document.getElementById("cp-empty-state");
+	const refreshLabel = document.getElementById("cp-last-refresh");
+	const customerFilterWrap = document.getElementById("cp-customer-filter-wrap");
+	const customerFilter = document.getElementById("cp-customer-filter");
+	const kpiStock = document.getElementById("cp-kpi-stock");
+	const kpiMovements = document.getElementById("cp-kpi-movements");
+	const kpiInvoices = document.getElementById("cp-kpi-invoices");
+	const kpiReports = document.getElementById("cp-kpi-reports");
+
+	const escapeHtml = (value) => {
+		const text = String(value ?? "");
+		return text
+			.replaceAll("&", "&amp;")
+			.replaceAll("<", "&lt;")
+			.replaceAll(">", "&gt;")
+			.replaceAll('"', "&quot;")
+			.replaceAll("'", "&#39;");
+	};
+
+	const formatDate = (value) => {
+		if (!value) return "";
+		const date = new Date(value);
+		return Number.isNaN(date.getTime()) ? value : date.toLocaleDateString();
+	};
+
+	const formatNumber = (value) => {
+		const num = Number(value || 0);
+		return Number.isFinite(num) ? num.toLocaleString(undefined, { maximumFractionDigits: 3 }) : "0";
+	};
+
+	const linkCell = (value, route) => {
+		if (!value) return "";
+		if (!route) return escapeHtml(value);
+		return `<a class="cp-link" href="${encodeURI(route)}" target="_blank" rel="noopener">${escapeHtml(value)}</a>`;
+	};
+
+	const emptyRow = (columns, label = "No records") =>
+		`<tr><td colspan="${columns}" class="cp-empty-cell">${label}</td></tr>`;
+
+	const updateCustomerFilter = (customers, selected) => {
+		if (!customers.length || customers.length === 1) {
+			customerFilterWrap.classList.add("d-none");
+			customerFilter.innerHTML = "";
+			return;
+		}
+
+		customerFilterWrap.classList.remove("d-none");
+		customerFilter.innerHTML = "";
+
+		const allOption = document.createElement("option");
+		allOption.value = "";
+		allOption.textContent = "All Customers";
+		customerFilter.appendChild(allOption);
+
+		customers.forEach((customer) => {
+			const option = document.createElement("option");
+			option.value = customer;
+			option.textContent = customer;
+			customerFilter.appendChild(option);
+		});
+
+		const target = customers.includes(selected) ? selected : "";
+		customerFilter.value = target;
+	};
+
+	const updateKpis = (stock, movements, invoices, reports) => {
+		kpiStock.textContent = formatNumber(stock.length);
+		kpiMovements.textContent = formatNumber(movements.length);
+		kpiInvoices.textContent = formatNumber(invoices.length);
+		kpiReports.textContent = formatNumber(reports.length);
+	};
+
+	const renderStock = (rows) => {
+		if (!rows.length) {
+			stockBody.innerHTML = emptyRow(5);
+			return;
+		}
+		stockBody.innerHTML = rows
+			.map(
+				(row) => `
+				<tr>
+					<td>${escapeHtml(row.customer || "")}</td>
+					<td>${escapeHtml(row.item_name || row.item_code || "")}</td>
+					<td>${escapeHtml(row.batch_no || "")}</td>
+					<td>${escapeHtml(row.warehouse || "")}</td>
+					<td class="text-end">${formatNumber(row.qty)}</td>
+				</tr>`
+			)
+			.join("");
+	};
+
+	const renderMovements = (rows) => {
+		if (!rows.length) {
+			movementBody.innerHTML = emptyRow(5);
+			return;
+		}
+		movementBody.innerHTML = rows
+			.map(
+				(row) => `
+				<tr>
+					<td>${formatDate(row.posting_date)}</td>
+					<td>${escapeHtml(row.movement_type || "")}</td>
+					<td>${escapeHtml(row.document_name || "")}</td>
+					<td>${escapeHtml(row.customer || "")}</td>
+					<td class="text-end">${formatNumber(row.qty)}</td>
+				</tr>`
+			)
+			.join("");
+	};
+
+	const renderInvoices = (rows) => {
+		if (!rows.length) {
+			invoiceBody.innerHTML = emptyRow(8);
+			return;
+		}
+		invoiceBody.innerHTML = rows
+			.map(
+				(row) => `
+				<tr>
+					<td>${linkCell(row.name, row.route)}</td>
+					<td>${formatDate(row.posting_date)}</td>
+					<td>${formatDate(row.due_date)}</td>
+					<td>${escapeHtml(row.customer || "")}</td>
+					<td>${escapeHtml(row.currency || "")}</td>
+					<td class="text-end">${formatNumber(row.grand_total)}</td>
+					<td class="text-end">${formatNumber(row.outstanding_amount)}</td>
+					<td>${escapeHtml(row.status || "")}</td>
+				</tr>`
+			)
+			.join("");
+	};
+
+		const renderReports = (rows) => {
+			if (!rows.length) {
+				reportBody.innerHTML = emptyRow(3, "No reports available for this user");
+				return;
+			}
+			reportBody.innerHTML = rows
+				.map(
+					(row) => `
+					<tr>
+						<td>${linkCell(row.label || row.report_name || "", row.route)}</td>
+						<td>${escapeHtml(row.description || "")}</td>
+						<td class="text-end">
+							<span class="cp-actions">
+								<a class="cp-btn" href="${encodeURI(row.route || "#")}" target="_blank" rel="noopener">Open</a>
+								<a
+									class="cp-btn"
+									href="${encodeURI(row.pdf_route || "#")}"
+									target="_blank"
+									rel="noopener"
+									aria-disabled="${row.pdf_route ? "false" : "true"}"
+								>PDF</a>
+							</span>
+						</td>
+					</tr>`
+				)
+				.join("");
+		};
+
+	const getDownloadEndpoint = (key) => {
+		const endpoint = downloadMethods[key];
+		if (!endpoint) return "";
+		if (!selectedCustomer) return endpoint;
+		const query = new URLSearchParams({ customer: selectedCustomer }).toString();
+		return `${endpoint}?${query}`;
+	};
+
+	const callApi = async (method, args = {}) => {
+		if (typeof frappe !== "undefined" && frappe.call) {
+			return frappe.call({ method, args });
+		}
+
+		const query = new URLSearchParams(args).toString();
+		const response = await fetch(`/api/method/${method}${query ? "?" + query : ""}`, {
+			method: "GET",
+			credentials: "include",
+		});
+		if (!response.ok) {
+			throw new Error("Request failed");
+		}
+		return response.json();
+	};
+
+	const loadSnapshot = async () => {
+		try {
+			const response = await callApi(snapshotMethod, {
+				limit: 25,
+				customer: selectedCustomer,
+			});
+
+			const data = response.message || {};
+			const availableCustomers = data.available_customers || data.customers || [];
+			selectedCustomer = data.selected_customer || "";
+			updateCustomerFilter(availableCustomers, selectedCustomer);
+
+			const customers = data.customers || [];
+			const stock = data.stock || [];
+			const movements = data.movements || [];
+			const invoices = data.invoices || [];
+			const reports = data.reports || [];
+
+			if (customers.length) {
+				customerBanner.classList.remove("d-none");
+				if (selectedCustomer) {
+					customerBanner.textContent = `Customer Scope: ${selectedCustomer}`;
+				} else {
+					const scopePreview = customers.length > 10
+						? `${customers.slice(0, 10).join(", ")} (+${customers.length - 10} more)`
+						: customers.join(", ");
+					customerBanner.textContent = `Customer Scope: ${scopePreview}`;
+				}
+				emptyState.classList.add("d-none");
+			} else {
+				customerBanner.classList.add("d-none");
+				emptyState.classList.remove("d-none");
+			}
+
+			updateKpis(stock, movements, invoices, reports);
+			renderStock(stock);
+			renderMovements(movements);
+			renderInvoices(invoices);
+			renderReports(reports);
+			refreshLabel.textContent = `Last refresh: ${new Date().toLocaleString()}`;
+
+			shell.classList.add("cp-loaded");
+		} catch (error) {
+			refreshLabel.textContent = "Unable to load data.";
+			if (typeof frappe !== "undefined" && frappe.msgprint) {
+				frappe.msgprint({
+					title: "Client Portal",
+					indicator: "red",
+					message: "Could not load client portal data.",
+				});
+			}
+		}
+	};
+
+	customerFilter.addEventListener("change", () => {
+		selectedCustomer = customerFilter.value || "";
+		loadSnapshot();
+	});
+
+	document.querySelectorAll("[data-download]").forEach((button) => {
+		button.addEventListener("click", () => {
+			const key = button.getAttribute("data-download") || "";
+			const endpoint = getDownloadEndpoint(key);
+			if (!endpoint) return;
+			window.open(endpoint, "_blank", "noopener");
+		});
+	});
+
+	loadSnapshot();
+})();
+</script>
+{% endblock %}

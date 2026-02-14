@@ -1,7 +1,7 @@
 [project]
 name = "cold_storage"
 authors = [
-    { name = "Umaish Solutions", email = "soltions@umaish.com"}
+    { name = "Umaish Solutions", email = "solutions@umaish.com"}
 ]
 description = "Cold Storage App where the business model is Service-based (storing goods for others) rather than Trading-based"
 requires-python = ">=3.14"

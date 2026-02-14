@@ -2,241 +2,28 @@ app_name = "cold_storage"
 app_title = "Cold Storage"
 app_publisher = "Umaish Solutions"
 app_description = "Cold Storage App where the business model is Service-based (storing goods for others) rather than Trading-based"
-app_email = "soltions@umaish.com"
-app_license = "mit"
+app_email = "solutions@umaish.com"
+app_license = "MIT"
+app_logo_url = "/assets/cold_storage/images/cold-storage-logo.svg"
+app_home = "/app/cold-storage"
 
 # Apps
-# ------------------
-
-# required_apps = []
-
-# Each item in the list will be shown as an app in the apps page
-# add_to_apps_screen = [
-# 	{
-# 		"name": "cold_storage",
-# 		"logo": "/assets/cold_storage/logo.png",
-# 		"title": "Cold Storage",
-# 		"route": "/cold_storage",
-# 		"has_permission": "cold_storage.api.permission.has_app_permission"
-# 	}
-# ]
+required_apps = ["erpnext"]
 
 # Includes in <head>
-# ------------------
-
-# include js, css files in header of desk.html
 # app_include_css = "/assets/cold_storage/css/cold_storage.css"
 # app_include_js = "/assets/cold_storage/js/cold_storage.js"
 
-# include js, css files in header of web template
-# web_include_css = "/assets/cold_storage/css/cold_storage.css"
-# web_include_js = "/assets/cold_storage/js/cold_storage.js"
+desktop_data = "cold_storage.config.desktop.get_data"
 
-# include custom scss in every website theme (without file extension ".scss")
-# website_theme_scss = "cold_storage/public/scss/website"
-
-# include js, css files in header of web form
-# webform_include_js = {"doctype": "public/js/doctype.js"}
-# webform_include_css = {"doctype": "public/css/doctype.css"}
-
-# include js in page
-# page_js = {"page" : "public/js/file.js"}
-
-# include js in doctype views
-# doctype_js = {"doctype" : "public/js/doctype.js"}
-# doctype_list_js = {"doctype" : "public/js/doctype_list.js"}
-# doctype_tree_js = {"doctype" : "public/js/doctype_tree.js"}
-# doctype_calendar_js = {"doctype" : "public/js/doctype_calendar.js"}
-
-# Svg Icons
-# ------------------
-# include app icons in desk
-# app_include_icons = "cold_storage/public/icons.svg"
-
-# Home Pages
-# ----------
-
-# application home page (will override Website Settings)
-# home_page = "login"
-
-# website user home page (by Role)
-# role_home_page = {
-# 	"Role": "home_page"
-# }
-
-# Generators
-# ----------
-
-# automatically create page for each record of this doctype
-# website_generators = ["Web Page"]
-
-# automatically load and sync documents of this doctype from downstream apps
-# importable_doctypes = [doctype_1]
-
-# Jinja
-# ----------
-
-# add methods and filters to jinja environment
-# jinja = {
-# 	"methods": "cold_storage.utils.jinja_methods",
-# 	"filters": "cold_storage.utils.jinja_filters"
-# }
-
-# Installation
-# ------------
-
-# before_install = "cold_storage.install.before_install"
-# after_install = "cold_storage.install.after_install"
-
-# Uninstallation
-# ------------
-
-# before_uninstall = "cold_storage.uninstall.before_uninstall"
-# after_uninstall = "cold_storage.uninstall.after_uninstall"
-
-# Integration Setup
-# ------------------
-# To set up dependencies/integrations with other apps
-# Name of the app being installed is passed as an argument
-
-# before_app_install = "cold_storage.utils.before_app_install"
-# after_app_install = "cold_storage.utils.after_app_install"
-
-# Integration Cleanup
-# -------------------
-# To clean up dependencies/integrations with other apps
-# Name of the app being uninstalled is passed as an argument
-
-# before_app_uninstall = "cold_storage.utils.before_app_uninstall"
-# after_app_uninstall = "cold_storage.utils.after_app_uninstall"
-
-# Desk Notifications
-# ------------------
-# See frappe.core.notifications.get_notification_config
-
-# notification_config = "cold_storage.notifications.get_notification_config"
-
-# Permissions
-# -----------
-# Permissions evaluated in scripted ways
-
-# permission_query_conditions = {
-# 	"Event": "frappe.desk.doctype.event.event.get_permission_query_conditions",
-# }
-#
-# has_permission = {
-# 	"Event": "frappe.desk.doctype.event.event.has_permission",
-# }
-
-# Document Events
-# ---------------
-# Hook on document methods and events
-
-# doc_events = {
-# 	"*": {
-# 		"on_update": "method",
-# 		"on_cancel": "method",
-# 		"on_trash": "method"
-# 	}
-# }
-
-# Scheduled Tasks
-# ---------------
-
-# scheduler_events = {
-# 	"all": [
-# 		"cold_storage.tasks.all"
-# 	],
-# 	"daily": [
-# 		"cold_storage.tasks.daily"
-# 	],
-# 	"hourly": [
-# 		"cold_storage.tasks.hourly"
-# 	],
-# 	"weekly": [
-# 		"cold_storage.tasks.weekly"
-# 	],
-# 	"monthly": [
-# 		"cold_storage.tasks.monthly"
-# 	],
-# }
-
-# Testing
-# -------
-
-# before_tests = "cold_storage.install.before_tests"
-
-# Extend DocType Class
-# ------------------------------
-#
-# Specify custom mixins to extend the standard doctype controller.
-# extend_doctype_class = {
-# 	"Task": "cold_storage.custom.task.CustomTaskMixin"
-# }
-
-# Overriding Methods
-# ------------------------------
-#
-# override_whitelisted_methods = {
-# 	"frappe.desk.doctype.event.event.get_events": "cold_storage.event.get_events"
-# }
-#
-# each overriding function accepts a `data` argument;
-# generated from the base implementation of the doctype dashboard,
-# along with any modifications made in other Frappe apps
-# override_doctype_dashboards = {
-# 	"Task": "cold_storage.task.get_dashboard_data"
-# }
-
-# exempt linked doctypes from being automatically cancelled
-#
-# auto_cancel_exempted_doctypes = ["Auto Repeat"]
-
-# Ignore links to specified DocTypes when deleting documents
-# -----------------------------------------------------------
-
-# ignore_links_on_delete = ["Communication", "ToDo"]
-
-# Request Events
-# ----------------
-# before_request = ["cold_storage.utils.before_request"]
-# after_request = ["cold_storage.utils.after_request"]
-
-# Job Events
-# ----------
-# before_job = ["cold_storage.utils.before_job"]
-# after_job = ["cold_storage.utils.after_job"]
-
-# User Data Protection
-# --------------------
-
-# user_data_fields = [
-# 	{
-# 		"doctype": "{doctype_1}",
-# 		"filter_by": "{filter_by}",
-# 		"redact_fields": ["{field_1}", "{field_2}"],
-# 		"partial": 1,
-# 	},
-# 	{
-# 		"doctype": "{doctype_2}",
-# 		"filter_by": "{filter_by}",
-# 		"partial": 1,
-# 	},
-# 	{
-# 		"doctype": "{doctype_3}",
-# 		"strict": False,
-# 	},
-# 	{
-# 		"doctype": "{doctype_4}"
-# 	}
-# ]
-
-# Authentication and authorization
-# --------------------------------
-
-# auth_hooks = [
-# 	"cold_storage.auth.validate"
-# ]
+add_to_apps_screen = [
+	{
+		"name": "cold_storage",
+		"logo": app_logo_url,
+		"title": app_title,
+		"route": app_home,
+	}
+]
 
 # Automatically update python controller files with type annotations for this app.
 export_python_type_annotations = True
@@ -244,12 +31,76 @@ export_python_type_annotations = True
 # Require all whitelisted methods to have type annotations
 require_type_annotated_api_methods = True
 
-# default_log_clearing_doctypes = {
-# 	"Logging DocType Name": 30  # days to retain logs
-# }
+after_install = "cold_storage.install.after_install"
+after_migrate = "cold_storage.install.after_migrate"
 
-# Translation
-# ------------
-# List of apps whose translatable strings should be excluded from this app's translations.
-# ignore_translatable_strings_from = []
+fixtures = [
+	{"dt": "Role", "filters": [["role_name", "like", "Cold Storage %"]]},
+	{"dt": "Role Profile", "filters": [["role_profile", "like", "Cold Storage %"]]},
+]
 
+portal_menu_items = [
+	{
+		"title": "Cold Storage Portal",
+		"route": "/client-portal",
+		"reference_doctype": "Cold Storage Inward",
+		"role": "Cold Storage Client Portal User",
+	},
+	{
+		"title": "Cold Storage Portal",
+		"route": "/client-portal",
+		"reference_doctype": "Cold Storage Inward",
+		"role": "Cold Storage Admin",
+	},
+]
+
+# ── Custom Fields ────────────────────────────────────────────────
+# Add a "Customer" field to the standard ERPNext Batch DocType
+# to enforce strict Batch → Customer ownership.
+
+override_doctype_property = {
+	"Batch": [
+		{
+			"fieldname": "batch_id",
+			"property": "unique",
+			"property_type": "Check",
+			"value": "0",
+		},
+	],
+}
+
+custom_fields = {
+	"Batch": [
+		{
+			"fieldname": "custom_customer",
+			"fieldtype": "Link",
+			"label": "Customer",
+			"options": "Customer",
+			"insert_after": "item_name",
+			"in_list_view": 1,
+			"in_standard_filter": 1,
+		},
+	],
+	"Warehouse": [
+		{
+			"fieldname": "custom_storage_capacity",
+			"fieldtype": "Float",
+			"label": "Storage Capacity",
+			"insert_after": "warehouse_type",
+			"in_standard_filter": 1,
+			"non_negative": 1,
+			"default": "0",
+			"description": "Maximum storable quantity in this warehouse.",
+		},
+	],
+}
+
+# ── Document Events ─────────────────────────────────────────────
+doc_events = {
+	"Batch": {
+		"validate": "cold_storage.events.batch.validate_batch_customer",
+	},
+	"Customer": {
+		"on_update": "cold_storage.setup.client_portal_user_permissions.sync_customer_user_permissions_for_customer",
+	},
+}

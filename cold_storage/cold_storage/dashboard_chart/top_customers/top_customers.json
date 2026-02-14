@@ -1,0 +1,35 @@
+{
+ "chart_name": "Top Customers",
+ "chart_type": "Report",
+ "creation": "2026-02-14 18:00:00.000000",
+ "custom_options": "",
+ "docstatus": 0,
+ "doctype": "Dashboard Chart",
+ "dynamic_filters_json": "{\"company\":\"frappe.defaults.get_user_default(\\\"Company\\\")\"}",
+ "filters_json": "{}",
+ "idx": 0,
+ "is_public": 1,
+ "is_standard": 1,
+ "modified": "2026-02-14 18:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Cold Storage",
+ "name": "Top Customers",
+ "number_of_groups": 0,
+ "owner": "Administrator",
+ "report_name": "Cold Storage Outward Register",
+ "roles": [
+  {
+   "role": "System Manager"
+  },
+  {
+   "role": "Stock Manager"
+  },
+  {
+   "role": "Stock User"
+  }
+ ],
+ "timeseries": 0,
+ "type": "Bar",
+ "use_report_chart": 1,
+ "y_axis": []
+}

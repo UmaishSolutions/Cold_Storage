@@ -1,0 +1,125 @@
+[
+ {
+  "docstatus": 0,
+  "doctype": "Role Profile",
+  "modified": "2026-02-14 13:21:35.769100",
+  "name": "Cold Storage Admin Profile",
+  "role_profile": "Cold Storage Admin Profile",
+  "roles": [
+   {
+    "role": "System Manager"
+   },
+   {
+    "role": "Stock Manager"
+   },
+   {
+    "role": "Accounts Manager"
+   },
+   {
+    "role": "Cold Storage Admin"
+   },
+   {
+    "role": "Cold Storage Warehouse Manager"
+   },
+   {
+    "role": "Cold Storage Billing Executive"
+   },
+   {
+    "role": "Cold Storage Inventory Controller"
+   }
+  ]
+ },
+ {
+  "docstatus": 0,
+  "doctype": "Role Profile",
+  "modified": "2026-02-14 13:21:35.813756",
+  "name": "Cold Storage Warehouse Manager Profile",
+  "role_profile": "Cold Storage Warehouse Manager Profile",
+  "roles": [
+   {
+    "role": "Stock Manager"
+   },
+   {
+    "role": "Accounts User"
+   },
+   {
+    "role": "Cold Storage Warehouse Manager"
+   }
+  ]
+ },
+ {
+  "docstatus": 0,
+  "doctype": "Role Profile",
+  "modified": "2026-02-14 13:21:35.819500",
+  "name": "Cold Storage Inbound Desk Profile",
+  "role_profile": "Cold Storage Inbound Desk Profile",
+  "roles": [
+   {
+    "role": "Stock User"
+   },
+   {
+    "role": "Cold Storage Inbound Operator"
+   }
+  ]
+ },
+ {
+  "docstatus": 0,
+  "doctype": "Role Profile",
+  "modified": "2026-02-14 13:21:35.825256",
+  "name": "Cold Storage Dispatch Desk Profile",
+  "role_profile": "Cold Storage Dispatch Desk Profile",
+  "roles": [
+   {
+    "role": "Stock User"
+   },
+   {
+    "role": "Cold Storage Dispatch Operator"
+   }
+  ]
+ },
+ {
+  "docstatus": 0,
+  "doctype": "Role Profile",
+  "modified": "2026-02-14 13:21:35.830475",
+  "name": "Cold Storage Inventory Control Profile",
+  "role_profile": "Cold Storage Inventory Control Profile",
+  "roles": [
+   {
+    "role": "Stock User"
+   },
+   {
+    "role": "Cold Storage Inventory Controller"
+   }
+  ]
+ },
+ {
+  "docstatus": 0,
+  "doctype": "Role Profile",
+  "modified": "2026-02-14 13:21:35.835014",
+  "name": "Cold Storage Billing Desk Profile",
+  "role_profile": "Cold Storage Billing Desk Profile",
+  "roles": [
+   {
+    "role": "Accounts User"
+   },
+   {
+    "role": "Cold Storage Billing Executive"
+   }
+  ]
+ },
+ {
+  "docstatus": 0,
+  "doctype": "Role Profile",
+  "modified": "2026-02-14 13:21:35.839688",
+  "name": "Cold Storage Client Portal Profile",
+  "role_profile": "Cold Storage Client Portal Profile",
+  "roles": [
+   {
+    "role": "Customer"
+   },
+   {
+    "role": "Cold Storage Client Portal User"
+   }
+  ]
+ }
+]

@@ -1,0 +1,13 @@
+{
+ "creation": "2026-02-14 15:45:00.000000",
+ "docstatus": 0,
+ "doctype": "Dashboard Chart Source",
+ "idx": 0,
+ "modified": "2026-02-14 15:45:00.000000",
+ "modified_by": "Administrator",
+ "module": "Cold Storage",
+ "name": "Yearly Inward Outward Trend",
+ "owner": "Administrator",
+ "source_name": "Yearly Inward Outward Trend",
+ "timeseries": 0
+}
