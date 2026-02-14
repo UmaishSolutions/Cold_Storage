@@ -33,7 +33,6 @@
             "reqd": 1
         },
         {
-            "default": "Nos",
             "fieldname": "default_uom",
             "fieldtype": "Link",
             "label": "Default UOM",

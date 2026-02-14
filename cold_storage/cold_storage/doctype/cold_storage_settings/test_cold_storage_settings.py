@@ -10,6 +10,7 @@ import frappe
 from cold_storage.cold_storage.doctype.cold_storage_settings.cold_storage_settings import (
 	get_default_company,
 	get_transfer_rate,
+	resolve_default_uom,
 	validate_warehouse_company,
 )
 
@@ -78,3 +79,50 @@ class TestColdStorageSettingsHelpers(TestCase):
 
 		self.assertEqual(rate, 0.0)
 		get_charge_rate.assert_not_called()
+
+	def test_resolve_default_uom_prefers_nos(self):
+		with (
+			patch(
+				"cold_storage.cold_storage.doctype.cold_storage_settings.cold_storage_settings.frappe.db.exists",
+				side_effect=[True],
+			),
+			patch(
+				"cold_storage.cold_storage.doctype.cold_storage_settings.cold_storage_settings.frappe.db.get_value"
+			) as get_value,
+		):
+			self.assertEqual(resolve_default_uom(), "Nos")
+			get_value.assert_not_called()
+
+	def test_resolve_default_uom_falls_back_to_enabled_uom(self):
+		with (
+			patch(
+				"cold_storage.cold_storage.doctype.cold_storage_settings.cold_storage_settings.frappe.db.exists",
+				side_effect=[False],
+			),
+			patch(
+				"cold_storage.cold_storage.doctype.cold_storage_settings.cold_storage_settings.frappe.db.get_value",
+				side_effect=["Kg"],
+			),
+		):
+			self.assertEqual(resolve_default_uom(), "Kg")
+
+	def test_resolve_default_uom_can_create_nos_if_missing(self):
+		uom_doc = SimpleNamespace(name="Nos", insert=lambda **kwargs: None)
+		with (
+			patch(
+				"cold_storage.cold_storage.doctype.cold_storage_settings.cold_storage_settings.frappe.db.exists",
+				side_effect=[False],
+			),
+			patch(
+				"cold_storage.cold_storage.doctype.cold_storage_settings.cold_storage_settings.frappe.db.get_value",
+				side_effect=[None, None],
+			),
+			patch(
+				"cold_storage.cold_storage.doctype.cold_storage_settings.cold_storage_settings.frappe.get_doc",
+				return_value=uom_doc,
+			) as get_doc,
+			patch.object(uom_doc, "insert") as insert,
+		):
+			self.assertEqual(resolve_default_uom(create_if_missing=True), "Nos")
+			get_doc.assert_called_once()
+			insert.assert_called_once_with(ignore_permissions=True)

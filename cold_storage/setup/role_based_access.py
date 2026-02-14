@@ -49,6 +49,7 @@ ROLE_PROFILES: Final[dict[str, list[str]]] = {
 		"Cold Storage Warehouse Manager",
 		"Cold Storage Billing Executive",
 		"Cold Storage Inventory Controller",
+		"Cold Storage Client Portal User",
 	],
 	"Cold Storage Warehouse Manager Profile": [
 		"Stock Manager",

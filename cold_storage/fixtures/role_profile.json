@@ -26,6 +26,9 @@
    },
    {
     "role": "Cold Storage Inventory Controller"
+   },
+   {
+    "role": "Cold Storage Client Portal User"
    }
   ]
  },
