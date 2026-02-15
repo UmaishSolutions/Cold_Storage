@@ -37,6 +37,8 @@ WORKSPACE_NAME = "Cold Storage"
 WAREHOUSE_OCCUPANCY_REPORT = "Cold Storage Warehouse Occupancy Timeline"
 WAREHOUSE_OCCUPANCY_CHART = "Warehouse Occupancy Timeline"
 WAREHOUSE_OCCUPANCY_CHART_BLOCK_ID = "chart-warehouse-occupancy-timeline"
+ACTIVE_BATCHES_NUMBER_CARD = "Active Batches"
+ACTIVE_BATCHES_NUMBER_CARD_BLOCK_ID = "number-card-active-batches"
 
 
 def _ensure_batch_customizations() -> None:
@@ -123,6 +125,54 @@ def _ensure_workspace_assets() -> None:
 					"data": {"chart_name": WAREHOUSE_OCCUPANCY_CHART, "col": 12},
 				}
 			)
+			workspace.content = frappe.as_json(content_blocks)
+			updated = True
+
+	if frappe.db.exists("Number Card", ACTIVE_BATCHES_NUMBER_CARD):
+		has_number_card = any(
+			card.number_card_name == ACTIVE_BATCHES_NUMBER_CARD for card in workspace.get("number_cards", [])
+		)
+		if not has_number_card:
+			workspace.append(
+				"number_cards",
+				{
+					"label": ACTIVE_BATCHES_NUMBER_CARD,
+					"number_card_name": ACTIVE_BATCHES_NUMBER_CARD,
+				},
+			)
+			updated = True
+
+		content_blocks = _get_workspace_content_blocks(workspace.content)
+		has_number_card_block = any(
+			block.get("type") == "number_card"
+			and (block.get("data") or {}).get("number_card_name") == ACTIVE_BATCHES_NUMBER_CARD
+			for block in content_blocks
+		)
+		if not has_number_card_block:
+			# Prefer replacing legacy duplicate "Total Active Items" slot to keep top-row density unchanged.
+			replaced_existing_slot = False
+			for block in content_blocks:
+				if block.get("type") != "number_card":
+					continue
+				data = block.get("data") or {}
+				if (
+					block.get("id") == "jXtpNEtdDN"
+					and data.get("number_card_name") == "Total Active Items"
+				):
+					data["number_card_name"] = ACTIVE_BATCHES_NUMBER_CARD
+					block["data"] = data
+					replaced_existing_slot = True
+					break
+
+			if not replaced_existing_slot:
+				content_blocks.append(
+					{
+						"id": ACTIVE_BATCHES_NUMBER_CARD_BLOCK_ID,
+						"type": "number_card",
+						"data": {"number_card_name": ACTIVE_BATCHES_NUMBER_CARD, "col": 3},
+					}
+				)
+
 			workspace.content = frappe.as_json(content_blocks)
 			updated = True
 
