@@ -41,4 +41,3 @@ def execute() -> None:
 		user_doc.save(ignore_permissions=True)
 
 	frappe.clear_cache()
-

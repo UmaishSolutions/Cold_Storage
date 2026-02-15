@@ -1,5 +1,6 @@
 from frappe import _
 
+
 def get_data():
 	return [
 		{
@@ -8,6 +9,6 @@ def get_data():
 			"color": "blue",
 			"icon": "warehouse",
 			"type": "module",
-			"label": _("Cold Storage")
+			"label": _("Cold Storage"),
 		}
 	]

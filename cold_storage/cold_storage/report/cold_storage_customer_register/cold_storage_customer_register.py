@@ -2,7 +2,6 @@ import frappe
 from frappe import _
 from frappe.utils import flt
 
-
 DOCSTATUS_MAP = {"Draft": 0, "Submitted": 1, "Cancelled": 2}
 TABLE_BY_DOCTYPE = {
 	"Cold Storage Inward": "`tabCold Storage Inward`",
@@ -24,13 +23,29 @@ def execute(filters=None):
 
 def get_columns():
 	return [
-		{"label": _("Customer"), "fieldname": "customer", "fieldtype": "Link", "options": "Customer", "width": 220},
+		{
+			"label": _("Customer"),
+			"fieldname": "customer",
+			"fieldtype": "Link",
+			"options": "Customer",
+			"width": 220,
+		},
 		{"label": _("Inward Qty"), "fieldname": "inward_qty", "fieldtype": "Float", "width": 120},
 		{"label": _("Outward Qty"), "fieldname": "outward_qty", "fieldtype": "Float", "width": 120},
 		{"label": _("Transfer In Qty"), "fieldname": "transfer_in_qty", "fieldtype": "Float", "width": 140},
 		{"label": _("Transfer Out Qty"), "fieldname": "transfer_out_qty", "fieldtype": "Float", "width": 140},
-		{"label": _("Internal Transfer Qty"), "fieldname": "transfer_internal_qty", "fieldtype": "Float", "width": 160},
-		{"label": _("Total Transfer Qty"), "fieldname": "total_transfer_qty", "fieldtype": "Float", "width": 150},
+		{
+			"label": _("Internal Transfer Qty"),
+			"fieldname": "transfer_internal_qty",
+			"fieldtype": "Float",
+			"width": 160,
+		},
+		{
+			"label": _("Total Transfer Qty"),
+			"fieldname": "total_transfer_qty",
+			"fieldtype": "Float",
+			"width": 150,
+		},
 		{"label": _("Net Qty"), "fieldname": "net_qty", "fieldtype": "Float", "width": 120},
 		{"label": _("Total Movement Qty"), "fieldname": "movement_qty", "fieldtype": "Float", "width": 150},
 	]
@@ -220,7 +235,10 @@ def get_chart_data(data):
 			"datasets": [
 				{"name": _("Inward Qty"), "values": [flt(row.get("inward_qty")) for row in top_rows]},
 				{"name": _("Outward Qty"), "values": [flt(row.get("outward_qty")) for row in top_rows]},
-				{"name": _("Transfer Qty"), "values": [flt(row.get("total_transfer_qty")) for row in top_rows]},
+				{
+					"name": _("Transfer Qty"),
+					"values": [flt(row.get("total_transfer_qty")) for row in top_rows],
+				},
 			],
 		},
 		"type": "bar",

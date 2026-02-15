@@ -45,7 +45,9 @@ class TestColdStorageTransfer(TestCase):
 				"cold_storage.cold_storage.doctype.cold_storage_transfer.cold_storage_transfer.ColdStorageTransfer._get_stock_utils",
 				return_value=stock_utils,
 			),
-			patch("cold_storage.cold_storage.doctype.cold_storage_transfer.cold_storage_transfer.frappe.msgprint"),
+			patch(
+				"cold_storage.cold_storage.doctype.cold_storage_transfer.cold_storage_transfer.frappe.msgprint"
+			),
 		):
 			ColdStorageTransfer._create_stock_entry(doc)
 
@@ -67,7 +69,7 @@ class TestColdStorageTransfer(TestCase):
 					"uom": "Nos",
 					"batch_no": "BATCH-NEW-0001",
 					"t_warehouse": "WH-A",
-				}
+				},
 			],
 			reference_doctype="Cold Storage Transfer",
 			reference_name="CST-OWN-0001",
@@ -102,7 +104,9 @@ class TestColdStorageTransfer(TestCase):
 				"cold_storage.cold_storage.doctype.cold_storage_transfer.cold_storage_transfer.ColdStorageTransfer._get_stock_utils",
 				return_value=stock_utils,
 			),
-			patch("cold_storage.cold_storage.doctype.cold_storage_transfer.cold_storage_transfer.frappe.msgprint"),
+			patch(
+				"cold_storage.cold_storage.doctype.cold_storage_transfer.cold_storage_transfer.frappe.msgprint"
+			),
 		):
 			ColdStorageTransfer._create_stock_entry(doc)
 
@@ -153,7 +157,9 @@ class TestColdStorageTransfer(TestCase):
 				"cold_storage.cold_storage.doctype.cold_storage_transfer.cold_storage_transfer.ColdStorageTransfer._get_stock_utils",
 				return_value=stock_utils,
 			),
-			patch("cold_storage.cold_storage.doctype.cold_storage_transfer.cold_storage_transfer.frappe.msgprint"),
+			patch(
+				"cold_storage.cold_storage.doctype.cold_storage_transfer.cold_storage_transfer.frappe.msgprint"
+			),
 		):
 			ColdStorageTransfer._create_stock_entry(doc)
 
@@ -198,7 +204,9 @@ class TestColdStorageTransfer(TestCase):
 				"cold_storage.cold_storage.doctype.cold_storage_transfer.cold_storage_transfer.frappe.get_doc",
 				return_value=je,
 			) as get_doc,
-			patch("cold_storage.cold_storage.doctype.cold_storage_transfer.cold_storage_transfer.frappe.msgprint"),
+			patch(
+				"cold_storage.cold_storage.doctype.cold_storage_transfer.cold_storage_transfer.frappe.msgprint"
+			),
 		):
 			ColdStorageTransfer._cancel_linked_docs(doc)
 
@@ -229,7 +237,9 @@ class TestColdStorageTransfer(TestCase):
 				"cold_storage.cold_storage.doctype.cold_storage_transfer.cold_storage_transfer.frappe.get_doc",
 				return_value=je,
 			) as get_doc,
-			patch("cold_storage.cold_storage.doctype.cold_storage_transfer.cold_storage_transfer.frappe.msgprint"),
+			patch(
+				"cold_storage.cold_storage.doctype.cold_storage_transfer.cold_storage_transfer.frappe.msgprint"
+			),
 		):
 			ColdStorageTransfer._cancel_linked_docs(doc)
 
@@ -365,7 +375,9 @@ class TestColdStorageTransfer(TestCase):
 				"cold_storage.cold_storage.doctype.cold_storage_transfer.cold_storage_transfer.frappe.new_doc",
 				return_value=je,
 			),
-			patch("cold_storage.cold_storage.doctype.cold_storage_transfer.cold_storage_transfer.frappe.msgprint"),
+			patch(
+				"cold_storage.cold_storage.doctype.cold_storage_transfer.cold_storage_transfer.frappe.msgprint"
+			),
 		):
 			ColdStorageTransfer._process_location_transfer(doc)
 

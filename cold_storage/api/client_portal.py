@@ -647,16 +647,12 @@ def _render_portal_report_pdf_html(
 		for item in report_summary
 	)
 
-	header_cells = "".join(
-		f"<th>{escape_html(cstr(column['label']))}</th>"
-		for column in columns
-	)
+	header_cells = "".join(f"<th>{escape_html(cstr(column['label']))}</th>" for column in columns)
 
 	body_rows = []
 	for row in rows:
 		row_cells = "".join(
-			f"<td>{escape_html(_get_report_cell_value(row, column))}</td>"
-			for column in columns
+			f"<td>{escape_html(_get_report_cell_value(row, column))}</td>" for column in columns
 		)
 		body_rows.append(f"<tr>{row_cells}</tr>")
 

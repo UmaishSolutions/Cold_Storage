@@ -7,7 +7,6 @@ import frappe
 from frappe.custom.doctype.custom_field.custom_field import create_custom_fields
 from frappe.custom.doctype.property_setter.property_setter import make_property_setter
 
-
 APP_CUSTOM_FIELDS = {
 	"Batch": [
 		{
@@ -81,9 +80,7 @@ def _ensure_workspace_assets() -> None:
 
 	if frappe.db.exists("Report", WAREHOUSE_OCCUPANCY_REPORT):
 		has_report_link = any(
-			link.type == "Link"
-			and link.link_type == "Report"
-			and link.link_to == WAREHOUSE_OCCUPANCY_REPORT
+			link.type == "Link" and link.link_type == "Report" and link.link_to == WAREHOUSE_OCCUPANCY_REPORT
 			for link in workspace.get("links", [])
 		)
 		if not has_report_link:

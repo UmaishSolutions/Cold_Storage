@@ -25,8 +25,6 @@ def validate_batch_customer(doc: "frappe.types.Document", method: str | None = N
 		old_customer = doc.get_doc_before_save().get("custom_customer") if doc.get_doc_before_save() else None
 		if old_customer and old_customer != customer:
 			frappe.msgprint(
-				_("Batch {0} ownership changed from {1} to {2}").format(
-					doc.batch_id, old_customer, customer
-				),
+				_("Batch {0} ownership changed from {1} to {2}").format(doc.batch_id, old_customer, customer),
 				alert=True,
 			)

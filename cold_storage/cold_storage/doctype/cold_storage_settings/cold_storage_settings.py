@@ -61,9 +61,7 @@ class ColdStorageSettings(Document):
 			account_company = frappe.db.get_value("Account", account, "company")
 			if account_company != self.company:
 				frappe.throw(
-					frappe._(
-						"{0} ({1}) does not belong to Company {2}"
-					).format(label, account, self.company)
+					frappe._("{0} ({1}) does not belong to Company {2}").format(label, account, self.company)
 				)
 
 	def _validate_cost_center_belongs_to_company(self) -> None:

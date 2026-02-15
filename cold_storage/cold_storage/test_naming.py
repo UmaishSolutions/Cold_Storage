@@ -48,9 +48,7 @@ class TestColdStorageNaming(TestCase):
 			self.assertTrue(
 				is_cold_storage_prefixed_voucher("SCS-CS-SINV-2026-00001", "Siddique Cold Storage")
 			)
-			self.assertFalse(
-				is_cold_storage_prefixed_voucher("SCS-SINV-2026-00001", "Siddique Cold Storage")
-			)
+			self.assertFalse(is_cold_storage_prefixed_voucher("SCS-SINV-2026-00001", "Siddique Cold Storage"))
 
 	def test_autoname_cold_storage_gl_entry_assigns_prefixed_name(self):
 		doc = DummyDoc(
@@ -96,4 +94,3 @@ class TestColdStorageNaming(TestCase):
 
 		self.assertIsNone(doc.name)
 		make_name.assert_not_called()
-

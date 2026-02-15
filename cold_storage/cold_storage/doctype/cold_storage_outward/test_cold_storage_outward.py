@@ -39,7 +39,9 @@ class TestColdStorageOutward(TestCase):
 				"cold_storage.cold_storage.doctype.cold_storage_outward.cold_storage_outward.ColdStorageOutward._get_stock_utils",
 				return_value=stock_utils,
 			),
-			patch("cold_storage.cold_storage.doctype.cold_storage_outward.cold_storage_outward.frappe.msgprint"),
+			patch(
+				"cold_storage.cold_storage.doctype.cold_storage_outward.cold_storage_outward.frappe.msgprint"
+			),
 		):
 			ColdStorageOutward._create_stock_entry(doc)
 
@@ -77,7 +79,9 @@ class TestColdStorageOutward(TestCase):
 				"cold_storage.cold_storage.doctype.cold_storage_outward.cold_storage_outward.frappe.get_doc",
 				return_value=si,
 			),
-			patch("cold_storage.cold_storage.doctype.cold_storage_outward.cold_storage_outward.frappe.msgprint"),
+			patch(
+				"cold_storage.cold_storage.doctype.cold_storage_outward.cold_storage_outward.frappe.msgprint"
+			),
 		):
 			ColdStorageOutward._cancel_linked_docs(doc)
 

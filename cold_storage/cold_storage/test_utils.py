@@ -27,7 +27,9 @@ class TestUtils(TestCase):
 			"cold_storage.cold_storage.utils.get_batch_qty",
 			return_value=5.5,
 		):
-			self.assertEqual(get_batch_balance("BATCH-0001", warehouse="Main - CO", item_code="ITEM-001"), 5.5)
+			self.assertEqual(
+				get_batch_balance("BATCH-0001", warehouse="Main - CO", item_code="ITEM-001"), 5.5
+			)
 
 	def test_get_batch_balance_ignores_item_code_and_uses_batch_warehouse(self):
 		with patch(
@@ -210,7 +212,12 @@ class TestUtils(TestCase):
 				searchfield="name",
 				start=0,
 				page_len=20,
-				filters={"batch_no": "", "company": "Default Co", "customer": "CUST-0001", "item": "ITEM-001"},
+				filters={
+					"batch_no": "",
+					"company": "Default Co",
+					"customer": "CUST-0001",
+					"item": "ITEM-001",
+				},
 			)
 			self.assertEqual(rows, [])
 			stock_ledger_calls = [

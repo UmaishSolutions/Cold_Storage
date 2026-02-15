@@ -10,7 +10,6 @@ import frappe
 from frappe import _
 from frappe.utils import cstr
 
-
 SERIES_KEY_TO_TOKEN: Final[dict[str, str]] = {
 	"inward": "CS-IN",
 	"outward": "CS-OUT",
@@ -45,4 +44,3 @@ def is_cold_storage_prefixed_voucher(voucher_no: str, company: str) -> bool:
 	"""Return True when voucher belongs to the cold-storage naming namespace."""
 	abbr = get_company_abbreviation(company)
 	return cstr(voucher_no).strip().startswith(f"{abbr}-CS-")
-

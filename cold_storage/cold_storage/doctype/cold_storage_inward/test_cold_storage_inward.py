@@ -44,7 +44,9 @@ class TestColdStorageInward(TestCase):
 				"cold_storage.cold_storage.doctype.cold_storage_inward.cold_storage_inward.ColdStorageInward._get_stock_utils",
 				return_value=stock_utils,
 			),
-			patch("cold_storage.cold_storage.doctype.cold_storage_inward.cold_storage_inward.frappe.msgprint"),
+			patch(
+				"cold_storage.cold_storage.doctype.cold_storage_inward.cold_storage_inward.frappe.msgprint"
+			),
 		):
 			ColdStorageInward._create_stock_entry(doc)
 
@@ -131,7 +133,9 @@ class TestColdStorageInward(TestCase):
 				"cold_storage.cold_storage.doctype.cold_storage_inward.cold_storage_inward.frappe.get_doc",
 				side_effect=[si, je],
 			),
-			patch("cold_storage.cold_storage.doctype.cold_storage_inward.cold_storage_inward.frappe.msgprint"),
+			patch(
+				"cold_storage.cold_storage.doctype.cold_storage_inward.cold_storage_inward.frappe.msgprint"
+			),
 		):
 			ColdStorageInward._cancel_linked_docs(doc)
 
@@ -140,3 +144,46 @@ class TestColdStorageInward(TestCase):
 		self.assertTrue(je.flags.ignore_permissions)
 		si.cancel.assert_called_once()
 		je.cancel.assert_called_once()
+
+	def test_get_party_details_for_account_returns_customer_for_receivable(self):
+		doc = SimpleNamespace(customer="CUST-0001")
+
+		with patch(
+			"cold_storage.cold_storage.doctype.cold_storage_inward.cold_storage_inward.frappe.db.get_value",
+			return_value="Receivable",
+		):
+			result = ColdStorageInward._get_party_details_for_account(doc, "ACC-REC", "Default Co")
+
+		self.assertEqual(result, {"party_type": "Customer", "party": "CUST-0001"})
+
+	def test_get_party_details_for_account_returns_supplier_for_payable(self):
+		doc = SimpleNamespace(
+			_resolve_supplier_for_payable_account=Mock(return_value="SUP-0001"),
+		)
+
+		with patch(
+			"cold_storage.cold_storage.doctype.cold_storage_inward.cold_storage_inward.frappe.db.get_value",
+			return_value="Payable",
+		):
+			result = ColdStorageInward._get_party_details_for_account(doc, "ACC-PAY", "Default Co")
+
+		doc._resolve_supplier_for_payable_account.assert_called_once_with("ACC-PAY", "Default Co")
+		self.assertEqual(result, {"party_type": "Supplier", "party": "SUP-0001"})
+
+	def test_get_party_details_for_account_throws_when_payable_supplier_missing(self):
+		doc = SimpleNamespace(
+			_resolve_supplier_for_payable_account=Mock(return_value=None),
+		)
+
+		with (
+			patch(
+				"cold_storage.cold_storage.doctype.cold_storage_inward.cold_storage_inward.frappe.db.get_value",
+				return_value="Payable",
+			),
+			patch(
+				"cold_storage.cold_storage.doctype.cold_storage_inward.cold_storage_inward.frappe.throw",
+				side_effect=frappe.ValidationError("validation failed"),
+			),
+		):
+			with self.assertRaises(frappe.ValidationError):
+				ColdStorageInward._get_party_details_for_account(doc, "ACC-PAY", "Default Co")

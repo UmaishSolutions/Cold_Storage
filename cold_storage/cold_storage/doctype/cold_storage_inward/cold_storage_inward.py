@@ -293,9 +293,7 @@ class ColdStorageInward(Document):
 
 		return {}
 
-	def _resolve_supplier_for_payable_account(
-		self, account: str, company: str | None = None
-	) -> str | None:
+	def _resolve_supplier_for_payable_account(self, account: str, company: str | None = None) -> str | None:
 		"""Resolve Supplier for a payable account using Supplier > Accounts mapping."""
 		filters: dict[str, str] = {"parenttype": "Supplier", "account": account}
 		if company:

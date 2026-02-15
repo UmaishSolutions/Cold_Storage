@@ -1,7 +1,8 @@
+from datetime import date
+
 import frappe
 from frappe import _
 from frappe.utils import cint, flt, getdate, nowdate
-from datetime import date
 
 STATUS_CAPACITY_NOT_SET = "Capacity Not Set"
 STATUS_EMPTY = "Empty"
@@ -311,16 +312,12 @@ def get_chart_data(data, months, warehouses, filters):
 	labels = [month.strftime("%b %Y") for month in months]
 	datasets = []
 	for warehouse in selected_warehouses:
-		values = [
-			flt(occupancy_map.get((warehouse, month.strftime("%Y-%m-01")), 0)) for month in months
-		]
+		values = [flt(occupancy_map.get((warehouse, month.strftime("%Y-%m-01")), 0)) for month in months]
 		datasets.append({"name": warehouse, "values": values})
 
 	if not filters.get("warehouse"):
 		total_occupancy_by_month = get_total_occupancy_by_month(data)
-		total_values = [
-			flt(total_occupancy_by_month.get(month.strftime("%Y-%m-01"), 0)) for month in months
-		]
+		total_values = [flt(total_occupancy_by_month.get(month.strftime("%Y-%m-01"), 0)) for month in months]
 		datasets.append({"name": _("All Warehouses (Total)"), "values": total_values})
 
 	return {
@@ -363,7 +360,9 @@ def get_report_summary(data, months, warehouses):
 	latest_month = months[-1].strftime("%Y-%m-01")
 	latest_rows = [row for row in data if row.month_start == latest_month]
 
-	total_capacity = sum(flt(row.warehouse_capacity) for row in latest_rows if flt(row.warehouse_capacity) > 0)
+	total_capacity = sum(
+		flt(row.warehouse_capacity) for row in latest_rows if flt(row.warehouse_capacity) > 0
+	)
 	total_occupied = sum(flt(row.occupied_stock_qty) for row in latest_rows)
 	overall_occupancy_pct = (total_occupied / total_capacity * 100.0) if total_capacity else 0.0
 	over_capacity_count = sum(1 for row in latest_rows if row.status == STATUS_OVER_CAPACITY)

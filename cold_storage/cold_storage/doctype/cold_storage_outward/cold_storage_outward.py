@@ -1,11 +1,12 @@
 # Copyright (c) 2026, Umaish Solutions and contributors
 # For license information, please see license.txt
 
+from collections import defaultdict
+
 import frappe
 from frappe import _
 from frappe.model.document import Document
 from frappe.utils import flt, nowdate
-from collections import defaultdict
 
 
 class ColdStorageOutward(Document):
@@ -108,7 +109,9 @@ class ColdStorageOutward(Document):
 			requested_qty_map[key]["rows"].append(row.idx)
 
 		for (batch_no, warehouse, item_code), data in requested_qty_map.items():
-			available_qty = flt(get_batch_balance(batch_no=batch_no, warehouse=warehouse, item_code=item_code))
+			available_qty = flt(
+				get_batch_balance(batch_no=batch_no, warehouse=warehouse, item_code=item_code)
+			)
 			requested_qty = flt(data["qty"])
 			if requested_qty > available_qty:
 				rows = ", ".join(str(idx) for idx in data["rows"])
@@ -205,7 +208,9 @@ class ColdStorageOutward(Document):
 				si.append(
 					"items",
 					{
-						"item_name": _("Handling — {0} ({1})").format(row.item_name or row.item, row.batch_no),
+						"item_name": _("Handling — {0} ({1})").format(
+							row.item_name or row.item, row.batch_no
+						),
 						"description": _("Handling charges for Batch {0}, Qty {1}").format(
 							row.batch_no, row.qty
 						),

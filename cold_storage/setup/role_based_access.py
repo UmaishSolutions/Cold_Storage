@@ -9,7 +9,6 @@ import frappe
 from frappe.permissions import reset_perms
 from frappe.utils import cint
 
-
 PERMISSION_FIELDS: Final[tuple[str, ...]] = (
 	"select",
 	"read",

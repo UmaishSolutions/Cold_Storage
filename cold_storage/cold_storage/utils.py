@@ -249,7 +249,7 @@ def search_warehouses_for_batch(
 	)
 
 	matching_warehouses = []
-	for warehouse, in candidate_warehouses:
+	for (warehouse,) in candidate_warehouses:
 		qty = flt(get_batch_qty(batch_no=batch_no, warehouse=warehouse))
 		if qty > 0:
 			matching_warehouses.append((warehouse,))
@@ -422,7 +422,9 @@ def get_document_sidebar_qr_code_payload(doctype: str, docname: str) -> str:
 	lines = [
 		f"Document: {doctype}",
 		f"ID: {docname}",
-		f"Receipt #: {(doc.get('receipt_no') or '-').strip() or '-'}" if doctype == "Cold Storage Inward" else None,
+		f"Receipt #: {(doc.get('receipt_no') or '-').strip() or '-'}"
+		if doctype == "Cold Storage Inward"
+		else None,
 		f"Date: {doc.get('posting_date') or '-'}",
 		f"Customer: {customer_label}",
 		f"Item: {item_label}",

@@ -33,4 +33,3 @@ def autoname_cold_storage_gl_entry(doc, method: str | None = None) -> None:
 		return
 
 	doc.name = make_autoname(f"{get_series_for_company('gl_entry', company)}.#####", doc=doc)
-

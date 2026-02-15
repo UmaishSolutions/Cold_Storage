@@ -2,7 +2,6 @@ import frappe
 from frappe import _
 from frappe.utils import flt
 
-
 DOCSTATUS_LABELS = {0: "Draft", 1: "Submitted", 2: "Cancelled"}
 
 
@@ -17,15 +16,50 @@ def execute(filters=None):
 
 def get_columns():
 	return [
-		{"label": _("Inward"), "fieldname": "name", "fieldtype": "Link", "options": "Cold Storage Inward", "width": 180},
+		{
+			"label": _("Inward"),
+			"fieldname": "name",
+			"fieldtype": "Link",
+			"options": "Cold Storage Inward",
+			"width": 180,
+		},
 		{"label": _("Posting Date"), "fieldname": "posting_date", "fieldtype": "Date", "width": 110},
-		{"label": _("Customer"), "fieldname": "customer", "fieldtype": "Link", "options": "Customer", "width": 180},
+		{
+			"label": _("Customer"),
+			"fieldname": "customer",
+			"fieldtype": "Link",
+			"options": "Customer",
+			"width": 180,
+		},
 		{"label": _("Receipt #"), "fieldname": "receipt_no", "fieldtype": "Data", "width": 110},
 		{"label": _("Total Qty"), "fieldname": "total_qty", "fieldtype": "Float", "width": 110},
-		{"label": _("Unloading Charges"), "fieldname": "total_unloading_charges", "fieldtype": "Currency", "width": 150},
-		{"label": _("Stock Entry"), "fieldname": "stock_entry", "fieldtype": "Link", "options": "Stock Entry", "width": 170},
-		{"label": _("Sales Invoice"), "fieldname": "sales_invoice", "fieldtype": "Link", "options": "Sales Invoice", "width": 170},
-		{"label": _("Journal Entry"), "fieldname": "journal_entry", "fieldtype": "Link", "options": "Journal Entry", "width": 170},
+		{
+			"label": _("Unloading Charges"),
+			"fieldname": "total_unloading_charges",
+			"fieldtype": "Currency",
+			"width": 150,
+		},
+		{
+			"label": _("Stock Entry"),
+			"fieldname": "stock_entry",
+			"fieldtype": "Link",
+			"options": "Stock Entry",
+			"width": 170,
+		},
+		{
+			"label": _("Sales Invoice"),
+			"fieldname": "sales_invoice",
+			"fieldtype": "Link",
+			"options": "Sales Invoice",
+			"width": 170,
+		},
+		{
+			"label": _("Journal Entry"),
+			"fieldname": "journal_entry",
+			"fieldtype": "Link",
+			"options": "Journal Entry",
+			"width": 170,
+		},
 		{"label": _("Status"), "fieldname": "status", "fieldtype": "Data", "width": 100},
 	]
 
@@ -99,5 +133,10 @@ def get_report_summary(data):
 	return [
 		{"value": len(data), "label": _("Inward Receipts"), "datatype": "Int", "indicator": "Blue"},
 		{"value": total_qty, "label": _("Total Inward Qty"), "datatype": "Float", "indicator": "Green"},
-		{"value": total_charges, "label": _("Total Unloading Charges"), "datatype": "Currency", "indicator": "Orange"},
+		{
+			"value": total_charges,
+			"label": _("Total Unloading Charges"),
+			"datatype": "Currency",
+			"indicator": "Orange",
+		},
 	]
