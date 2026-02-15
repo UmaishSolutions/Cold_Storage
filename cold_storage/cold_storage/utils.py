@@ -326,9 +326,8 @@ def get_document_qr_code_payload(doctype: str, docname: str) -> str:
 	return frappe.utils.get_url_to_form(doctype, docname)
 
 
-def get_document_qr_code_data_uri(doctype: str, docname: str, scale: int = 4) -> str:
-	"""Return an SVG data URI for a document QR code, suitable for print formats."""
-	payload = get_document_qr_code_payload(doctype, docname)
+def _get_qr_code_data_uri(payload: str, scale: int = 4) -> str:
+	"""Return an SVG data URI for a QR payload."""
 	if not payload:
 		return ""
 
@@ -350,3 +349,108 @@ def get_document_qr_code_data_uri(doctype: str, docname: str, scale: int = 4) ->
 		stream.close()
 
 	return f"data:image/svg+xml;base64,{encoded_svg}"
+
+
+def _unique_compact(values: list[str], limit: int = 10) -> str:
+	"""Return unique non-empty values as a compact string."""
+	seen = set()
+	clean = []
+	for value in values or []:
+		text = (value or "").strip()
+		if not text or text in seen:
+			continue
+		seen.add(text)
+		clean.append(text)
+
+	if not clean:
+		return "-"
+
+	if len(clean) <= limit:
+		return ", ".join(clean)
+
+	return f"{', '.join(clean[:limit])} (+{len(clean) - limit} more)"
+
+
+def _get_posted_by_label(doc) -> str:
+	user = (doc.get("owner") or doc.get("modified_by") or "").strip()
+	if not user:
+		return "-"
+	return frappe.db.get_value("User", user, "full_name") or user
+
+
+def _get_customer_label(doc, doctype: str) -> str:
+	if doctype == "Cold Storage Transfer":
+		if doc.get("transfer_type") == "Ownership Transfer":
+			from_customer = (doc.get("from_customer") or "-").strip() or "-"
+			to_customer = (doc.get("to_customer") or "-").strip() or "-"
+			return f"{from_customer} -> {to_customer}"
+		return (doc.get("customer") or "").strip() or "-"
+
+	return (doc.get("customer") or "").strip() or "-"
+
+
+def _get_warehouse_label(items: list, doctype: str) -> str:
+	if doctype == "Cold Storage Transfer":
+		return _unique_compact(
+			[
+				f"{(row.get('source_warehouse') or '-').strip() or '-'} -> {(row.get('target_warehouse') or '-').strip() or '-'}"
+				for row in items
+			]
+		)
+
+	return _unique_compact([(row.get("warehouse") or "").strip() for row in items])
+
+
+def get_document_sidebar_qr_code_payload(doctype: str, docname: str) -> str:
+	"""Return a detailed QR payload for Cold Storage document sidebars."""
+	if not doctype or not docname:
+		return ""
+
+	if not frappe.db.exists(doctype, docname):
+		return ""
+
+	doc = frappe.get_doc(doctype, docname)
+	items = list(doc.get("items") or [])
+
+	item_label = _unique_compact([(row.get("item") or row.get("item_name") or "").strip() for row in items])
+	batch_label = _unique_compact([(row.get("batch_no") or "").strip() for row in items])
+	warehouse_label = _get_warehouse_label(items, doctype)
+	customer_label = _get_customer_label(doc, doctype)
+	posted_by = _get_posted_by_label(doc)
+	remarks = " ".join((doc.get("remarks") or "").split()) or "-"
+
+	lines = [
+		f"Document: {doctype}",
+		f"ID: {docname}",
+		f"Receipt #: {(doc.get('receipt_no') or '-').strip() or '-'}" if doctype == "Cold Storage Inward" else None,
+		f"Date: {doc.get('posting_date') or '-'}",
+		f"Customer: {customer_label}",
+		f"Item: {item_label}",
+		f"Batch No: {batch_label}",
+		f"Warehouse: {warehouse_label}",
+		f"Quantity: {flt(doc.get('total_qty'))}",
+		f"Remarks: {remarks}",
+		f"Posted By: {posted_by}",
+	]
+	lines = [line for line in lines if line]
+
+	return "\n".join(lines)
+
+
+@frappe.whitelist()
+def get_document_sidebar_qr_code_data_uri(doctype: str, docname: str, scale: int = 3) -> str:
+	"""Return QR data URI for sidebar view with key movement details."""
+	if not doctype or not docname:
+		return ""
+
+	if not frappe.has_permission(doctype=doctype, ptype="read", doc=docname):
+		frappe.throw(_("Not permitted"), frappe.PermissionError)
+
+	payload = get_document_sidebar_qr_code_payload(doctype, docname)
+	return _get_qr_code_data_uri(payload, scale=scale)
+
+
+def get_document_qr_code_data_uri(doctype: str, docname: str, scale: int = 4) -> str:
+	"""Return an SVG data URI for a document QR code, suitable for print formats."""
+	payload = get_document_qr_code_payload(doctype, docname)
+	return _get_qr_code_data_uri(payload, scale=scale)

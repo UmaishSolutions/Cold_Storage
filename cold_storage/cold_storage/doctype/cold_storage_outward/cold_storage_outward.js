@@ -104,6 +104,7 @@ frappe.ui.form.on("Cold Storage Outward", {
             );
         }
 
+		render_sidebar_qr_code(frm);
     },
 });
 
@@ -122,6 +123,55 @@ function set_company_prefixed_series(frm) {
 		if (frm.doc.naming_series !== series) {
 			frm.set_value("naming_series", series);
 		}
+	});
+}
+
+function render_sidebar_qr_code(frm) {
+	if (!frm.sidebar || !frm.sidebar.sidebar) {
+		return;
+	}
+
+	const sidebar = frm.sidebar.sidebar;
+	sidebar.find(".cs-doc-qr-section").remove();
+
+	if (frm.is_new()) {
+		return;
+	}
+
+	const section = $(
+		`<div class="sidebar-section cs-doc-qr-section border-bottom">
+			<div class="cs-doc-qr-content text-center"></div>
+		</div>`
+	);
+
+	sidebar.find(".sidebar-meta-details").after(section);
+	const content = section.find(".cs-doc-qr-content");
+
+	const docname = frm.doc.name;
+	frappe.call({
+		method: "cold_storage.cold_storage.utils.get_document_sidebar_qr_code_data_uri",
+		args: {
+			doctype: frm.doctype,
+			docname,
+			scale: 3,
+		},
+		callback(r) {
+			if (frm.doc.name !== docname) {
+				return;
+			}
+
+			const dataUri = r && r.message;
+			if (!dataUri) {
+				section.remove();
+				return;
+			}
+
+			content.html(
+				`<div class="text-center">
+					<img src="${dataUri}" alt="Document QR" style="width: 100%; max-width: 170px; border: 1px solid var(--border-color); border-radius: 8px; padding: 6px; background: #fff;" />
+				</div>`
+			);
+		},
 	});
 }
 
