@@ -79,6 +79,41 @@ ROLE_PROFILES: Final[dict[str, list[str]]] = {
 }
 
 DOCTYPE_PERMISSIONS: Final[dict[str, list[dict[str, int | str]]]] = {
+	"Charge Configuration": [
+		{
+			"role": "System Manager",
+			"select": 1,
+			"read": 1,
+			"write": 1,
+			"create": 1,
+			"delete": 1,
+			"report": 1,
+			"export": 1,
+			"share": 1,
+			"print": 1,
+			"email": 1,
+		},
+		{
+			"role": "Cold Storage Admin",
+			"select": 1,
+			"read": 1,
+			"write": 1,
+			"create": 1,
+			"delete": 1,
+			"print": 1,
+			"email": 1,
+		},
+		{
+			"role": "Cold Storage Warehouse Manager",
+			"select": 1,
+			"read": 1,
+		},
+		{
+			"role": "Cold Storage Billing Executive",
+			"select": 1,
+			"read": 1,
+		},
+	],
 	"Cold Storage Settings": [
 		{
 			"role": "System Manager",

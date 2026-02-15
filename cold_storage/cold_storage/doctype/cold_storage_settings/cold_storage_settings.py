@@ -183,3 +183,24 @@ def get_transfer_rate(item_group: str, transfer_type: str) -> float:
 		return 0.0
 
 	return get_charge_rate(item_group, rate_field)
+
+
+@frappe.whitelist()
+def get_item_group_rates(item_group: str) -> dict[str, float]:
+	"""Return configured charge rates for an item group."""
+	if not item_group:
+		return {
+			"unloading_rate": 0.0,
+			"handling_rate": 0.0,
+			"loading_rate": 0.0,
+			"inter_warehouse_transfer_rate": 0.0,
+			"intra_warehouse_transfer_rate": 0.0,
+		}
+
+	return {
+		"unloading_rate": get_charge_rate(item_group, "unloading_rate"),
+		"handling_rate": get_charge_rate(item_group, "handling_rate"),
+		"loading_rate": get_charge_rate(item_group, "loading_rate"),
+		"inter_warehouse_transfer_rate": get_charge_rate(item_group, "inter_warehouse_transfer_rate"),
+		"intra_warehouse_transfer_rate": get_charge_rate(item_group, "intra_warehouse_transfer_rate"),
+	}

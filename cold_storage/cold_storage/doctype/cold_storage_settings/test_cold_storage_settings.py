@@ -9,6 +9,7 @@ import frappe
 
 from cold_storage.cold_storage.doctype.cold_storage_settings.cold_storage_settings import (
 	get_default_company,
+	get_item_group_rates,
 	get_transfer_rate,
 	resolve_default_uom,
 	validate_warehouse_company,
@@ -79,6 +80,24 @@ class TestColdStorageSettingsHelpers(TestCase):
 
 		self.assertEqual(rate, 0.0)
 		get_charge_rate.assert_not_called()
+
+	def test_get_item_group_rates_returns_all_rate_fields(self):
+		with patch(
+			"cold_storage.cold_storage.doctype.cold_storage_settings.cold_storage_settings.get_charge_rate",
+			side_effect=[5.0, 6.0, 7.0, 8.0, 9.0],
+		):
+			rates = get_item_group_rates("Frozen Foods")
+
+		self.assertEqual(
+			rates,
+			{
+				"unloading_rate": 5.0,
+				"handling_rate": 6.0,
+				"loading_rate": 7.0,
+				"inter_warehouse_transfer_rate": 8.0,
+				"intra_warehouse_transfer_rate": 9.0,
+			},
+		)
 
 	def test_resolve_default_uom_prefers_nos(self):
 		with (

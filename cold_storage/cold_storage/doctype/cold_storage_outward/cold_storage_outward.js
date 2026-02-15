@@ -186,17 +186,14 @@ frappe.ui.form.on("Cold Storage Outward Item", {
                     frappe.model.set_value(cdt, cdn, "uom", r.stock_uom);
                     if (r.item_group) {
                         frappe.call({
-                            method: "frappe.client.get_list",
+                            method: "cold_storage.cold_storage.doctype.cold_storage_settings.cold_storage_settings.get_item_group_rates",
                             args: {
-                                doctype: "Charge Configuration",
-                                filters: { parent: "Cold Storage Settings", item_group: r.item_group },
-                                fields: ["handling_rate", "loading_rate"],
-                                limit_page_length: 1,
+                                item_group: r.item_group,
                             },
                             callback(resp) {
-                                if (resp.message && resp.message.length) {
-                                    frappe.model.set_value(cdt, cdn, "handling_rate", resp.message[0].handling_rate);
-                                    frappe.model.set_value(cdt, cdn, "loading_rate", resp.message[0].loading_rate);
+                                if (resp.message) {
+                                    frappe.model.set_value(cdt, cdn, "handling_rate", flt(resp.message.handling_rate));
+                                    frappe.model.set_value(cdt, cdn, "loading_rate", flt(resp.message.loading_rate));
                                 }
                             },
                         });

@@ -181,16 +181,13 @@ frappe.ui.form.on("Cold Storage Inward Item", {
                     // Fetch rate
                     if (r.item_group) {
                         frappe.call({
-                            method: "frappe.client.get_list",
+                            method: "cold_storage.cold_storage.doctype.cold_storage_settings.cold_storage_settings.get_item_group_rates",
                             args: {
-                                doctype: "Charge Configuration",
-                                filters: { parent: "Cold Storage Settings", item_group: r.item_group },
-                                fields: ["unloading_rate"],
-                                limit_page_length: 1,
+                                item_group: r.item_group,
                             },
                             callback(resp) {
-                                if (resp.message && resp.message.length) {
-                                    frappe.model.set_value(cdt, cdn, "unloading_rate", resp.message[0].unloading_rate);
+                                if (resp.message) {
+                                    frappe.model.set_value(cdt, cdn, "unloading_rate", flt(resp.message.unloading_rate));
                                 }
                             },
                         });
