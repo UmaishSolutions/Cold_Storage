@@ -182,6 +182,7 @@ def after_migrate() -> None:
 	_ensure_batch_customizations()
 	_ensure_dashboard_chart_types()
 	_ensure_workspace_assets()
+	_sync_role_based_access()
 
 
 def _sync_role_based_access() -> None:
