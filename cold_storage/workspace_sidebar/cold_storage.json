@@ -107,6 +107,18 @@
    "icon": "",
    "indent": 0,
    "keep_closed": 0,
+   "label": "Customer Register",
+   "link_to": "Cold Storage Customer Register",
+   "link_type": "Report",
+   "show_arrow": 0,
+   "type": "Link"
+  },
+  {
+   "child": 1,
+   "collapsible": 1,
+   "icon": "",
+   "indent": 0,
+   "keep_closed": 0,
    "label": "Warehouse Utilization",
    "link_to": "Cold Storage Warehouse Utilization",
    "link_type": "Report",
@@ -196,7 +208,7 @@
    "type": "Link"
   }
  ],
- "modified": "2026-02-14 19:10:04.816780",
+ "modified": "2026-02-15 12:00:00.000000",
  "modified_by": "Administrator",
  "module": "Cold Storage",
  "name": "Cold Storage",
