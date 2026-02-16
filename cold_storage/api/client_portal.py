@@ -12,7 +12,7 @@ from urllib.parse import quote, urlencode
 import frappe
 from frappe import _
 from frappe.desk.query_report import run as run_query_report
-from frappe.utils import cint, cstr, flt, now_datetime
+from frappe.utils import cint, cstr, flt, getdate, now_datetime
 from frappe.utils.data import escape_html, format_datetime, formatdate
 from frappe.utils.pdf import get_pdf
 
@@ -104,6 +104,91 @@ def get_portal_snapshot(limit: int = DEFAULT_LIMIT, customer: str | None = None)
 		"reports": report_rows,
 	}
 
+@frappe.whitelist()
+def create_service_request(request_type: str, customer: str, items: list[dict], required_date: str) -> dict:
+	"""Create a Draft Inward or Outward document."""
+	_ensure_client_portal_access()
+	
+	if request_type not in ("Inward", "Outward"):
+		frappe.throw(_("Invalid request type"), frappe.ValidationError)
+
+	if not items:
+		frappe.throw(_("At least one item is required"), frappe.ValidationError)
+
+	# Validate customer access
+	_customers, _available_customers, _selected_customer = _resolve_customer_scope(customer)
+
+	doctype = "Cold Storage Inward" if request_type == "Inward" else "Cold Storage Outward"
+	
+	doc = frappe.new_doc(doctype)
+	doc.customer = customer
+	doc.posting_date = getdate(required_date) if required_date else now_datetime().date()
+	
+	# Set Naming Series based on type
+	if request_type == "Inward":
+		doc.naming_series = "CS-IN-.YYYY.-"
+	else:
+		doc.naming_series = "CS-OUT-.YYYY.-"
+
+	for item in items:
+		row = doc.append("items", {})
+		row.item_code = item.get("item_code")
+		row.qty = flt(item.get("qty"))
+		if item.get("batch_no"):
+			row.batch_no = item.get("batch_no")
+
+	doc.insert(ignore_permissions=True)
+	
+	return {
+		"name": doc.name,
+		"message": _("Request created successfully")
+	}
+@frappe.whitelist()
+def get_available_items(customer: str | None = None, request_type: str = "Inward") -> list[str]:
+	"""Fetch available item codes for the customer based on request type."""
+	_ensure_client_portal_access()
+	
+	if request_type == "Outward":
+		# For Outward, only allow items currently in stock for this customer
+		if not customer:
+			return []
+		
+		# Validate customer scope
+		_customers, _available, _selected = _resolve_customer_scope(customer)
+		if not _customers:
+			return []
+
+		return frappe.db.sql(
+			"""
+			select distinct stock.item_code
+			from `tabBatch` batch
+			join (
+				select item_code, batch_no, sum(actual_qty) as qty
+				from `tabStock Ledger Entry`
+				where is_cancelled = 0
+				group by item_code, batch_no
+			) stock on stock.batch_no = batch.name
+			where batch.custom_customer = %(customer)s
+				and stock.qty > 0
+			order by stock.item_code
+			""",
+			{"customer": customer},
+			pluck=True
+		)
+
+	# For Inward, return all enabled Stock Items
+	return frappe.get_all(
+		"Item",
+		filters={"disabled": 0, "is_stock_item": 1, "has_batch_no": 1},
+		pluck="name",
+		order_by="name asc"
+	)
+
+@frappe.whitelist()
+def get_item_details(item_code: str) -> dict:
+	"""Fetch item name and details."""
+	_ensure_client_portal_access()
+	return frappe.db.get_value("Item", item_code, ["item_name", "stock_uom", "description"], as_dict=True) or {}
 
 @frappe.whitelist()
 def download_stock_csv(customer: str | None = None) -> None:
@@ -405,16 +490,16 @@ def _get_movement_rows(customers: list[str], row_limit: int) -> list[dict]:
 
 	inward_docs = frappe.get_all(
 		"Cold Storage Inward",
-		filters={"docstatus": 1, "customer": ["in", customers]},
-		fields=["name", "posting_date", "customer", "total_qty", "stock_entry", "sales_invoice", "modified"],
+		filters={"docstatus": ["in", [0, 1]], "customer": ["in", customers]},
+		fields=["name", "posting_date", "customer", "total_qty", "stock_entry", "sales_invoice", "modified", "docstatus"],
 		order_by="posting_date desc, modified desc",
 		limit_page_length=row_limit,
 		ignore_permissions=True,
 	)
 	outward_docs = frappe.get_all(
 		"Cold Storage Outward",
-		filters={"docstatus": 1, "customer": ["in", customers]},
-		fields=["name", "posting_date", "customer", "total_qty", "stock_entry", "sales_invoice", "modified"],
+		filters={"docstatus": ["in", [0, 1]], "customer": ["in", customers]},
+		fields=["name", "posting_date", "customer", "total_qty", "stock_entry", "sales_invoice", "modified", "docstatus"],
 		order_by="posting_date desc, modified desc",
 		limit_page_length=row_limit,
 		ignore_permissions=True,
@@ -431,9 +516,10 @@ def _get_movement_rows(customers: list[str], row_limit: int) -> list[dict]:
 			total_qty,
 			stock_entry,
 			journal_entry,
-			modified
+			modified,
+			docstatus
 		from `tabCold Storage Transfer`
-		where docstatus = 1
+		where docstatus in (0, 1)
 			and (
 				customer in %(customers)s
 				or from_customer in %(customers)s
@@ -459,6 +545,7 @@ def _get_movement_rows(customers: list[str], row_limit: int) -> list[dict]:
 			"qty": flt(row.total_qty, 3),
 			"reference": row.sales_invoice or row.stock_entry or "",
 			"modified": row.modified,
+			"status": "Draft" if row.docstatus == 0 else "Submitted",
 		}
 		for row in inward_docs
 	)
@@ -471,6 +558,7 @@ def _get_movement_rows(customers: list[str], row_limit: int) -> list[dict]:
 			"qty": flt(row.total_qty, 3),
 			"reference": row.sales_invoice or row.stock_entry or "",
 			"modified": row.modified,
+			"status": "Draft" if row.docstatus == 0 else "Submitted",
 		}
 		for row in outward_docs
 	)
@@ -483,6 +571,7 @@ def _get_movement_rows(customers: list[str], row_limit: int) -> list[dict]:
 			"qty": flt(row.total_qty, 3),
 			"reference": row.journal_entry or row.stock_entry or "",
 			"modified": row.modified,
+			"status": "Draft" if row.docstatus == 0 else "Submitted",
 		}
 		for row in transfer_docs
 	)

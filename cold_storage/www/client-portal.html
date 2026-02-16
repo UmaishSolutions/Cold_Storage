@@ -657,6 +657,7 @@
 	}
 
 	@media (prefers-reduced-motion: reduce) {
+
 		.cs-btn,
 		.cs-chip,
 		.cs-select,
@@ -664,6 +665,75 @@
 		.cs-board {
 			transition: none;
 		}
+	}
+
+	.cs-btn-primary {
+		background: var(--cs-accent);
+		color: #ffffff;
+		border-color: var(--cs-accent);
+	}
+
+	.cs-btn-primary:hover {
+		background: var(--cs-accent-strong);
+		color: #ffffff;
+	}
+
+	.cs-btn-primary .cs-btn-dot {
+		background: #ffffff;
+	}
+
+	.cs-modal-overlay {
+		position: fixed;
+		inset: 0;
+		background: rgba(15, 51, 44, 0.4);
+		backdrop-filter: blur(4px);
+		z-index: 100;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		padding: 1rem;
+	}
+
+	.cs-modal {
+		background: #ffffff;
+		border-radius: 1rem;
+		box-shadow: var(--cs-shadow-strong);
+		width: 100%;
+		max-width: 500px;
+		display: flex;
+		flex-direction: column;
+		gap: 1.2rem;
+		padding: 1.5rem;
+		max-height: 90vh;
+		overflow-y: auto;
+	}
+
+	.cs-modal-header {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+	}
+
+	.cs-modal-title {
+		margin: 0;
+		font-size: 1.2rem;
+		font-weight: 700;
+		color: var(--cs-headline);
+	}
+
+	.cs-req-item-row {
+		display: grid;
+		grid-template-columns: 2fr 1fr auto;
+		gap: 0.5rem;
+		align-items: end;
+		margin-bottom: 0.5rem;
+	}
+
+	.cs-modal-footer {
+		display: flex;
+		justify-content: flex-end;
+		padding-top: 1rem;
+		border-top: 1px solid var(--cs-border);
 	}
 </style>
 
@@ -688,7 +758,15 @@
 				</div>
 				<div class="cs-field">
 					<label class="cs-label" for="cs-global-search">Global Search</label>
-					<input class="cs-input" id="cs-global-search" type="search" placeholder="Search across all portal sections" />
+					<input class="cs-input" id="cs-global-search" type="search"
+						placeholder="Search across all portal sections" />
+				</div>
+				<div class="cs-field">
+					<label class="cs-label" for="cs-new-request-btn">Actions</label>
+					<button class="cs-btn cs-btn-primary" id="cs-new-request-btn" type="button">
+						<span class="cs-btn-dot" aria-hidden="true"></span>
+						New Request
+					</button>
 				</div>
 				<div class="cs-field">
 					<label class="cs-label" for="cs-refresh-btn">Data Controls</label>
@@ -704,7 +782,8 @@
 		</header>
 
 		<nav class="cs-nav cs-animate" data-delay="2" aria-label="Portal sections">
-			<button class="cs-chip cs-chip-active" type="button" data-section="stock" data-jump="#cs-section-stock" aria-current="true">
+			<button class="cs-chip cs-chip-active" type="button" data-section="stock" data-jump="#cs-section-stock"
+				aria-current="true">
 				Stock
 				<span class="cs-chip-count" id="cs-nav-stock-count">0</span>
 			</button>
@@ -756,7 +835,8 @@
 		</div>
 
 		<section class="cs-layout">
-			<article class="cs-board cs-section cs-animate" data-delay="1" id="cs-section-stock" data-section="stock" data-span="6">
+			<article class="cs-board cs-section cs-animate" data-delay="1" id="cs-section-stock" data-section="stock"
+				data-span="6">
 				<header class="cs-board-head">
 					<div class="cs-board-head-main">
 						<h2 class="cs-board-title">Current Stock</h2>
@@ -770,7 +850,8 @@
 					</div>
 				</header>
 				<div class="cs-tools">
-					<input class="cs-input cs-section-search" id="cs-stock-search" type="search" placeholder="Search customer, item, batch, warehouse" />
+					<input class="cs-input cs-section-search" id="cs-stock-search" type="search"
+						placeholder="Search customer, item, batch, warehouse" />
 				</div>
 				<div class="cs-table-wrap">
 					<table class="table cs-table" id="cs-stock-table">
@@ -788,7 +869,8 @@
 				</div>
 			</article>
 
-			<article class="cs-board cs-section cs-animate" data-delay="1" id="cs-section-movements" data-section="movements" data-span="6">
+			<article class="cs-board cs-section cs-animate" data-delay="1" id="cs-section-movements"
+				data-section="movements" data-span="6">
 				<header class="cs-board-head">
 					<div class="cs-board-head-main">
 						<h2 class="cs-board-title">Recent Movements</h2>
@@ -802,7 +884,8 @@
 					</div>
 				</header>
 				<div class="cs-tools">
-					<input class="cs-input cs-section-search" id="cs-movement-search" type="search" placeholder="Search movement type, document, customer, date" />
+					<input class="cs-input cs-section-search" id="cs-movement-search" type="search"
+						placeholder="Search movement type, document, customer, date" />
 				</div>
 				<div class="cs-table-wrap">
 					<table class="table cs-table" id="cs-movement-table">
@@ -820,7 +903,8 @@
 				</div>
 			</article>
 
-			<article class="cs-board cs-section cs-animate" data-delay="2" id="cs-section-invoices" data-section="invoices" data-span="12">
+			<article class="cs-board cs-section cs-animate" data-delay="2" id="cs-section-invoices"
+				data-section="invoices" data-span="12">
 				<header class="cs-board-head">
 					<div class="cs-board-head-main">
 						<h2 class="cs-board-title">Invoices</h2>
@@ -834,7 +918,8 @@
 					</div>
 				</header>
 				<div class="cs-tools">
-					<input class="cs-input cs-section-search" id="cs-invoice-search" type="search" placeholder="Search invoice, customer, status, currency" />
+					<input class="cs-input cs-section-search" id="cs-invoice-search" type="search"
+						placeholder="Search invoice, customer, status, currency" />
 				</div>
 				<div class="cs-table-wrap">
 					<table class="table cs-table" id="cs-invoice-table">
@@ -847,7 +932,7 @@
 								<th>Currency</th>
 								<th class="text-end">Grand Total</th>
 								<th class="text-end">Outstanding</th>
-									<th>Status</th>
+								<th>Status</th>
 							</tr>
 						</thead>
 						<tbody></tbody>
@@ -855,7 +940,8 @@
 				</div>
 			</article>
 
-			<article class="cs-board cs-section cs-animate" data-delay="3" id="cs-section-reports" data-section="reports" data-span="12">
+			<article class="cs-board cs-section cs-animate" data-delay="3" id="cs-section-reports"
+				data-section="reports" data-span="12">
 				<header class="cs-board-head">
 					<div class="cs-board-head-main">
 						<h2 class="cs-board-title">Reports</h2>
@@ -863,7 +949,8 @@
 					</div>
 				</header>
 				<div class="cs-tools">
-					<input class="cs-input cs-section-search" id="cs-report-search" type="search" placeholder="Search report name or description" />
+					<input class="cs-input cs-section-search" id="cs-report-search" type="search"
+						placeholder="Search report name or description" />
 				</div>
 				<div class="cs-table-wrap">
 					<table class="table cs-table" id="cs-report-table">
@@ -879,329 +966,363 @@
 				</div>
 			</article>
 		</section>
+
+		<div class="cs-modal-overlay d-none" id="cs-request-modal">
+			<div class="cs-modal">
+				<div class="cs-modal-header">
+					<h3 class="cs-modal-title">New Service Request</h3>
+					<button class="cs-btn cs-btn-sm" id="cs-modal-close" type="button">Close</button>
+				</div>
+				<div class="cs-modal-body">
+					<div class="cs-field">
+						<label class="cs-label">Request Type</label>
+						<select class="cs-select" id="cs-req-type">
+							<option value="Inward">Inward (Receipt)</option>
+							<option value="Outward">Outward (Dispatch)</option>
+						</select>
+					</div>
+					<div class="cs-field">
+						<label class="cs-label">Required Date</label>
+						<input class="cs-input" type="date" id="cs-req-date">
+					</div>
+					<div class="cs-field">
+						<label class="cs-label">Items</label>
+						<div class="cs-req-items" id="cs-req-items">
+							<!-- Items will be added here -->
+						</div>
+						<button class="cs-btn cs-btn-sm mt-2" id="cs-add-item-btn" type="button">+ Add Item</button>
+					</div>
+				</div>
+				<div class="cs-modal-footer">
+					<button class="cs-btn cs-btn-primary" id="cs-submit-request-btn" type="button">Submit
+						Request</button>
+				</div>
+				<datalist id="item-list"></datalist>
+			</div>
+		</div>
 	</div>
 </section>
 
 <script>
-(() => {
-	const snapshotMethod = "cold_storage.api.client_portal.get_portal_snapshot";
-	const downloadMethods = {
-		stock: "/api/method/cold_storage.api.client_portal.download_stock_csv",
-		movements: "/api/method/cold_storage.api.client_portal.download_movements_csv",
-		invoices: "/api/method/cold_storage.api.client_portal.download_invoices_csv",
-	};
+	(() => {
+		const snapshotMethod = "cold_storage.api.client_portal.get_portal_snapshot";
+		const downloadMethods = {
+			stock: "/api/method/cold_storage.api.client_portal.download_stock_csv",
+			movements: "/api/method/cold_storage.api.client_portal.download_movements_csv",
+			invoices: "/api/method/cold_storage.api.client_portal.download_invoices_csv",
+		};
 
-	let selectedCustomer = "";
-	const state = {
-		customers: [],
-		stock: [],
-		movements: [],
-		invoices: [],
-		reports: [],
-	};
+		let selectedCustomer = "";
+		const state = {
+			customers: [],
+			stock: [],
+			movements: [],
+			invoices: [],
+			reports: [],
+		};
 
-	const searchTerms = {
-		global: "",
-		stock: "",
-		movements: "",
-		invoices: "",
-		reports: "",
-	};
+		const searchTerms = {
+			global: "",
+			stock: "",
+			movements: "",
+			invoices: "",
+			reports: "",
+		};
 
-	const shell = document.getElementById("cs-shell");
-	const stockBody = document.querySelector("#cs-stock-table tbody");
-	const movementBody = document.querySelector("#cs-movement-table tbody");
-	const invoiceBody = document.querySelector("#cs-invoice-table tbody");
-	const reportBody = document.querySelector("#cs-report-table tbody");
+		const shell = document.getElementById("cs-shell");
+		const stockBody = document.querySelector("#cs-stock-table tbody");
+		const movementBody = document.querySelector("#cs-movement-table tbody");
+		const invoiceBody = document.querySelector("#cs-invoice-table tbody");
+		const reportBody = document.querySelector("#cs-report-table tbody");
 
-	const stockCount = document.getElementById("cs-stock-count");
-	const movementCount = document.getElementById("cs-movement-count");
-	const invoiceCount = document.getElementById("cs-invoice-count");
-	const reportCount = document.getElementById("cs-report-count");
+		const stockCount = document.getElementById("cs-stock-count");
+		const movementCount = document.getElementById("cs-movement-count");
+		const invoiceCount = document.getElementById("cs-invoice-count");
+		const reportCount = document.getElementById("cs-report-count");
 
-	const navStockCount = document.getElementById("cs-nav-stock-count");
-	const navMovementCount = document.getElementById("cs-nav-movement-count");
-	const navInvoiceCount = document.getElementById("cs-nav-invoice-count");
-	const navReportCount = document.getElementById("cs-nav-report-count");
+		const navStockCount = document.getElementById("cs-nav-stock-count");
+		const navMovementCount = document.getElementById("cs-nav-movement-count");
+		const navInvoiceCount = document.getElementById("cs-nav-invoice-count");
+		const navReportCount = document.getElementById("cs-nav-report-count");
 
-	const customersBanner = document.getElementById("cs-customers");
-	const emptyState = document.getElementById("cs-empty-state");
-	const systemState = document.getElementById("cs-system-state");
-	const systemStateText = document.getElementById("cs-system-state-text");
-	const refreshLabel = document.getElementById("cs-last-refresh");
-	const refreshButton = document.getElementById("cs-refresh-btn");
-	const focusSearchButton = document.getElementById("cs-focus-search-btn");
-	const customerFilterWrap = document.getElementById("cs-customer-filter-wrap");
-	const customerFilter = document.getElementById("cs-customer-filter");
-	const globalSearchInput = document.getElementById("cs-global-search");
+		const customersBanner = document.getElementById("cs-customers");
+		const emptyState = document.getElementById("cs-empty-state");
+		const systemState = document.getElementById("cs-system-state");
+		const systemStateText = document.getElementById("cs-system-state-text");
+		const refreshLabel = document.getElementById("cs-last-refresh");
+		const refreshButton = document.getElementById("cs-refresh-btn");
+		const focusSearchButton = document.getElementById("cs-focus-search-btn");
+		const customerFilterWrap = document.getElementById("cs-customer-filter-wrap");
+		const customerFilter = document.getElementById("cs-customer-filter");
+		const globalSearchInput = document.getElementById("cs-global-search");
 
-	const sectionButtons = Array.from(document.querySelectorAll(".cs-chip[data-jump]"));
-	const sections = Array.from(document.querySelectorAll(".cs-section[data-section]"));
+		const sectionButtons = Array.from(document.querySelectorAll(".cs-chip[data-jump]"));
+		const sections = Array.from(document.querySelectorAll(".cs-section[data-section]"));
 
-	const searchInputs = {
-		stock: document.getElementById("cs-stock-search"),
-		movements: document.getElementById("cs-movement-search"),
-		invoices: document.getElementById("cs-invoice-search"),
-		reports: document.getElementById("cs-report-search"),
-	};
+		const searchInputs = {
+			stock: document.getElementById("cs-stock-search"),
+			movements: document.getElementById("cs-movement-search"),
+			invoices: document.getElementById("cs-invoice-search"),
+			reports: document.getElementById("cs-report-search"),
+		};
 
-	const sectionSearchInputs = {
-		stock: searchInputs.stock,
-		movements: searchInputs.movements,
-		invoices: searchInputs.invoices,
-		reports: searchInputs.reports,
-	};
+		const sectionSearchInputs = {
+			stock: searchInputs.stock,
+			movements: searchInputs.movements,
+			invoices: searchInputs.invoices,
+			reports: searchInputs.reports,
+		};
 
-	const kpiStockRows = document.getElementById("cs-kpi-stock-rows");
-	const kpiTotalQty = document.getElementById("cs-kpi-total-qty");
-	const kpiMovements = document.getElementById("cs-kpi-movements");
-	const kpiInvoices = document.getElementById("cs-kpi-invoices");
-	const kpiOutstanding = document.getElementById("cs-kpi-outstanding");
-	const kpiReports = document.getElementById("cs-kpi-reports");
+		const kpiStockRows = document.getElementById("cs-kpi-stock-rows");
+		const kpiTotalQty = document.getElementById("cs-kpi-total-qty");
+		const kpiMovements = document.getElementById("cs-kpi-movements");
+		const kpiInvoices = document.getElementById("cs-kpi-invoices");
+		const kpiOutstanding = document.getElementById("cs-kpi-outstanding");
+		const kpiReports = document.getElementById("cs-kpi-reports");
 
-	const escapeHtml = (value) => {
-		const text = String(value ?? "");
-		return text
-			.replaceAll("&", "&amp;")
-			.replaceAll("<", "&lt;")
-			.replaceAll(">", "&gt;")
-			.replaceAll('"', "&quot;")
-			.replaceAll("'", "&#39;");
-	};
+		const escapeHtml = (value) => {
+			const text = String(value ?? "");
+			return text
+				.replaceAll("&", "&amp;")
+				.replaceAll("<", "&lt;")
+				.replaceAll(">", "&gt;")
+				.replaceAll('"', "&quot;")
+				.replaceAll("'", "&#39;");
+		};
 
-	const toSearch = (value) => String(value ?? "").trim().toLowerCase();
+		const toSearch = (value) => String(value ?? "").trim().toLowerCase();
 
-	const formatDate = (value) => {
-		if (!value) return "";
-		const date = new Date(value);
-		return Number.isNaN(date.getTime()) ? value : date.toLocaleDateString();
-	};
+		const formatDate = (value) => {
+			if (!value) return "";
+			const date = new Date(value);
+			return Number.isNaN(date.getTime()) ? value : date.toLocaleDateString();
+		};
 
-	const formatNumber = (value) => {
-		const num = Number(value || 0);
-		return Number.isFinite(num)
-			? num.toLocaleString(undefined, { maximumFractionDigits: 3 })
-			: "0";
-	};
+		const formatNumber = (value) => {
+			const num = Number(value || 0);
+			return Number.isFinite(num)
+				? num.toLocaleString(undefined, { maximumFractionDigits: 3 })
+				: "0";
+		};
 
-	const formatMoney = (value) => {
-		const num = Number(value || 0);
-		if (!Number.isFinite(num)) return "0";
-		return num.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-	};
+		const formatMoney = (value) => {
+			const num = Number(value || 0);
+			if (!Number.isFinite(num)) return "0";
+			return num.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+		};
 
-	const setSystemState = (text, stateClass) => {
-		if (systemStateText) {
-			systemStateText.textContent = text;
-		}
-		if (!systemState) return;
-		systemState.classList.remove("is-loading", "is-live", "is-error");
-		if (stateClass) {
-			systemState.classList.add(stateClass);
-		}
-	};
-
-	const setRefreshButton = (label, isLoading) => {
-		if (!refreshButton) return;
-		refreshButton.disabled = Boolean(isLoading);
-		refreshButton.innerHTML = `<span class="cs-btn-dot" aria-hidden="true"></span>${escapeHtml(label)}`;
-	};
-
-	const setPanelCount = (element, visibleRows, totalRows) => {
-		if (!element) return;
-		if (!totalRows) {
-			element.textContent = "0 rows";
-			return;
-		}
-		if (visibleRows === totalRows) {
-			element.textContent = `${formatNumber(totalRows)} rows`;
-			return;
-		}
-		element.textContent = `${formatNumber(visibleRows)} of ${formatNumber(totalRows)} rows`;
-	};
-
-	const setNavCount = (element, value) => {
-		if (!element) return;
-		element.textContent = formatNumber(value || 0);
-	};
-
-	const setActiveSection = (key) => {
-		sectionButtons.forEach((button) => {
-			const isActive = (button.getAttribute("data-section") || "") === key;
-			button.classList.toggle("cs-chip-active", isActive);
-			button.setAttribute("aria-current", isActive ? "true" : "false");
-		});
-	};
-
-	const observeSections = () => {
-		if (!sections.length || typeof IntersectionObserver === "undefined") return;
-		const observer = new IntersectionObserver(
-			(entries) => {
-				const visible = entries
-					.filter((entry) => entry.isIntersecting)
-					.sort((a, b) => b.intersectionRatio - a.intersectionRatio);
-				if (!visible.length) return;
-				const key = visible[0].target.getAttribute("data-section") || "";
-				if (key) setActiveSection(key);
-			},
-			{
-				rootMargin: "-30% 0px -55% 0px",
-				threshold: [0.2, 0.4, 0.6],
+		const setSystemState = (text, stateClass) => {
+			if (systemStateText) {
+				systemStateText.textContent = text;
 			}
-		);
-		sections.forEach((section) => observer.observe(section));
-	};
-
-	const isTypingContext = (element) => {
-		if (!element) return false;
-		const tagName = element.tagName || "";
-		return (
-			element.isContentEditable
-			|| tagName === "INPUT"
-			|| tagName === "TEXTAREA"
-			|| tagName === "SELECT"
-		);
-	};
-
-	const nearestSectionKey = () => {
-		if (!sections.length) return "stock";
-		const anchor = 150;
-		let currentKey = sections[0].getAttribute("data-section") || "stock";
-		let smallestGap = Number.POSITIVE_INFINITY;
-		sections.forEach((section) => {
-			const rect = section.getBoundingClientRect();
-			const gap = Math.abs(rect.top - anchor);
-			if (gap < smallestGap) {
-				smallestGap = gap;
-				currentKey = section.getAttribute("data-section") || currentKey;
+			if (!systemState) return;
+			systemState.classList.remove("is-loading", "is-live", "is-error");
+			if (stateClass) {
+				systemState.classList.add(stateClass);
 			}
-		});
-		return currentKey;
-	};
+		};
 
-	const focusSectionSearch = (sectionKey) => {
-		const input = sectionSearchInputs[sectionKey] || globalSearchInput;
-		if (!input) return;
-		input.focus({ preventScroll: true });
-		input.select();
-	};
+		const setRefreshButton = (label, isLoading) => {
+			if (!refreshButton) return;
+			refreshButton.disabled = Boolean(isLoading);
+			refreshButton.innerHTML = `<span class="cs-btn-dot" aria-hidden="true"></span>${escapeHtml(label)}`;
+		};
 
-	const linkCell = (value, route) => {
-		if (!value) return "";
-		if (!route) return escapeHtml(value);
-		return `<a class="cs-link" href="${encodeURI(route)}" target="_blank" rel="noopener">${escapeHtml(value)}</a>`;
-	};
+		const setPanelCount = (element, visibleRows, totalRows) => {
+			if (!element) return;
+			if (!totalRows) {
+				element.textContent = "0 rows";
+				return;
+			}
+			if (visibleRows === totalRows) {
+				element.textContent = `${formatNumber(totalRows)} rows`;
+				return;
+			}
+			element.textContent = `${formatNumber(visibleRows)} of ${formatNumber(totalRows)} rows`;
+		};
 
-	const emptyRow = (columns, label = "No records") =>
-		`<tr><td colspan="${columns}" class="cs-empty-cell">${label}</td></tr>`;
+		const setNavCount = (element, value) => {
+			if (!element) return;
+			element.textContent = formatNumber(value || 0);
+		};
 
-	const getStatusClass = (value) => {
-		const status = toSearch(value);
-		if (!status) return "cs-pill--neutral";
-		if (
-			status.includes("paid")
-			|| status.includes("completed")
-			|| status.includes("success")
-			|| status.includes("active")
-		) {
-			return "cs-pill--ok";
-		}
-		if (
-			status.includes("overdue")
-			|| status.includes("failed")
-			|| status.includes("cancel")
-			|| status.includes("rejected")
-		) {
-			return "cs-pill--danger";
-		}
-		if (
-			status.includes("draft")
-			|| status.includes("pending")
-			|| status.includes("unpaid")
-			|| status.includes("partly")
-		) {
-			return "cs-pill--warn";
-		}
-		return "cs-pill--neutral";
-	};
+		const setActiveSection = (key) => {
+			sectionButtons.forEach((button) => {
+				const isActive = (button.getAttribute("data-section") || "") === key;
+				button.classList.toggle("cs-chip-active", isActive);
+				button.setAttribute("aria-current", isActive ? "true" : "false");
+			});
+		};
 
-	const statusPill = (value) => {
-		const text = value || "Unknown";
-		return `<span class="cs-pill ${getStatusClass(text)}">${escapeHtml(text)}</span>`;
-	};
+		const observeSections = () => {
+			if (!sections.length || typeof IntersectionObserver === "undefined") return;
+			const observer = new IntersectionObserver(
+				(entries) => {
+					const visible = entries
+						.filter((entry) => entry.isIntersecting)
+						.sort((a, b) => b.intersectionRatio - a.intersectionRatio);
+					if (!visible.length) return;
+					const key = visible[0].target.getAttribute("data-section") || "";
+					if (key) setActiveSection(key);
+				},
+				{
+					rootMargin: "-30% 0px -55% 0px",
+					threshold: [0.2, 0.4, 0.6],
+				}
+			);
+			sections.forEach((section) => observer.observe(section));
+		};
 
-	const movementTypePill = (value) => {
-		const type = value || "Movement";
-		const search = toSearch(type);
-		let className = "cs-pill--neutral";
-		if (search.includes("inward")) className = "cs-pill--ok";
-		if (search.includes("outward")) className = "cs-pill--warn";
-		return `<span class="cs-pill ${className}">${escapeHtml(type)}</span>`;
-	};
+		const isTypingContext = (element) => {
+			if (!element) return false;
+			const tagName = element.tagName || "";
+			return (
+				element.isContentEditable
+				|| tagName === "INPUT"
+				|| tagName === "TEXTAREA"
+				|| tagName === "SELECT"
+			);
+		};
 
-	const matches = (row, fields, term) => {
-		if (!term) return true;
-		return fields.some((field) => toSearch(row[field]).includes(term));
-	};
+		const nearestSectionKey = () => {
+			if (!sections.length) return "stock";
+			const anchor = 150;
+			let currentKey = sections[0].getAttribute("data-section") || "stock";
+			let smallestGap = Number.POSITIVE_INFINITY;
+			sections.forEach((section) => {
+				const rect = section.getBoundingClientRect();
+				const gap = Math.abs(rect.top - anchor);
+				if (gap < smallestGap) {
+					smallestGap = gap;
+					currentKey = section.getAttribute("data-section") || currentKey;
+				}
+			});
+			return currentKey;
+		};
 
-	const filterRows = (rows, term, fields) => rows.filter((row) => (
-		matches(row, fields, term)
-		&& matches(row, fields, searchTerms.global)
-	));
+		const focusSectionSearch = (sectionKey) => {
+			const input = sectionSearchInputs[sectionKey] || globalSearchInput;
+			if (!input) return;
+			input.focus({ preventScroll: true });
+			input.select();
+		};
 
-	const updateCustomerFilter = (customers, selected) => {
-		if (!customerFilterWrap || !customerFilter) return;
-		if (!customers.length || customers.length === 1) {
-			customerFilterWrap.classList.add("d-none");
+		const linkCell = (value, route) => {
+			if (!value) return "";
+			if (!route) return escapeHtml(value);
+			return `<a class="cs-link" href="${encodeURI(route)}" target="_blank" rel="noopener">${escapeHtml(value)}</a>`;
+		};
+
+		const emptyRow = (columns, label = "No records") =>
+			`<tr><td colspan="${columns}" class="cs-empty-cell">${label}</td></tr>`;
+
+		const getStatusClass = (value) => {
+			const status = toSearch(value);
+			if (!status) return "cs-pill--neutral";
+			if (
+				status.includes("paid")
+				|| status.includes("completed")
+				|| status.includes("success")
+				|| status.includes("active")
+			) {
+				return "cs-pill--ok";
+			}
+			if (
+				status.includes("overdue")
+				|| status.includes("failed")
+				|| status.includes("cancel")
+				|| status.includes("rejected")
+			) {
+				return "cs-pill--danger";
+			}
+			if (
+				status.includes("draft")
+				|| status.includes("pending")
+				|| status.includes("unpaid")
+				|| status.includes("partly")
+			) {
+				return "cs-pill--warn";
+			}
+			return "cs-pill--neutral";
+		};
+
+		const statusPill = (value) => {
+			const text = value || "Unknown";
+			return `<span class="cs-pill ${getStatusClass(text)}">${escapeHtml(text)}</span>`;
+		};
+
+		const movementTypePill = (value) => {
+			const type = value || "Movement";
+			const search = toSearch(type);
+			let className = "cs-pill--neutral";
+			if (search.includes("inward")) className = "cs-pill--ok";
+			if (search.includes("outward")) className = "cs-pill--warn";
+			return `<span class="cs-pill ${className}">${escapeHtml(type)}</span>`;
+		};
+
+		const matches = (row, fields, term) => {
+			if (!term) return true;
+			return fields.some((field) => toSearch(row[field]).includes(term));
+		};
+
+		const filterRows = (rows, term, fields) => rows.filter((row) => (
+			matches(row, fields, term)
+			&& matches(row, fields, searchTerms.global)
+		));
+
+		const updateCustomerFilter = (customers, selected) => {
+			if (!customerFilterWrap || !customerFilter) return;
+			if (!customers.length || customers.length === 1) {
+				customerFilterWrap.classList.add("d-none");
+				customerFilter.innerHTML = "";
+				return;
+			}
+
+			customerFilterWrap.classList.remove("d-none");
 			customerFilter.innerHTML = "";
-			return;
-		}
 
-		customerFilterWrap.classList.remove("d-none");
-		customerFilter.innerHTML = "";
+			const allOption = document.createElement("option");
+			allOption.value = "";
+			allOption.textContent = "All Customers";
+			customerFilter.appendChild(allOption);
 
-		const allOption = document.createElement("option");
-		allOption.value = "";
-		allOption.textContent = "All Customers";
-		customerFilter.appendChild(allOption);
+			customers.forEach((customer) => {
+				const option = document.createElement("option");
+				option.value = customer;
+				option.textContent = customer;
+				customerFilter.appendChild(option);
+			});
 
-		customers.forEach((customer) => {
-			const option = document.createElement("option");
-			option.value = customer;
-			option.textContent = customer;
-			customerFilter.appendChild(option);
-		});
+			const target = customers.includes(selected) ? selected : "";
+			customerFilter.value = target;
+		};
 
-		const target = customers.includes(selected) ? selected : "";
-		customerFilter.value = target;
-	};
+		const updateKpis = (stock, movements, invoices, reports) => {
+			const totalQty = stock.reduce((sum, row) => sum + Number(row.qty || 0), 0);
+			const totalOutstanding = invoices.reduce((sum, row) => sum + Number(row.outstanding_amount || 0), 0);
 
-	const updateKpis = (stock, movements, invoices, reports) => {
-		const totalQty = stock.reduce((sum, row) => sum + Number(row.qty || 0), 0);
-		const totalOutstanding = invoices.reduce((sum, row) => sum + Number(row.outstanding_amount || 0), 0);
+			kpiStockRows.textContent = formatNumber(stock.length);
+			kpiTotalQty.textContent = formatNumber(totalQty);
+			kpiMovements.textContent = formatNumber(movements.length);
+			kpiInvoices.textContent = formatNumber(invoices.length);
+			kpiOutstanding.textContent = formatMoney(totalOutstanding);
+			kpiReports.textContent = formatNumber(reports.length);
 
-		kpiStockRows.textContent = formatNumber(stock.length);
-		kpiTotalQty.textContent = formatNumber(totalQty);
-		kpiMovements.textContent = formatNumber(movements.length);
-		kpiInvoices.textContent = formatNumber(invoices.length);
-		kpiOutstanding.textContent = formatMoney(totalOutstanding);
-		kpiReports.textContent = formatNumber(reports.length);
+			setNavCount(navStockCount, stock.length);
+			setNavCount(navMovementCount, movements.length);
+			setNavCount(navInvoiceCount, invoices.length);
+			setNavCount(navReportCount, reports.length);
+		};
 
-		setNavCount(navStockCount, stock.length);
-		setNavCount(navMovementCount, movements.length);
-		setNavCount(navInvoiceCount, invoices.length);
-		setNavCount(navReportCount, reports.length);
-	};
-
-	const renderStock = (rows, totalRows) => {
-		setPanelCount(stockCount, rows.length, totalRows);
-		if (!rows.length) {
-			stockBody.innerHTML = emptyRow(5, totalRows ? "No records match your search" : "No records");
-			return;
-		}
-		stockBody.innerHTML = rows
-			.map(
-				(row) => `
+		const renderStock = (rows, totalRows) => {
+			setPanelCount(stockCount, rows.length, totalRows);
+			if (!rows.length) {
+				stockBody.innerHTML = emptyRow(5, totalRows ? "No records match your search" : "No records");
+				return;
+			}
+			stockBody.innerHTML = rows
+				.map(
+					(row) => `
 				<tr>
 					<td>${escapeHtml(row.customer || "")}</td>
 					<td>${escapeHtml(row.item_name || row.item_code || "")}</td>
@@ -1209,19 +1330,19 @@
 					<td>${escapeHtml(row.warehouse || "")}</td>
 					<td class="text-end">${formatNumber(row.qty)}</td>
 				</tr>`
-			)
-			.join("");
-	};
+				)
+				.join("");
+		};
 
-	const renderMovements = (rows, totalRows) => {
-		setPanelCount(movementCount, rows.length, totalRows);
-		if (!rows.length) {
-			movementBody.innerHTML = emptyRow(5, totalRows ? "No records match your search" : "No records");
-			return;
-		}
-		movementBody.innerHTML = rows
-			.map(
-				(row) => `
+		const renderMovements = (rows, totalRows) => {
+			setPanelCount(movementCount, rows.length, totalRows);
+			if (!rows.length) {
+				movementBody.innerHTML = emptyRow(5, totalRows ? "No records match your search" : "No records");
+				return;
+			}
+			movementBody.innerHTML = rows
+				.map(
+					(row) => `
 				<tr>
 					<td>${formatDate(row.posting_date)}</td>
 					<td>${movementTypePill(row.movement_type || "")}</td>
@@ -1229,19 +1350,19 @@
 					<td>${escapeHtml(row.customer || "")}</td>
 					<td class="text-end">${formatNumber(row.qty)}</td>
 				</tr>`
-			)
-			.join("");
-	};
+				)
+				.join("");
+		};
 
-	const renderInvoices = (rows, totalRows) => {
-		setPanelCount(invoiceCount, rows.length, totalRows);
-		if (!rows.length) {
-			invoiceBody.innerHTML = emptyRow(8, totalRows ? "No records match your search" : "No records");
-			return;
-		}
-		invoiceBody.innerHTML = rows
-			.map(
-				(row) => `
+		const renderInvoices = (rows, totalRows) => {
+			setPanelCount(invoiceCount, rows.length, totalRows);
+			if (!rows.length) {
+				invoiceBody.innerHTML = emptyRow(8, totalRows ? "No records match your search" : "No records");
+				return;
+			}
+			invoiceBody.innerHTML = rows
+				.map(
+					(row) => `
 				<tr>
 					<td>${linkCell(row.name, row.route)}</td>
 					<td>${formatDate(row.posting_date)}</td>
@@ -1252,24 +1373,24 @@
 					<td class="text-end">${formatMoney(row.outstanding_amount)}</td>
 					<td>${statusPill(row.status || "")}</td>
 				</tr>`
-			)
-			.join("");
-	};
+				)
+				.join("");
+		};
 
-	const renderReports = (rows, totalRows) => {
-		setPanelCount(reportCount, rows.length, totalRows);
-		if (!rows.length) {
-			reportBody.innerHTML = emptyRow(
-				3,
-				totalRows ? "No reports match your search" : "No reports available for this user"
-			);
-			return;
-		}
-		reportBody.innerHTML = rows
-			.map((row) => {
-				const openRoute = row.route || "";
-				const pdfRoute = row.pdf_route || _getReportPdfRoute(row.report_name || "", selectedCustomer);
-				return `
+		const renderReports = (rows, totalRows) => {
+			setPanelCount(reportCount, rows.length, totalRows);
+			if (!rows.length) {
+				reportBody.innerHTML = emptyRow(
+					3,
+					totalRows ? "No reports match your search" : "No reports available for this user"
+				);
+				return;
+			}
+			reportBody.innerHTML = rows
+				.map((row) => {
+					const openRoute = row.route || "";
+					const pdfRoute = row.pdf_route || _getReportPdfRoute(row.report_name || "", selectedCustomer);
+					return `
 					<tr>
 						<td>${linkCell(row.label || row.report_name || "", openRoute)}</td>
 						<td>${escapeHtml(row.description || "")}</td>
@@ -1298,202 +1419,334 @@
 							</span>
 						</td>
 					</tr>`;
-			})
-			.join("");
-	};
+				})
+				.join("");
+		};
 
-	const renderAll = () => {
-		const stockRows = filterRows(state.stock, searchTerms.stock, [
-			"customer",
-			"item_name",
-			"item_code",
-			"batch_no",
-			"warehouse",
-		]);
+		const renderAll = () => {
+			const stockRows = filterRows(state.stock, searchTerms.stock, [
+				"customer",
+				"item_name",
+				"item_code",
+				"batch_no",
+				"warehouse",
+			]);
 
-		const movementRows = filterRows(state.movements, searchTerms.movements, [
-			"posting_date",
-			"movement_type",
-			"document_name",
-			"customer",
-			"reference",
-		]);
+			const movementRows = filterRows(state.movements, searchTerms.movements, [
+				"posting_date",
+				"movement_type",
+				"document_name",
+				"customer",
+				"reference",
+			]);
 
-		const invoiceRows = filterRows(state.invoices, searchTerms.invoices, [
-			"name",
-			"posting_date",
-			"due_date",
-			"customer",
-			"currency",
-			"status",
-		]);
+			const invoiceRows = filterRows(state.invoices, searchTerms.invoices, [
+				"name",
+				"posting_date",
+				"due_date",
+				"customer",
+				"currency",
+				"status",
+			]);
 
-		const reportRows = filterRows(state.reports, searchTerms.reports, [
-			"label",
-			"report_name",
-			"description",
-		]);
+			const reportRows = filterRows(state.reports, searchTerms.reports, [
+				"label",
+				"report_name",
+				"description",
+			]);
 
-		updateKpis(state.stock, state.movements, state.invoices, state.reports);
-		renderStock(stockRows, state.stock.length);
-		renderMovements(movementRows, state.movements.length);
-		renderInvoices(invoiceRows, state.invoices.length);
-		renderReports(reportRows, state.reports.length);
-	};
+			updateKpis(state.stock, state.movements, state.invoices, state.reports);
+			renderStock(stockRows, state.stock.length);
+			renderMovements(movementRows, state.movements.length);
+			renderInvoices(invoiceRows, state.invoices.length);
+			renderReports(reportRows, state.reports.length);
+		};
 
-	const getDownloadEndpoint = (key) => {
-		const endpoint = downloadMethods[key];
-		if (!endpoint) return "";
-		if (!selectedCustomer) return endpoint;
-		const query = new URLSearchParams({ customer: selectedCustomer }).toString();
-		return `${endpoint}?${query}`;
-	};
+		const getDownloadEndpoint = (key) => {
+			const endpoint = downloadMethods[key];
+			if (!endpoint) return "";
+			if (!selectedCustomer) return endpoint;
+			const query = new URLSearchParams({ customer: selectedCustomer }).toString();
+			return `${endpoint}?${query}`;
+		};
 
-	const _getReportPdfRoute = (reportName, customer = "") => {
-		const cleanReportName = String(reportName || "").trim();
-		if (!cleanReportName) return "";
-		const queryArgs = new URLSearchParams({ report_name: cleanReportName });
-		if (customer) {
-			queryArgs.set("customer", customer);
-		}
-		return `/api/method/cold_storage.api.client_portal.download_report_pdf?${queryArgs.toString()}`;
-	};
+		const _getReportPdfRoute = (reportName, customer = "") => {
+			const cleanReportName = String(reportName || "").trim();
+			if (!cleanReportName) return "";
+			const queryArgs = new URLSearchParams({ report_name: cleanReportName });
+			if (customer) {
+				queryArgs.set("customer", customer);
+			}
+			return `/api/method/cold_storage.api.client_portal.download_report_pdf?${queryArgs.toString()}`;
+		};
 
-	const callApi = async (method, args = {}) => {
-		if (typeof frappe !== "undefined" && frappe.call) {
-			return frappe.call({ method, args });
-		}
+		const callApi = async (method, args = {}) => {
+			if (typeof frappe !== "undefined" && frappe.call) {
+				return frappe.call({ method, args });
+			}
 
-		const query = new URLSearchParams(args).toString();
-		const response = await fetch(`/api/method/${method}${query ? `?${query}` : ""}`, {
-			method: "GET",
-			credentials: "include",
-		});
-		if (!response.ok) {
-			throw new Error("Request failed");
-		}
-		return response.json();
-	};
-
-	const loadSnapshot = async () => {
-		setRefreshButton("Refreshing...", true);
-		setSystemState("Refreshing live snapshot...", "is-loading");
-
-		try {
-			const response = await callApi(snapshotMethod, {
-				limit: 25,
-				customer: selectedCustomer,
+			const query = new URLSearchParams(args).toString();
+			const response = await fetch(`/api/method/${method}${query ? `?${query}` : ""}`, {
+				method: "GET",
+				credentials: "include",
 			});
-
-			const data = response.message || {};
-			const availableCustomers = data.available_customers || data.customers || [];
-			selectedCustomer = data.selected_customer || "";
-			updateCustomerFilter(availableCustomers, selectedCustomer);
-
-			state.customers = data.customers || [];
-			state.stock = data.stock || [];
-			state.movements = data.movements || [];
-			state.invoices = data.invoices || [];
-			state.reports = data.reports || [];
-
-			if (state.customers.length) {
-				customersBanner.classList.remove("d-none");
-				if (selectedCustomer) {
-					customersBanner.textContent = `Customer Scope: ${selectedCustomer}`;
-				} else {
-					const preview = state.customers.length > 10
-						? `${state.customers.slice(0, 10).join(", ")} (+${state.customers.length - 10} more)`
-						: state.customers.join(", ");
-					customersBanner.textContent = `Customer Scope: ${preview}`;
-				}
-				emptyState.classList.add("d-none");
-			} else {
-				customersBanner.classList.add("d-none");
-				emptyState.classList.remove("d-none");
+			if (!response.ok) {
+				throw new Error("Request failed");
 			}
+			return response.json();
+		};
 
-			renderAll();
-			refreshLabel.textContent = `Last refresh: ${new Date().toLocaleString()}`;
-			setSystemState("Live snapshot synced", "is-live");
-			shell.classList.add("cs-loaded");
-		} catch (error) {
-			refreshLabel.textContent = "Unable to load data.";
-			setSystemState("Snapshot unavailable", "is-error");
-			if (typeof frappe !== "undefined" && frappe.msgprint) {
-				frappe.msgprint({
-					title: "Client Portal",
-					indicator: "red",
-					message: "Could not load client portal data.",
+		const loadSnapshot = async () => {
+			setRefreshButton("Refreshing...", true);
+			setSystemState("Refreshing live snapshot...", "is-loading");
+
+			try {
+				const response = await callApi(snapshotMethod, {
+					limit: 25,
+					customer: selectedCustomer,
 				});
+
+				const data = response.message || {};
+				const availableCustomers = data.available_customers || data.customers || [];
+				selectedCustomer = data.selected_customer || "";
+				updateCustomerFilter(availableCustomers, selectedCustomer);
+
+				state.customers = data.customers || [];
+				state.stock = data.stock || [];
+				state.movements = data.movements || [];
+				state.invoices = data.invoices || [];
+				state.reports = data.reports || [];
+
+				if (state.customers.length) {
+					customersBanner.classList.remove("d-none");
+					if (selectedCustomer) {
+						customersBanner.textContent = `Customer Scope: ${selectedCustomer}`;
+					} else {
+						const preview = state.customers.length > 10
+							? `${state.customers.slice(0, 10).join(", ")} (+${state.customers.length - 10} more)`
+							: state.customers.join(", ");
+						customersBanner.textContent = `Customer Scope: ${preview}`;
+					}
+					emptyState.classList.add("d-none");
+				} else {
+					customersBanner.classList.add("d-none");
+					emptyState.classList.remove("d-none");
+				}
+
+				renderAll();
+				refreshLabel.textContent = `Last refresh: ${new Date().toLocaleString()}`;
+				setSystemState("Live snapshot synced", "is-live");
+				shell.classList.add("cs-loaded");
+			} catch (error) {
+				refreshLabel.textContent = "Unable to load data.";
+				setSystemState("Snapshot unavailable", "is-error");
+				if (typeof frappe !== "undefined" && frappe.msgprint) {
+					frappe.msgprint({
+						title: "Client Portal",
+						indicator: "red",
+						message: "Could not load client portal data.",
+					});
+				}
+			} finally {
+				setRefreshButton("Refresh", false);
 			}
-		} finally {
-			setRefreshButton("Refresh", false);
+		};
+
+		if (customerFilter) {
+			customerFilter.addEventListener("change", () => {
+				selectedCustomer = customerFilter.value || "";
+				loadSnapshot();
+			});
 		}
-	};
 
-	if (customerFilter) {
-		customerFilter.addEventListener("change", () => {
-			selectedCustomer = customerFilter.value || "";
-			loadSnapshot();
+		if (globalSearchInput) {
+			globalSearchInput.addEventListener("input", () => {
+				searchTerms.global = toSearch(globalSearchInput.value);
+				renderAll();
+			});
+		}
+
+		Object.entries(searchInputs).forEach(([key, input]) => {
+			if (!input) return;
+			input.addEventListener("input", () => {
+				searchTerms[key] = toSearch(input.value);
+				renderAll();
+			});
 		});
-	}
 
-	if (globalSearchInput) {
-		globalSearchInput.addEventListener("input", () => {
-			searchTerms.global = toSearch(globalSearchInput.value);
-			renderAll();
+		sectionButtons.forEach((button) => {
+			button.addEventListener("click", () => {
+				const selector = button.getAttribute("data-jump") || "";
+				const target = selector ? document.querySelector(selector) : null;
+				setActiveSection(button.getAttribute("data-section") || "");
+				if (!target) return;
+				target.scrollIntoView({ behavior: "smooth", block: "start" });
+			});
 		});
-	}
 
-	Object.entries(searchInputs).forEach(([key, input]) => {
-		if (!input) return;
-		input.addEventListener("input", () => {
-			searchTerms[key] = toSearch(input.value);
-			renderAll();
-		});
-	});
-
-	sectionButtons.forEach((button) => {
-		button.addEventListener("click", () => {
-			const selector = button.getAttribute("data-jump") || "";
-			const target = selector ? document.querySelector(selector) : null;
-			setActiveSection(button.getAttribute("data-section") || "");
-			if (!target) return;
-			target.scrollIntoView({ behavior: "smooth", block: "start" });
-		});
-	});
-
-	document.addEventListener("keydown", (event) => {
-		if (isTypingContext(event.target)) return;
-		if (event.key !== "/") return;
-		event.preventDefault();
-		focusSectionSearch(nearestSectionKey());
-	});
-
-	if (focusSearchButton) {
-		focusSearchButton.addEventListener("click", () => {
+		document.addEventListener("keydown", (event) => {
+			if (isTypingContext(event.target)) return;
+			if (event.key !== "/") return;
+			event.preventDefault();
 			focusSectionSearch(nearestSectionKey());
 		});
-	}
 
-	if (refreshButton) {
-		refreshButton.addEventListener("click", () => {
-			loadSnapshot();
+		if (focusSearchButton) {
+			focusSearchButton.addEventListener("click", () => {
+				focusSectionSearch(nearestSectionKey());
+			});
+		}
+
+		if (refreshButton) {
+			refreshButton.addEventListener("click", () => {
+				loadSnapshot();
+			});
+		}
+
+		document.querySelectorAll("[data-download]").forEach((button) => {
+			button.addEventListener("click", () => {
+				const key = button.getAttribute("data-download") || "";
+				const endpoint = getDownloadEndpoint(key);
+				if (!endpoint) return;
+				window.open(endpoint, "_blank", "noopener");
+			});
 		});
-	}
 
-	document.querySelectorAll("[data-download]").forEach((button) => {
-		button.addEventListener("click", () => {
-			const key = button.getAttribute("data-download") || "";
-			const endpoint = getDownloadEndpoint(key);
-			if (!endpoint) return;
-			window.open(endpoint, "_blank", "noopener");
-		});
-	});
 
-	setActiveSection("stock");
-	observeSections();
-	loadSnapshot();
-})();
+		// Request Modal Logic
+		const requestModal = document.getElementById("cs-request-modal");
+		const newRequestBtn = document.getElementById("cs-new-request-btn");
+		const closeModalBtn = document.getElementById("cs-modal-close");
+		const reqTypeInput = document.getElementById("cs-req-type");
+		const reqDateInput = document.getElementById("cs-req-date");
+		const reqItemsContainer = document.getElementById("cs-req-items");
+		const addItemBtn = document.getElementById("cs-add-item-btn");
+		const submitRequestBtn = document.getElementById("cs-submit-request-btn");
+		const itemList = document.getElementById("item-list");
+
+		const updateItemList = async () => {
+			if (!selectedCustomer) return;
+			const type = reqTypeInput.value;
+			itemList.innerHTML = ""; // Clear existing options
+
+			try {
+				const res = await callApi("cold_storage.api.client_portal.get_available_items", {
+					customer: selectedCustomer,
+					request_type: type
+				});
+				const items = res.message || [];
+				items.forEach(code => {
+					const option = document.createElement("option");
+					option.value = code;
+					itemList.appendChild(option);
+				});
+			} catch (e) {
+				console.error("Failed to fetch available items", e);
+			}
+		};
+
+		const toggleModal = (show) => {
+			if (!requestModal) return;
+			requestModal.classList.toggle("d-none", !show);
+			if (show) {
+				// Reset form
+				reqDateInput.value = new Date().toISOString().split("T")[0];
+				reqItemsContainer.innerHTML = "";
+				addRequestItemRow();
+				updateItemList(); // Fetch items
+			}
+		};
+
+		if (reqTypeInput) {
+			reqTypeInput.addEventListener("change", updateItemList);
+		}
+
+		const addRequestItemRow = () => {
+			const row = document.createElement("div");
+			row.className = "cs-req-item-row";
+			row.innerHTML = `
+				<div class="cs-field">
+					<input class="cs-input item-code" placeholder="Item Code" list="item-list">
+				</div>
+				<div class="cs-field">
+					<input class="cs-input item-qty" type="number" placeholder="Qty" step="0.01">
+				</div>
+				<button class="cs-btn cs-btn-sm remove-row" type="button">&times;</button>
+			`;
+
+			row.querySelector(".remove-row").addEventListener("click", () => {
+				row.remove();
+			});
+
+			// Simple item details fetch on blur
+			const itemInput = row.querySelector(".item-code");
+			itemInput.addEventListener("change", async () => {
+				if (!itemInput.value) return;
+				try {
+					const res = await callApi("cold_storage.api.client_portal.get_item_details", { item_code: itemInput.value });
+					if (res.message) {
+						itemInput.title = res.message.item_name || "";
+					}
+				} catch (e) { console.error(e); }
+			});
+
+			reqItemsContainer.appendChild(row);
+		};
+
+		const submitServiceRequest = async () => {
+			const type = reqTypeInput.value;
+			const date = reqDateInput.value;
+			const items = [];
+
+			document.querySelectorAll(".cs-req-item-row").forEach(row => {
+				const code = row.querySelector(".item-code").value;
+				const qty = row.querySelector(".item-qty").value;
+				if (code && qty > 0) {
+					items.push({ item_code: code, qty: qty });
+				}
+			});
+
+			if (!items.length) {
+				alert("Please add at least one item.");
+				return;
+			}
+
+			if (!selectedCustomer) {
+				alert("No customer selected.");
+				return;
+			}
+
+			submitRequestBtn.disabled = true;
+			submitRequestBtn.textContent = "Submitting...";
+
+			try {
+				const res = await callApi("cold_storage.api.client_portal.create_service_request", {
+					request_type: type,
+					customer: selectedCustomer,
+					items: items,
+					required_date: date
+				});
+
+				alert(res.message || "Request created!");
+				toggleModal(false);
+				loadSnapshot(); // Refresh data
+			} catch (error) {
+				console.error(error);
+				alert("Failed to submit request: " + error.message);
+			} finally {
+				submitRequestBtn.disabled = false;
+				submitRequestBtn.textContent = "Submit Request";
+			}
+		};
+
+		if (newRequestBtn) newRequestBtn.addEventListener("click", () => toggleModal(true));
+		if (closeModalBtn) closeModalBtn.addEventListener("click", () => toggleModal(false));
+		if (addItemBtn) addItemBtn.addEventListener("click", addRequestItemRow);
+		if (submitRequestBtn) submitRequestBtn.addEventListener("click", submitServiceRequest);
+
+		setActiveSection("stock");
+		observeSections();
+		loadSnapshot();
+	})();
 </script>
 {% endblock %}
