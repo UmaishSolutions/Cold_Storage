@@ -12,7 +12,7 @@ from urllib.parse import quote, urlencode
 import frappe
 from frappe import _
 from frappe.desk.query_report import run as run_query_report
-from frappe.utils import cint, cstr, flt, getdate, now_datetime
+from frappe.utils import add_days, cint, cstr, flt, getdate, now_datetime
 from frappe.utils.data import escape_html, format_datetime, formatdate
 from frappe.utils.pdf import get_pdf
 
@@ -104,7 +104,7 @@ def get_portal_snapshot(limit: int = DEFAULT_LIMIT, customer: str | None = None)
 	# Chart Data: Movement Trends (Last 30 Days)
 	# Group movements by date and type
 	movement_trends = {}
-	thirty_days_ago = getdate(now_datetime().date()) - frappe.utils.data.timedelta(days=30)
+	thirty_days_ago = getdate(add_days(now_datetime(), -30))
 	
 	for row in movement_rows:
 		m_date = getdate(row["posting_date"])
