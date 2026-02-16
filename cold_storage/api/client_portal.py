@@ -94,6 +94,41 @@ def get_portal_snapshot(limit: int = DEFAULT_LIMIT, customer: str | None = None)
 	invoice_rows = _dedupe_invoice_rows(invoice_rows)
 	report_rows = _dedupe_report_rows(report_rows)
 
+	# Chart Data: Stock Composition (Top 5 Items by Qty)
+	stock_chart_data = sorted(
+		[{"name": r["item_name"], "value": r["qty"]} for r in stock_rows],
+		key=lambda x: x["value"],
+		reverse=True
+	)[:5]
+
+	# Chart Data: Movement Trends (Last 30 Days)
+	# Group movements by date and type
+	movement_trends = {}
+	thirty_days_ago = getdate(now_datetime().date()) - frappe.utils.data.timedelta(days=30)
+	
+	for row in movement_rows:
+		m_date = getdate(row["posting_date"])
+		if m_date < thirty_days_ago:
+			continue
+		
+		date_str = m_date.strftime("%Y-%m-%d")
+		if date_str not in movement_trends:
+			movement_trends[date_str] = {"Inward": 0, "Outward": 0}
+		
+		m_type = row["movement_type"]
+		if m_type in ["Inward", "Outward"]:
+			movement_trends[date_str][m_type] += flt(row["qty"])
+
+	# Format for Frappe Charts
+	sorted_dates = sorted(movement_trends.keys())
+	trend_chart_data = {
+		"labels": sorted_dates,
+		"datasets": [
+			{"name": "Inward", "values": [movement_trends[d]["Inward"] for d in sorted_dates]},
+			{"name": "Outward", "values": [movement_trends[d]["Outward"] for d in sorted_dates]}
+		]
+	}
+
 	return {
 		"available_customers": available_customers,
 		"selected_customer": selected_customer,
@@ -102,6 +137,10 @@ def get_portal_snapshot(limit: int = DEFAULT_LIMIT, customer: str | None = None)
 		"movements": movement_rows,
 		"invoices": invoice_rows,
 		"reports": report_rows,
+		"analytics": {
+			"stock_composition": stock_chart_data,
+			"movement_trends": trend_chart_data
+		}
 	}
 
 @frappe.whitelist()
