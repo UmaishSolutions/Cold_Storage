@@ -14,22 +14,10 @@ frappe.query_reports["Cold Storage Customer Register"] = {
 			options: "Customer",
 		},
 		{
-			fieldname: "from_date",
-			label: __("From Date"),
-			fieldtype: "Date",
-			default: frappe.datetime.month_start(),
-		},
-		{
-			fieldname: "to_date",
-			label: __("To Date"),
+			fieldname: "as_on_date",
+			label: __("As On Date"),
 			fieldtype: "Date",
 			default: frappe.datetime.get_today(),
-		},
-		{
-			fieldname: "status",
-			label: __("Status"),
-			fieldtype: "Select",
-			options: "\nDraft\nSubmitted\nCancelled",
 		},
 	],
 };
