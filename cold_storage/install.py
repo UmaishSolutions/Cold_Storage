@@ -72,6 +72,23 @@ def _ensure_dashboard_chart_types() -> None:
 		frappe.cache.delete_key(f"chart-data:{chart_name}")
 
 
+def _ensure_top_customers_chart_source() -> None:
+	"""Ensure Top Customers chart is based on available stock (Customer Register)."""
+	if not frappe.db.exists("Dashboard Chart", "Top Customers"):
+		return
+
+	frappe.db.set_value(
+		"Dashboard Chart",
+		"Top Customers",
+		{
+			"report_name": "Cold Storage Customer Register",
+			"use_report_chart": 1,
+		},
+		update_modified=False,
+	)
+	frappe.cache.delete_key("chart-data:Top Customers")
+
+
 def _ensure_workspace_assets() -> None:
 	"""Ensure cold storage analytics are visible on the workspace dashboard."""
 	if not frappe.db.exists("Workspace", WORKSPACE_NAME):
@@ -220,6 +237,7 @@ def after_install() -> None:
 	_ensure_default_uom_setting(create_uom_if_missing=True)
 	_ensure_batch_customizations()
 	_ensure_dashboard_chart_types()
+	_ensure_top_customers_chart_source()
 	_ensure_workspace_assets()
 	_sync_role_based_access()
 
@@ -228,6 +246,7 @@ def after_migrate() -> None:
 	_ensure_default_uom_setting(create_uom_if_missing=True)
 	_ensure_batch_customizations()
 	_ensure_dashboard_chart_types()
+	_ensure_top_customers_chart_source()
 	_ensure_workspace_assets()
 	_sync_role_based_access()
 
