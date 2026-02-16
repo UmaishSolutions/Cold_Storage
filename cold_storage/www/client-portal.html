@@ -616,6 +616,36 @@
 		}
 	}
 
+	/* Skeleton Loading State */
+	.is-loading-data .cs-kpi-value,
+	.is-loading-data .cs-board-title,
+	.is-loading-data .cs-chart-card,
+	.is-loading-data td {
+		position: relative;
+		color: transparent !important;
+		background: rgba(19, 84, 70, 0.06);
+		border-radius: 4px;
+		overflow: hidden;
+	}
+
+	.is-loading-data .cs-kpi-value::after,
+	.is-loading-data .cs-board-title::after,
+	.is-loading-data .cs-chart-card::after,
+	.is-loading-data td::after {
+		content: "";
+		position: absolute;
+		inset: 0;
+		transform: translateX(-100%);
+		background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.5), transparent);
+		animation: csSkeleton 1.5s infinite;
+	}
+
+	@keyframes csSkeleton {
+		100% {
+			transform: translateX(100%);
+		}
+	}
+
 	@media (max-width: 1280px) {
 		.cs-controls {
 			grid-template-columns: repeat(2, minmax(180px, 1fr));
@@ -789,6 +819,110 @@
 		padding-top: 1.5rem;
 		border-top: 1px solid var(--cs-border);
 	}
+
+	/* Toast Notifications */
+	.cs-toast-container {
+		position: fixed;
+		bottom: 2rem;
+		right: 2rem;
+		display: flex;
+		flex-direction: column;
+		gap: 0.8rem;
+		z-index: 200;
+		pointer-events: none;
+	}
+
+	.cs-toast {
+		background: var(--cs-surface);
+		color: var(--cs-headline);
+		padding: 1rem 1.25rem;
+		border-radius: var(--cs-radius-md);
+		border-left: 4px solid var(--cs-accent);
+		box-shadow: var(--cs-shadow-lg);
+		font-size: 0.9rem;
+		font-weight: 500;
+		display: flex;
+		align-items: center;
+		gap: 0.75rem;
+		min-width: 300px;
+		pointer-events: auto;
+		animation: toastSlideIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+	}
+
+	.cs-toast.is-error {
+		border-left-color: var(--cs-error);
+	}
+
+	.cs-toast.is-success {
+		border-left-color: var(--cs-success);
+	}
+
+	@keyframes toastSlideIn {
+		from {
+			transform: translateX(100%);
+			opacity: 0;
+		}
+
+		to {
+			transform: translateX(0);
+			opacity: 1;
+		}
+	}
+
+	@keyframes toastSlideOut {
+		to {
+			transform: translateX(100%);
+			opacity: 0;
+		}
+	}
+
+	/* Quick Action Card */
+	.cs-action-card {
+		background: linear-gradient(135deg, var(--cs-accent), var(--cs-accent-hover));
+		color: white;
+		border-radius: var(--cs-radius-xl);
+		padding: 1.5rem;
+		display: flex;
+		flex-direction: column;
+		justify-content: space-between;
+		box-shadow: var(--cs-shadow-md);
+		cursor: pointer;
+		transition: transform 0.2s;
+		border: 1px solid rgba(255, 255, 255, 0.1);
+	}
+
+	.cs-action-card:hover {
+		transform: translateY(-2px);
+		box-shadow: var(--cs-shadow-lg);
+	}
+
+	.cs-action-card h3 {
+		margin: 0;
+		font-size: 1.1rem;
+		font-weight: 700;
+		color: white;
+	}
+
+	.cs-action-card p {
+		margin: 0.5rem 0 1.5rem;
+		font-size: 0.85rem;
+		opacity: 0.9;
+		color: rgba(255, 255, 255, 0.9);
+	}
+
+	.cs-action-btn {
+		background: white;
+		color: var(--cs-accent-strong);
+		border: none;
+		border-radius: var(--cs-radius-md);
+		padding: 0.6rem 1rem;
+		font-weight: 700;
+		font-size: 0.85rem;
+		width: fit-content;
+		display: inline-flex;
+		align-items: center;
+		gap: 0.5rem;
+	}
 </style>
 
 <section class="client-portal">
@@ -897,6 +1031,15 @@
 				<h3 class="cs-chart-title">Movement Trends (30 Days)</h3>
 				<div id="cs-chart-movements"></div>
 			</article>
+			<div class="cs-action-card" id="cs-quick-action-request">
+				<div>
+					<h3>New Service Request</h3>
+					<p>Create an Advance Shipment Notice (Inward) or Dispatch Request (Outward).</p>
+				</div>
+				<button class="cs-action-btn">
+					<span>+</span> Create Request
+				</button>
+			</div>
 		</section>
 
 		<section class="cs-layout">
@@ -1077,6 +1220,7 @@
 			</div>
 		</div>
 	</div>
+	<div class="cs-toast-container" id="cs-toast-container"></div>
 </section>
 
 <script>
@@ -1604,17 +1748,27 @@
 			return response.json();
 		};
 
+
+
+		const setLoading = (loading) => {
+			if (loading) {
+				shell.classList.add("is-loading-data");
+				setSystemState("Syncing...", "is-loading");
+			} else {
+				shell.classList.remove("is-loading-data");
+				setSystemState("Live snapshot synced", "is-live");
+			}
+		};
+
 		const loadSnapshot = async () => {
-			setRefreshButton("Refreshing...", true);
-			setSystemState("Refreshing live snapshot...", "is-loading");
-
+			setLoading(true);
 			try {
-				const response = await callApi(snapshotMethod, {
-					limit: 25,
-					customer: selectedCustomer,
+				const res = await callApi(snapshotMethod, {
+					limit: 1000,
+					customer: selectedCustomer // Pass scope
 				});
+				const data = res.message || {};
 
-				const data = response.message || {};
 				const availableCustomers = data.available_customers || data.customers || [];
 				selectedCustomer = data.selected_customer || "";
 				updateCustomerFilter(availableCustomers, selectedCustomer);
@@ -1645,7 +1799,7 @@
 				renderAll();
 				renderCharts(state.analytics);
 				refreshLabel.textContent = `Last refresh: ${new Date().toLocaleString()}`;
-				setSystemState("Live snapshot synced", "is-live");
+				setLoading(false);
 				shell.classList.add("cs-loaded");
 			} catch (error) {
 				refreshLabel.textContent = "Unable to load data.";
@@ -1776,8 +1930,10 @@
 					option.value = code;
 					itemList.appendChild(option);
 				});
-			} catch (e) {
-				console.error("Failed to fetch available items", e);
+			} catch (err) {
+				console.error(err);
+				setSystemState("Sync failed", "is-error");
+				setLoading(false);
 			}
 		};
 
@@ -1829,6 +1985,33 @@
 			reqItemsContainer.appendChild(row);
 		};
 
+		// Toast Logic
+		const showToast = (message, type = 'info') => {
+			const container = document.getElementById('cs-toast-container');
+			if (!container) return;
+
+			const toast = document.createElement('div');
+			toast.className = `cs-toast is-${type}`;
+			toast.innerHTML = `
+			<span class="cs-toast-icon">${type === 'success' ? '✓' : (type === 'error' ? '✕' : 'ℹ')}</span>
+			<span>${escapeHtml(message)}</span>
+		`;
+
+			container.appendChild(toast);
+
+			// Auto remove
+			setTimeout(() => {
+				toast.style.animation = 'toastSlideOut 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards';
+				setTimeout(() => toast.remove(), 300);
+			}, 4000);
+		};
+
+		// Quick Action Card Listener
+		const quickActionCard = document.getElementById("cs-quick-action-request");
+		if (quickActionCard) {
+			quickActionCard.addEventListener("click", () => toggleModal(true));
+		}
+
 		const submitServiceRequest = async () => {
 			const type = reqTypeInput.value;
 			const date = reqDateInput.value;
@@ -1843,12 +2026,12 @@
 			});
 
 			if (!items.length) {
-				alert("Please add at least one item.");
+				showToast("Please add at least one item.", "error");
 				return;
 			}
 
 			if (!selectedCustomer) {
-				alert("No customer selected.");
+				showToast("No customer selected.", "error");
 				return;
 			}
 
@@ -1863,12 +2046,12 @@
 					required_date: date
 				});
 
-				alert(res.message || "Request created!");
+				showToast(res.message || "Request created successfully!", "success");
 				toggleModal(false);
 				loadSnapshot(); // Refresh data
 			} catch (error) {
 				console.error(error);
-				alert("Failed to submit request: " + error.message);
+				showToast("Failed to submit request: " + error.message, "error");
 			} finally {
 				submitRequestBtn.disabled = false;
 				submitRequestBtn.textContent = "Submit Request";
