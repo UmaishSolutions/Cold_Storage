@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>Executive Dashboard Report</title>
+    <style>
+        @page {
+            size: A4;
+            margin: 0;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            color: #1e293b;
+            line-height: 1.5;
+            margin: 0;
+            padding: 0;
+            background: #fff;
+        }
+
+        .page {
+            width: 100%;
+            min-height: 297mm;
+            position: relative;
+            page-break-after: always;
+            /* overflow: hidden; Removed to allow multi-page content */
+        }
+
+        .content-padding {
+            padding: 20mm;
+        }
+
+        /* Typography */
+        h1,
+        h2,
+        h3,
+        h4 {
+            margin: 0;
+            font-weight: 700;
+            color: #0f172a;
+        }
+
+        .text-sm {
+            font-size: 11px;
+        }
+
+        .text-xs {
+            font-size: 10px;
+        }
+
+        .text-muted {
+            color: #64748b;
+        }
+
+        .text-right {
+            text-align: right;
+        }
+
+        .font-bold {
+            font-weight: 700;
+        }
+
+        .uppercase {
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        /* Cover Page */
+        .cover-bg {
+            background: linear-gradient(135deg, #0f766e 0%, #0d9488 100%);
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            color: white;
+            padding: 30mm;
+        }
+
+        .cover-title {
+            font-size: 48px;
+            line-height: 1.1;
+            margin-bottom: 20px;
+            font-weight: 800;
+        }
+
+        .cover-subtitle {
+            font-size: 18px;
+            opacity: 0.9;
+            font-weight: 500;
+        }
+
+        .cover-meta {
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+            padding-top: 20px;
+            display: grid;
+            gap: 10px;
+        }
+
+        /* Inner Pages Header */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid #0d9488;
+            padding-bottom: 15px;
+            margin-bottom: 30px;
+        }
+
+        .company-logo {
+            font-size: 20px;
+            font-weight: 800;
+            color: #0f766e;
+        }
+
+        /* KPI Section */
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .kpi-card {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 15px;
+        }
+
+        .kpi-label {
+            font-size: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+            color: #64748b;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .kpi-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: #0f172a;
+        }
+
+        /* Section Styling */
+        .section-title {
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: #0f766e;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+            padding-bottom: 5px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        /* Charts / Visualization */
+        .chart-container {
+            margin-bottom: 30px;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 15px;
+            page-break-inside: avoid;
+        }
+
+        .bar-chart-row {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+            font-size: 11px;
+        }
+
+        .bar-label {
+            width: 120px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            padding-right: 10px;
+        }
+
+        .bar-track {
+            flex-grow: 1;
+            background: #f1f5f9;
+            height: 16px;
+            border-radius: 4px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .bar-fill {
+            background: #0d9488;
+            height: 100%;
+            border-radius: 4px;
+            min-width: 2px;
+        }
+
+        .bar-value {
+            width: 60px;
+            text-align: right;
+            padding-left: 10px;
+            font-weight: 600;
+            color: #334155;
+        }
+
+        /* Tables */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 10px;
+            margin-bottom: 30px;
+        }
+
+        th {
+            background: #f1f5f9;
+            color: #475569;
+            font-weight: 600;
+            text-align: left;
+            padding: 8px 10px;
+            border-bottom: 1px solid #e2e8f0;
+            text-transform: uppercase;
+            letter-spacing: 0.02em;
+        }
+
+        td {
+            padding: 8px 10px;
+            border-bottom: 1px solid #f1f5f9;
+            color: #334155;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        /* Footer */
+        .footer {
+            position: absolute;
+            bottom: 20mm;
+            left: 20mm;
+            right: 20mm;
+            border-top: 1px solid #e2e8f0;
+            padding-top: 10px;
+            display: flex;
+            justify-content: space-between;
+            font-size: 9px;
+            color: #94a3b8;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Cover Page -->
+    <div class="page cover-bg">
+        <div>
+            <div class="text-xs uppercase" style="opacity: 0.8; margin-bottom: 10px;">{{ company_name }}</div>
+            <div class="cover-title">Strictly Private<br>& Confidential</div>
+            <div class="cover-subtitle">Executive Dashboard Report</div>
+        </div>
+
+        <div class="cover-meta">
+            <div>
+                <div class="text-xs uppercase" style="opacity: 0.7;">Prepare For</div>
+                <div style="font-size: 20px; font-weight: 600;">{{ selected_customer or "All Customers" }}</div>
+            </div>
+            <div>
+                <div class="text-xs uppercase" style="opacity: 0.7;">Generated On</div>
+                <div style="font-size: 14px;">{{ frappe.utils.format_date(frappe.utils.nowdate(), "d MMMM, YYYY") }}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Executive Summary Page -->
+    <div class="page">
+        <div class="content-padding">
+            <div class="header">
+                <div class="company-logo">{{ company_name }}</div>
+                <div class="text-sm text-muted">Executive Summary</div>
+            </div>
+
+            <div class="kpi-grid">
+                <div class="kpi-card">
+                    <span class="kpi-label">Outstanding Amount</span>
+                    <div class="kpi-value" style="color: #ef4444;">{{ frappe.utils.fmt_money(total_outstanding) }}</div>
+                </div>
+                <div class="kpi-card">
+                    <span class="kpi-label">Total Inward Qty (30 Days)</span>
+                    <div class="kpi-value">{{ frappe.format_value(total_inward_30_days, {'fieldtype': 'Float'}) }}</div>
+                </div>
+            </div>
+
+            <!-- Visual Analysis: Top Stock -->
+            <div class="section-title">Stock Composition (Top Items)</div>
+            <div class="chart-container">
+                {% for item in analytics.stock_composition[:8] %}
+                <div class="bar-chart-row">
+                    <div class="bar-label" title="{{ item.name }}">{{ item.name }}</div>
+                    <div class="bar-track">
+                        <div class="bar-fill"
+                            style="width: {{ (item.value / max_stock_value * 100) if max_stock_value else 0 }}%;"></div>
+                    </div>
+                    <div class="bar-value">{{ frappe.format_value(item.value, {'fieldtype': 'Float', 'precision': 0}) }}
+                    </div>
+                </div>
+                {% endfor %}
+                {% if not analytics.stock_composition %}
+                <div class="text-center text-muted" style="padding: 20px;">No stock data available</div>
+                {% endif %}
+            </div>
+
+            <!-- Movement Trend Visualization -->
+            <div class="section-title">Movement Trends (Last 30 Days)</div>
+            <div class="chart-container"
+                style="display: flex; align-items: flex-end; justify-content: space-between; height: 150px; padding-top: 30px;">
+                {% if analytics.movement_trends and analytics.movement_trends.labels %}
+                {% set max_vol = 1 %}
+                {% for i in range(analytics.movement_trends.labels|length) %}
+                {% set total = analytics.movement_trends.datasets[0]['values'][i] +
+                analytics.movement_trends.datasets[1]['values'][i] %}
+                {% if total > max_vol %}{% set max_vol = total %}{% endif %}
+                {% endfor %}
+                {# Add 20% headroom for labels #}
+                {% set max_vol = max_vol * 1.2 %}
+
+                {% for i in range(analytics.movement_trends.labels|length) %}
+                {% set in_val = analytics.movement_trends.datasets[0]['values'][i] %}
+                {% set out_val = analytics.movement_trends.datasets[1]['values'][i] %}
+                <div
+                    style="flex: 1; margin: 0 2px; display: flex; flex-direction: column; justify-content: flex-end; height: 100%;">
+
+                    {# Inward Label & Bar #}
+                    {% if in_val > 0 %}
+                    <div class="text-xs text-muted"
+                        style="text-align: center; font-size: 7px; line-height: 1; margin-bottom: 1px;">{{ in_val|int }}
+                    </div>
+                    <div style="height: {{ (in_val / max_vol * 100)|round }}%; background: #0d9488; min-height: 1px; opacity: 0.8;"
+                        title="Inward: {{ in_val }}"></div>
+                    {% endif %}
+
+                    {# Outward Label & Bar #}
+                    {% if out_val > 0 %}
+                    <div class="text-xs text-muted"
+                        style="text-align: center; font-size: 7px; line-height: 1; margin-bottom: 1px;">{{ out_val|int
+                        }}</div>
+                    <div style="height: {{ (out_val / max_vol * 100)|round }}%; background: #f59e0b; min-height: 1px; margin-top: 1px; opacity: 0.8;"
+                        title="Outward: {{ out_val }}"></div>
+                    {% endif %}
+
+                    {# X Axis Label #}
+                    <div class="text-xs text-muted"
+                        style="text-align: center; margin-top: 4px; font-size: 7px; white-space: nowrap;">
+                        {{ analytics.movement_trends.labels[i] }}</div>
+                </div>
+                {% endfor %}
+                {% else %}
+                <div style="width: 100%; text-align: center; color: #94a3b8; align-self: center;">No movement data</div>
+                {% endif %}
+            </div>
+            <div class="text-center text-xs text-muted"
+                style="display: flex; justify-content: center; gap: 15px; margin-bottom: 20px;">
+                <span style="display: flex; align-items: center; gap: 4px;"><span
+                        style="width: 8px; height: 8px; background: #0d9488;"></span> Inward</span>
+                <span style="display: flex; align-items: center; gap: 4px;"><span
+                        style="width: 8px; height: 8px; background: #f59e0b;"></span> Outward</span>
+            </div>
+
+
+            <div class="footer">
+                <div>Confidential Report</div>
+                <div>Page 1</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Details Page -->
+    <div class="page">
+        <div class="content-padding">
+            <div class="header">
+                <div class="company-logo">{{ company_name }}</div>
+                <div class="text-sm text-muted">Detailed Breakdown</div>
+            </div>
+
+
+            <!-- Recent Movements Table -->
+            <div class="section-title">Stock Movements</div>
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width: 12%">Date</th>
+                        <th style="width: 15%">Ref</th>
+                        <th style="width: 25%">Item</th>
+                        <th style="width: 15%">Batch</th>
+                        <th style="width: 10%">Type</th>
+                        <th style="width: 13%" class="text-right">Qty</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for mov in movements %}
+                    <tr>
+                        <td>{{ frappe.utils.format_date(mov.posting_date) }}</td>
+                        <td>
+                            <div class="font-bold">{{ mov.document_name }}</div>
+                        </td>
+                        <td>
+                            <div class="font-bold">{{ mov.get('item_code', '') }}</div>
+                        </td>
+                        <td>{{ mov.get('batch_no', '') }}</td>
+                        <td>
+                            <span
+                                style="font-weight: 600; color: {{ '#059669' if mov.movement_type == 'Inward' else '#d97706' }};">
+                                {{ mov.movement_type }}
+                            </span>
+                        </td>
+                        <td class="text-right">{{ frappe.format_value(mov.qty, {'fieldtype': 'Float'}) }} <span
+                                class="text-muted" style="font-size: 8px;">{{ mov.get('stock_uom', '') }}</span></td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="6" class="text-center text-muted">No movements found</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+
+            <div class="footer">
+                <div>Confidential Report</div>
+                <div>Page 2</div>
+            </div>
+        </div>
+    </div>
+
+</body>
+
+</html>

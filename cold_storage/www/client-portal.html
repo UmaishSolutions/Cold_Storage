@@ -1518,7 +1518,7 @@
 
 <script>
 	(() => {
-		const snapshotMethod = "cold_storage.api.client_portal.get_portal_snapshot";
+		const snapshotMethod = "cold_storage.api.client_portal.get_snapshot";
 
 
 		const downloadMethods = {
@@ -2700,145 +2700,17 @@
 			}
 		}
 
-		// Snapshot Download Functionality
+
+		// PDF Report Download
 		window.downloadSnapshot = () => {
-			// Create a print container if it doesn't exist
-			let printContainer = document.getElementById("cs-print-container");
-			if (!printContainer) {
-				printContainer = document.createElement("div");
-				printContainer.id = "cs-print-container";
-				document.body.appendChild(printContainer);
+			showToast("Generating Executive Report...", "info");
+			// Trigger PDF download from new API endpoint
+			let url = "/api/method/cold_storage.api.client_portal.download_dashboard_report";
+			if (selectedCustomer) {
+				url += `?customer=${encodeURIComponent(selectedCustomer)}`;
 			}
-			printContainer.innerHTML = ""; // Clear previous content
-
-			// 1. KPIs
-			const kpiGrid = document.querySelector(".cs-kpi-grid").cloneNode(true);
-			// Force print styling for KPIs
-			Array.from(kpiGrid.children).forEach(card => {
-				card.style.border = "1px solid #e2e8f0";
-				card.style.boxShadow = "none";
-				card.style.padding = "1rem";
-			});
-			printContainer.appendChild(kpiGrid);
-
-			// 3. Charts Container
-			const chartsContainer = document.createElement("div");
-			chartsContainer.style.marginTop = "0.5rem";
-			chartsContainer.style.marginBottom = "0.5rem";
-			chartsContainer.style.display = "flex";
-			chartsContainer.style.flexDirection = "column"; // Up Down
-			chartsContainer.style.gap = "0.5rem";
-
-			const stockChartCard = document.querySelector("#cs-chart-stock").closest(".cs-chart-card").cloneNode(true);
-			const trendChartCard = document.querySelector("#cs-chart-movements").closest(".cs-chart-card").cloneNode(true);
-
-			// Clean up charts for print
-			[stockChartCard, trendChartCard].forEach(card => {
-				card.style.border = "1px solid #e2e8f0";
-				card.style.boxShadow = "none";
-				card.style.breakInside = "avoid";
-				card.style.marginBottom = "0"; // Handled by gap
-				card.style.padding = "0.5rem"; // Reduce padding inside card
-			});
-
-			chartsContainer.appendChild(stockChartCard);
-			chartsContainer.appendChild(trendChartCard);
-			printContainer.appendChild(chartsContainer);
-
-			// 4. Summaries Container
-			const summariesContainer = document.createElement("div");
-			summariesContainer.style.marginTop = "1rem";
-			summariesContainer.style.display = "flex";
-			summariesContainer.style.flexDirection = "column";
-			summariesContainer.style.gap = "1rem";
-			printContainer.appendChild(summariesContainer);
-
-			// Helper for Summary Card
-			const createSummaryCard = (title, tableHtml, minHeight = "auto") => `
-				<div style="border: 1px solid #e2e8f0; border-radius: 8px; overflow: hidden; height: ${minHeight}; display: flex; flex-direction: column;">
-					<div style="background: #f8fafc; padding: 0.5rem 1rem; border-bottom: 1px solid #e2e8f0;">
-						<h2 style="font-size: 0.95rem; margin: 0; font-weight: 600; color: var(--cs-headline);">${title}</h2>
-					</div>
-					<div style="flex-grow: 1; padding: 0;">
-						${tableHtml}
-					</div>
-				</div>
-			`;
-
-			// 1. Financial Overview (Full Width)
-			const invoiceSummary = Object.values(state.invoices.reduce((acc, row) => {
-				const status = row.status || "Unknown";
-				if (!acc[status]) acc[status] = { status: status, total: 0, count: 0 };
-				acc[status].total += Number(row.outstanding_amount || 0);
-				acc[status].count += 1;
-				return acc;
-			}, {}));
-
-			const financeCard = document.createElement("div");
-			financeCard.innerHTML = createSummaryCard("Financial Overview", `
-				<table class="cs-table" style="width: 100%; border-collapse: collapse; font-size: 0.75rem;">
-					<thead>
-						<tr style="background: #f1f5f9; text-align: left;">
-							<th style="padding: 6px 8px;">Status</th>
-							<th style="padding: 6px 8px; text-align: right;">Count</th>
-							<th style="padding: 6px 8px; text-align: right;">Outstanding Amount</th>
-						</tr>
-					</thead>
-					<tbody>
-						${invoiceSummary.map((row, i) => `
-							<tr style="border-bottom: 1px solid #f1f5f9;">
-								<td style="padding: 6px 8px;">${statusPill(row.status)}</td>
-								<td style="padding: 6px 8px; text-align: right;">${row.count}</td>
-								<td style="padding: 6px 8px; text-align: right; font-weight: 600;">${formatMoney(row.total)}</td>
-							</tr>
-						`).join("")}
-					</tbody>
-				</table>
-			`);
-			summariesContainer.appendChild(financeCard);
-
-			// 2. Stock Overview (By Batch)
-			// Group by Item + Batch
-			const stockSummary = Object.values(state.stock.reduce((acc, row) => {
-				const item = row.item_name || row.item_code;
-				const batch = row.batch_no || "-";
-				const key = `${item}_${batch}`;
-
-				if (!acc[key]) acc[key] = { item: item, batch: batch, qty: 0 };
-				acc[key].qty += Number(row.qty || 0);
-				return acc;
-			}, {}));
-
-			const stockCard = document.createElement("div");
-			stockCard.innerHTML = createSummaryCard("Stock Overview (By Batch)", `
-				<table class="cs-table" style="width: 100%; border-collapse: collapse; font-size: 0.75rem;">
-					<thead>
-						<tr style="background: #f1f5f9; text-align: left;">
-							<th style="padding: 6px 8px;">Item</th>
-							<th style="padding: 6px 8px;">Batch</th>
-							<th style="padding: 6px 8px; text-align: right;">Total Qty</th>
-							<th style="padding: 6px 8px; text-align: right;">% of Stock</th>
-						</tr>
-					</thead>
-					<tbody>
-						${stockSummary.sort((a, b) => b.qty - a.qty).map((row, i) => { // Show all batches
-				const totalStock = stockSummary.reduce((sum, r) => sum + r.qty, 0);
-				const percent = totalStock ? ((row.qty / totalStock) * 100).toFixed(1) + "%" : "0%";
-				return `
-							<tr style="border-bottom: 1px solid #f1f5f9;">
-								<td style="padding: 6px 8px;">${escapeHtml(row.item).substring(0, 30)}</td>
-								<td style="padding: 6px 8px;">${escapeHtml(row.batch)}</td>
-								<td style="padding: 6px 8px; text-align: right; font-weight: 600;">${formatNumber(row.qty)}</td>
-								<td style="padding: 6px 8px; text-align: right; color: var(--cs-muted);">${percent}</td>
-							</tr>
-						`}).join("")}
-					</tbody>
-				</table>
-			`);
-			summariesContainer.appendChild(stockCard);
-
-			// Trigger Print
-			setTimeout(() => window.print(), 500); // Slight delay to ensure rendering
+			// Use window.open to trigger download in new tab/window without navigating away
+			window.open(url, '_blank');
 		};
 	})();
 </script>

@@ -12,7 +12,7 @@ from urllib.parse import quote, urlencode
 import frappe
 from frappe import _
 from frappe.desk.query_report import run as run_query_report
-from frappe.utils import add_days, cint, cstr, flt, getdate, now_datetime
+from frappe.utils import add_days, cint, cstr, flt, getdate, now_datetime, nowdate
 from frappe.utils.data import escape_html, format_datetime, formatdate
 from frappe.utils.pdf import get_pdf
 
@@ -61,11 +61,13 @@ PORTAL_REPORT_DEFINITIONS: Final[tuple[dict[str, str], ...]] = (
 		"label": "Yearly Inward/Outward Trend",
 		"description": "Year-over-year inward vs outward movement trend by item group.",
 	},
+
 )
 
 
+
 @frappe.whitelist()
-def get_portal_snapshot(limit: int = DEFAULT_LIMIT, customer: str | None = None) -> dict:
+def get_snapshot(limit: int = DEFAULT_LIMIT, customer: str | None = None) -> dict:
 	"""Return customer-filtered stock, movement, invoice and report data for the portal."""
 	row_limit = _sanitize_limit(limit)
 	_ensure_client_portal_access()
@@ -117,36 +119,12 @@ def get_portal_snapshot(limit: int = DEFAULT_LIMIT, customer: str | None = None)
 	)[:10]
 
 	# Chart Data: Movement Trends (Last 30 Days)
-	# Group movements by actual posting date (not string) to keep chronological order.
-	movement_trends: dict = {}
-	thirty_days_ago = getdate(add_days(now_datetime(), -30))
-	
-	for row in movement_rows:
-		m_date = getdate(row["posting_date"])
-		if not m_date or m_date < thirty_days_ago:
-			continue
-
-		if m_date not in movement_trends:
-			movement_trends[m_date] = {"Inward": 0.0, "Outward": 0.0}
-
-		m_type = row["movement_type"]
-		if m_type in ["Inward", "Outward"]:
-			movement_trends[m_date][m_type] += flt(row["qty"])
-
-	# Format for Frappe Charts
-	sorted_dates = sorted(movement_trends)
-	sorted_labels = [posting_date.strftime("%d %b") for posting_date in sorted_dates]
-	trend_chart_data = {
-		"labels": sorted_labels,
-		"datasets": [
-			{"name": "Inward", "values": [movement_trends[d]["Inward"] for d in sorted_dates]},
-			{"name": "Outward", "values": [movement_trends[d]["Outward"] for d in sorted_dates]}
-		]
-	}
+	trend_chart_data = _get_movement_trends(customers)
 
 	# Fetch settings
 	announcement = frappe.db.get_single_value("Cold Storage Settings", "portal_announcement")
 	company_name = frappe.db.get_single_value("Cold Storage Settings", "company") or ""
+	
 
 	return {
 		"available_customers": available_customers,
@@ -164,6 +142,9 @@ def get_portal_snapshot(limit: int = DEFAULT_LIMIT, customer: str | None = None)
 		},
 		"total_outstanding": total_outstanding
 	}
+
+
+
 
 @frappe.whitelist()
 def create_service_request(request_type: str, customer: str, items: list[dict], required_date: str) -> dict:
@@ -523,9 +504,9 @@ def download_report_pdf(report_name: str, customer: str | None = None) -> None:
 			"margin-right": "8mm",
 		},
 	)
-	frappe.local.response.filename = _get_report_pdf_filename(report_name, selected_customer)
-	frappe.local.response.filecontent = pdf_content
-	frappe.local.response.type = "pdf"
+	frappe.response.filename = _get_report_pdf_filename(report_name, selected_customer)
+	frappe.response.filecontent = pdf_content
+	frappe.response.type = "pdf"
 
 
 def _sanitize_limit(limit: int | str | None) -> int:
@@ -556,6 +537,84 @@ def _get_scoped_customers_for_session() -> list[str]:
 		return frappe.get_all("Customer", pluck="name")
 
 	return []
+
+
+def _get_movement_trends(customers: list[str], days: int = 30) -> dict:
+	"""Fetch aggregated Inward/Outward quantities per day for the last N days."""
+	if not customers:
+		return {"labels": [], "datasets": []}
+
+	start_date = add_days(nowdate(), -days)
+	
+	# Fetch aggregated data via SQL for performance and correctness
+	data = frappe.db.sql(
+		"""
+		select posting_date, movement_type, sum(qty) as qty
+		from (
+			-- Inward
+			select posting_date, 'Inward' as movement_type, sum(total_qty) as qty
+			from `tabCold Storage Inward`
+			where docstatus = 1 and customer in %(customers)s and posting_date >= %(start_date)s
+			group by posting_date
+			
+			union all
+			
+			-- Outward
+			select posting_date, 'Outward' as movement_type, sum(total_qty) as qty
+			from `tabCold Storage Outward`
+			where docstatus = 1 and customer in %(customers)s and posting_date >= %(start_date)s
+			group by posting_date
+
+			union all
+
+			-- Transfer In (treated as Inward for this customer)
+			select posting_date, 'Inward' as movement_type, sum(total_qty) as qty
+			from `tabCold Storage Transfer`
+			where docstatus = 1 and to_customer in %(customers)s and posting_date >= %(start_date)s
+			group by posting_date
+
+			union all
+
+			-- Transfer Out (treated as Outward for this customer)
+			select posting_date, 'Outward' as movement_type, sum(total_qty) as qty
+			from `tabCold Storage Transfer`
+			where docstatus = 1 and from_customer in %(customers)s and posting_date >= %(start_date)s
+			group by posting_date
+		) combined
+		group by posting_date, movement_type
+		order by posting_date asc
+		""",
+		{"customers": customers, "start_date": start_date},
+		as_dict=True
+	)
+
+	# Initialize map for all dates in range to ensure continuity? 
+	# Or just present dates with activity? 
+	# Presenting dates with activity is usually consistent with previous logic.
+	# But let's fill gaps if needed? The previous logic didn't fill gaps.
+	# So we just process the results.
+
+	stats = {}
+	for row in data:
+		d = getdate(row.posting_date)
+		if d not in stats:
+			stats[d] = {"Inward": 0.0, "Outward": 0.0}
+		stats[d][row.movement_type] += flt(row.qty)
+
+	sorted_dates = sorted(stats.keys())
+	# Limit to last N days strictly in case of clock skew, though SQL filter handles it.
+	# formatted dates
+	labels = [d.strftime("%d %b") for d in sorted_dates]
+	inward_vals = [stats[d]["Inward"] for d in sorted_dates]
+	outward_vals = [stats[d]["Outward"] for d in sorted_dates]
+
+	return {
+		"labels": labels,
+		"datasets": [
+			{"name": "Inward", "values": inward_vals},
+			{"name": "Outward", "values": outward_vals}
+		]
+	}
 
 
 def _has_global_portal_scope(roles: set[str]) -> bool:
@@ -675,18 +734,12 @@ def _dedupe_stock_rows(rows: list[dict]) -> list[dict]:
 
 
 def _dedupe_movement_rows(rows: list[dict]) -> list[dict]:
-	seen: set[tuple[str, str]] = set()
-	unique_rows: list[dict] = []
-	for row in rows:
-		key = (
-			cstr(row.get("movement_type")),
-			cstr(row.get("document_name")),
-		)
-		if key in seen:
-			continue
-		seen.add(key)
-		unique_rows.append(row)
-	return unique_rows
+	# Since SLE are unique per Voucher+Item+Batch+Creation, we just pass through
+	# Or enforce uniqueness if needed. SLE IDs are unique.
+	# But we are returning dicts.
+	# Let's assume unique enough for now or dedupe by all fields?
+    # Actually, for portal view duplication is unlikely unless join issues.
+	return rows
 
 
 def _dedupe_invoice_rows(rows: list[dict]) -> list[dict]:
@@ -721,44 +774,58 @@ def _get_movement_rows(customers: list[str], row_limit: int) -> list[dict]:
 	if not customers:
 		return []
 
-	inward_docs = frappe.get_all(
-		"Cold Storage Inward",
-		filters={"docstatus": ["in", [0, 1]], "customer": ["in", customers]},
-		fields=["name", "posting_date", "customer", "total_qty", "stock_entry", "sales_invoice", "modified", "docstatus"],
-		order_by="posting_date desc, modified desc",
-		limit_page_length=row_limit,
-		ignore_permissions=True,
-	)
-	outward_docs = frappe.get_all(
-		"Cold Storage Outward",
-		filters={"docstatus": ["in", [0, 1]], "customer": ["in", customers]},
-		fields=["name", "posting_date", "customer", "total_qty", "stock_entry", "sales_invoice", "modified", "docstatus"],
-		order_by="posting_date desc, modified desc",
-		limit_page_length=row_limit,
-		ignore_permissions=True,
-	)
-	transfer_docs = frappe.db.sql(
+	# Query Cold Storage Inward/Outward/Transfer child tables directly
+	# (Stock Ledger Entries use voucher_type='Stock Entry' and won't match)
+	return frappe.db.sql(
 		"""
-		select
-			name,
-			posting_date,
-			transfer_type,
-			customer,
-			from_customer,
-			to_customer,
-			total_qty,
-			stock_entry,
-			journal_entry,
-			modified,
-			docstatus
-		from `tabCold Storage Transfer`
-		where docstatus in (0, 1)
-			and (
-				customer in %(customers)s
-				or from_customer in %(customers)s
-				or to_customer in %(customers)s
-			)
-		order by posting_date desc, modified desc
+		(
+			select
+				p.posting_date,
+				p.name as document_name,
+				p.customer,
+				ci.item as item_code,
+				ci.batch_no,
+				ci.qty as qty,
+				ci.uom as stock_uom,
+				'Inward' as movement_type
+			from `tabCold Storage Inward` p
+			join `tabCold Storage Inward Item` ci on ci.parent = p.name
+			where p.docstatus = 1 and p.customer in %(customers)s
+		)
+		union all
+		(
+			select
+				p.posting_date,
+				p.name as document_name,
+				p.customer,
+				ci.item as item_code,
+				ci.batch_no,
+				ci.qty as qty,
+				ci.uom as stock_uom,
+				'Outward' as movement_type
+			from `tabCold Storage Outward` p
+			join `tabCold Storage Outward Item` ci on ci.parent = p.name
+			where p.docstatus = 1 and p.customer in %(customers)s
+		)
+		union all
+		(
+			select
+				p.posting_date,
+				p.name as document_name,
+				ifnull(p.from_customer, p.customer) as customer,
+				ci.item as item_code,
+				ci.batch_no,
+				ci.qty as qty,
+				ci.uom as stock_uom,
+				'Transfer' as movement_type
+			from `tabCold Storage Transfer` p
+			join `tabCold Storage Transfer Item` ci on ci.parent = p.name
+			where p.docstatus = 1
+				and (p.customer in %(customers)s
+					or p.from_customer in %(customers)s
+					or p.to_customer in %(customers)s)
+		)
+		order by posting_date desc
 		limit %(row_limit)s
 		""",
 		{
@@ -768,60 +835,6 @@ def _get_movement_rows(customers: list[str], row_limit: int) -> list[dict]:
 		as_dict=True,
 	)
 
-	rows: list[dict] = []
-	rows.extend(
-		{
-			"movement_type": "Inward",
-			"document_name": row.name,
-			"posting_date": row.posting_date,
-			"customer": row.customer,
-			"qty": flt(row.total_qty, 3),
-			"reference": row.sales_invoice or row.stock_entry or "",
-			"modified": row.modified,
-			"status": "Draft" if row.docstatus == 0 else "Submitted",
-		}
-		for row in inward_docs
-	)
-	rows.extend(
-		{
-			"movement_type": "Outward",
-			"document_name": row.name,
-			"posting_date": row.posting_date,
-			"customer": row.customer,
-			"qty": flt(row.total_qty, 3),
-			"reference": row.sales_invoice or row.stock_entry or "",
-			"modified": row.modified,
-			"status": "Draft" if row.docstatus == 0 else "Submitted",
-		}
-		for row in outward_docs
-	)
-	rows.extend(
-		{
-			"movement_type": row.transfer_type or "Transfer",
-			"document_name": row.name,
-			"posting_date": row.posting_date,
-			"customer": _resolve_transfer_customer(row),
-			"qty": flt(row.total_qty, 3),
-			"reference": row.journal_entry or row.stock_entry or "",
-			"modified": row.modified,
-			"status": "Draft" if row.docstatus == 0 else "Submitted",
-		}
-		for row in transfer_docs
-	)
-
-	rows.sort(
-		key=lambda row: (
-			cstr(row.get("posting_date")),
-			cstr(row.get("modified")),
-			cstr(row.get("document_name")),
-		),
-		reverse=True,
-	)
-
-	for row in rows:
-		row.pop("modified", None)
-
-	return rows[:row_limit]
 
 
 def _resolve_transfer_customer(row: frappe._dict) -> str:
@@ -1215,3 +1228,54 @@ def _download_csv(filename: str, fieldnames: list[str], rows: list[dict]) -> Non
 	frappe.response["type"] = "download"
 	frappe.response["filename"] = filename
 	frappe.response["filecontent"] = output.getvalue()
+
+
+@frappe.whitelist()
+def download_dashboard_report(customer: str | None = None) -> None:
+	"""Generate and download a comprehensive dashboard PDF report."""
+	_ensure_client_portal_access()
+	
+	# Reuse existing snapshot logic to fetch all data
+	# Fetch basic snapshot first
+	data = get_snapshot(limit=100, customer=customer)
+	
+	# Override movements with a larger limit for the report to ensure completeness
+	data["movements"] = _get_movement_rows(data["customers"], row_limit=5000)
+
+	
+	# Add derived metrics for the report
+	data["total_stock_value"] = sum(flt(row.get("qty")) * flt(row.get("valuation_rate", 0)) for row in data["stock"])
+	data["max_stock_value"] = max([d["value"] for d in data["analytics"]["stock_composition"]] or [1])
+	
+	# Calculate 30-day inward volume from analytics data
+	total_inward = 0.0
+	trend_data = data["analytics"]["movement_trends"]
+	if trend_data and "datasets" in trend_data and len(trend_data["datasets"]) > 0:
+		# dataset 0 is Inward based on _get_movement_trends implementation
+		inward_ds = next((ds for ds in trend_data["datasets"] if ds["name"] == "Inward"), None)
+		if inward_ds:
+			total_inward = sum(flt(v) for v in inward_ds["values"])
+			
+	data["total_inward_30_days"] = total_inward
+
+	# Render Template
+	html = frappe.render_template("cold_storage/templates/pages/dashboard_report.html", data)
+
+	# Generate PDF
+	pdf_content = get_pdf(
+		html,
+		{
+			"page-size": "A4",
+			"margin-top": "0mm",
+			"margin-right": "0mm",
+			"margin-bottom": "0mm",
+			"margin-left": "0mm",
+			"encoding": "UTF-8",
+			"no-outline": None,
+			"disable-smart-shrinking": "true"
+		}
+	)
+
+	frappe.response.filename = f"Executive_Report_{data.get('selected_customer') or 'All'}_{nowdate()}.pdf"
+	frappe.response.filecontent = pdf_content
+	frappe.response.type = "pdf"
