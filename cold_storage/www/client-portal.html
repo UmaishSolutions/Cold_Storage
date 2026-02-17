@@ -951,6 +951,16 @@
 		align-items: center;
 		gap: 0.5rem;
 	}
+
+	/* Hide built-in legend for stock chart as we have a custom one */
+	#cs-chart-stock .chart-legend {
+		display: none !important;
+	}
+
+	#cs-chart-stock .graph-svg-tip {
+		z-index: 9999;
+		/* Ensure tooltip is above custom legend */
+	}
 </style>
 
 <section class="client-portal">
@@ -1052,8 +1062,11 @@
 
 		<section class="cs-charts-grid cs-animate" data-delay="3" id="cs-dashboard-charts">
 			<article class="cs-chart-card">
-				<h3 class="cs-chart-title">Stock Composition</h3>
-				<div id="cs-chart-stock"></div>
+				<h3 class="cs-chart-title">Top 5 Batches (Stock)</h3>
+				<div class="cs-chart-wrapper" style="display: flex; align-items: center;">
+					<div id="cs-chart-stock-legend" style="width: 35%; padding-right: 10px; font-size: 11px;"></div>
+					<div id="cs-chart-stock" style="flex: 1;"></div>
+				</div>
 			</article>
 			<article class="cs-chart-card">
 				<h3 class="cs-chart-title">Movement Trends (30 Days)</h3>
@@ -1680,17 +1693,54 @@
 			if (stockChartEl) {
 				// Clear previous
 				stockChartEl.innerHTML = "";
+				const legendEl = document.getElementById("cs-chart-stock-legend");
+				if (legendEl) legendEl.innerHTML = "";
+
 				if (analytics.stock_composition && analytics.stock_composition.length > 0) {
+					// Custom Legend Generation
+					const colors = ['#0f766e', '#0d9488', '#14b8a6', '#2dd4bf', '#5eead4'];
+
+					if (legendEl) {
+						const total = analytics.stock_composition.reduce((sum, d) => sum + d.value, 0);
+						const legendHtml = analytics.stock_composition.map((d, i) => {
+							const color = colors[i % colors.length];
+							const pct = ((d.value / total) * 100).toFixed(1);
+							// Truncate name if too long
+							const name = d.name.length > 15 ? d.name.substring(0, 15) + '...' : d.name;
+							return `
+								<div style="display: flex; align-items: center; margin-bottom: 6px; color: #555;">
+									<span style="display: inline-block; width: 10px; height: 10px; background-color: ${color}; margin-right: 6px; border-radius: 2px; flex-shrink: 0;"></span>
+									<div style="display: flex; flex-direction: column; line-height: 1.2;">
+										<span title="${d.name}" style="font-weight: 500;">${name}</span>
+										<span style="font-size: 10px; color: #777;">${formatNumber(d.value)} (${pct}%)</span>
+									</div>
+								</div>
+							`;
+						}).join("");
+						legendEl.innerHTML = legendHtml;
+					}
+
 					new frappe.Chart(stockChartEl, {
-						title: "Top 5 Batches (Stock)",
 						data: {
 							labels: analytics.stock_composition.map(d => d.name),
 							datasets: [{ values: analytics.stock_composition.map(d => d.value) }]
 						},
 						type: 'donut',
 						height: 250,
-						colors: ['#0f766e', '#0d9488', '#14b8a6', '#2dd4bf', '#5eead4']
+						colors: colors,
+						tooltipOptions: {
+							formatTooltipY: d => formatNumber(d)
+						}
 					});
+					// Note: frappe-charts doesn't strictly support 'showLegend: 0' in all versions for donut,
+					// but we rely on CSS hiding or it not rendering if we don't pass 'labels' in some configs,
+					// actually providing labels is needed for tooltips.
+					// We will hide the built-in legend via CSS targeting this specific chart if needed,
+					// or rely on the chart taking up available space. 
+					// Actually, let's explicitly try to hide the text legend elements if they appear,
+					// or simpler: just let it render. The user wanted text on the left.
+					// If the built-in legend appears at bottom, we can hide it with CSS.
+
 				} else {
 					stockChartEl.innerHTML = "<div class='text-muted text-center p-4'>No stock data</div>";
 				}
