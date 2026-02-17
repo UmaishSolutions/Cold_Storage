@@ -20,14 +20,19 @@
         }
 
         @page {
-            size: A4;
             margin: 0;
         }
 
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
         body {
-            font-family: 'Noori Nastaliq', 'Noto Nastaliq Urdu', 'Noto Naskh Arabic', 'Noto Sans Arabic', Tahoma, sans-serif;
+            font-family: 'Noori Nastaliq', 'Noto Nastaliq Urdu', 'Noto Naskh Arabic', Tahoma, sans-serif;
             color: #1e293b;
-            line-height: 2.0;
+            line-height: 2.6;
             margin: 0;
             padding: 0;
             background: #fff;
@@ -35,426 +40,634 @@
             font-size: 14px;
         }
 
-        .page {
-            width: 100%;
-            min-height: 297mm;
+        .num-ltr {
+            direction: ltr;
+            unicode-bidi: embed;
+        }
+
+        /* ════════════════════════════════════════════════════════
+           SECTION 1: HERO COVER
+           ════════════════════════════════════════════════════════ */
+        .hero {
+            background: linear-gradient(155deg, #022c22 0%, #064e3b 30%, #047857 65%, #059669 100%);
+            color: white;
+            padding: 60px 50px 50px 50px;
             position: relative;
+            overflow: hidden;
             page-break-after: always;
         }
 
-        .content-padding {
-            padding: 20mm;
+        /* Decorative rings */
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: -100px;
+            right: -60px;
+            width: 400px;
+            height: 400px;
+            border-radius: 50%;
+            border: 1.5px solid rgba(255, 255, 255, 0.06);
         }
 
-        /* Typography */
-        h1,
-        h2,
-        h3,
-        h4 {
-            margin: 0;
-            font-weight: 700;
-            color: #0f172a;
+        .hero::after {
+            content: '';
+            position: absolute;
+            bottom: -140px;
+            left: -80px;
+            width: 500px;
+            height: 500px;
+            border-radius: 50%;
+            border: 1.5px solid rgba(255, 255, 255, 0.04);
         }
 
-        .text-sm {
-            font-size: 11px;
-        }
-
-        .text-xs {
-            font-size: 10px;
-        }
-
-        .text-muted {
-            color: #64748b;
-        }
-
-        .text-right {
-            text-align: left;
-        }
-
-        .text-left {
-            text-align: right;
-        }
-
-        .font-bold {
-            font-weight: 700;
-        }
-
-        .uppercase {
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-        }
-
-        /* Cover Page */
-        .cover-bg {
-            background: linear-gradient(135deg, #0f766e 0%, #0d9488 100%);
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            color: white;
-            padding: 30mm;
-        }
-
-        .cover-title {
-            font-size: 44px;
-            line-height: 1.4;
-            margin-bottom: 20px;
-            font-weight: 800;
-        }
-
-        .cover-subtitle {
-            font-size: 18px;
-            opacity: 0.9;
-            font-weight: 500;
-        }
-
-        .cover-meta {
-            border-top: 1px solid rgba(255, 255, 255, 0.2);
-            padding-top: 20px;
-            display: grid;
-            gap: 10px;
-        }
-
-        /* Inner Pages Header */
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 2px solid #0d9488;
-            padding-bottom: 15px;
+        .hero-accent {
+            width: 60px;
+            height: 4px;
+            background: linear-gradient(to left, rgba(52, 211, 153, 0.8), transparent);
+            border-radius: 2px;
             margin-bottom: 30px;
         }
 
-        .company-logo {
+        .hero-badge {
+            display: inline-block;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 20px;
+            padding: 5px 20px;
+            font-size: 11px;
+            margin-bottom: 30px;
+            letter-spacing: 0.03em;
+        }
+
+        .hero-title {
+            font-size: 46px;
+            line-height: 1.6;
+            font-weight: 800;
+            margin-bottom: 16px;
+            text-shadow: 0 3px 12px rgba(0, 0, 0, 0.2);
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero-sub {
+            font-size: 20px;
+            font-weight: 500;
+            opacity: 0.85;
+            border-right: 4px solid rgba(52, 211, 153, 0.7);
+            padding-right: 16px;
+            margin-bottom: 50px;
+            line-height: 2.6;
+        }
+
+        .hero-divider {
+            height: 1px;
+            background: rgba(255, 255, 255, 0.12);
+            margin-bottom: 24px;
+        }
+
+        .hero-meta {
+            display: flex;
+            gap: 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .meta-card {
+            flex: 1;
+            background: rgba(255, 255, 255, 0.07);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 18px 22px;
+        }
+
+        .meta-label {
+            font-size: 10px;
+            opacity: 0.55;
+            display: block;
+            margin-bottom: 6px;
+            line-height: 1.8;
+        }
+
+        .meta-value {
+            font-size: 18px;
+            font-weight: 700;
+            line-height: 2.4;
+        }
+
+        /* ════════════════════════════════════════════════════════
+           SHARED INNER STYLES
+           ════════════════════════════════════════════════════════ */
+        .content {
+            padding: 40px 50px 50px 50px;
+        }
+
+        /* Header bar */
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 12px;
+            margin-bottom: 30px;
+            border-bottom: 3px solid transparent;
+            border-image: linear-gradient(to left, #059669, #0d9488, #06b6d4) 1;
+        }
+
+        .top-bar__name {
             font-size: 20px;
             font-weight: 800;
-            color: #0f766e;
+            color: #065f46;
         }
 
-        /* KPI Section */
-        .kpi-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 15px;
-            margin-bottom: 30px;
-        }
-
-        .kpi-card {
-            background: #f8fafc;
-            border: 1px solid #e2e8f0;
-            border-radius: 8px;
-            padding: 15px;
-        }
-
-        .kpi-label {
+        .top-bar__tag {
+            background: linear-gradient(135deg, #ecfdf5, #d1fae5);
+            color: #065f46;
+            padding: 5px 18px;
+            border-radius: 20px;
             font-size: 11px;
-            font-weight: 600;
+            font-weight: 700;
+            border: 1px solid #a7f3d0;
+        }
+
+        /* ─── KPI Strip ─── */
+        .kpi-strip {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 36px;
+        }
+
+        .kpi {
+            flex: 1;
+            border-radius: 14px;
+            padding: 22px 24px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .kpi--danger {
+            background: linear-gradient(135deg, #fef2f2, #fee2e2);
+            border: 1px solid #fecaca;
+        }
+
+        .kpi--success {
+            background: linear-gradient(135deg, #f0fdf4, #dcfce7);
+            border: 1px solid #bbf7d0;
+        }
+
+        /* Side accent */
+        .kpi__bar {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 5px;
+            height: 100%;
+        }
+
+        .kpi--danger .kpi__bar {
+            background: linear-gradient(to bottom, #ef4444, #f97316);
+        }
+
+        .kpi--success .kpi__bar {
+            background: linear-gradient(to bottom, #059669, #06b6d4);
+        }
+
+        .kpi__label {
+            font-size: 12px;
             color: #64748b;
+            font-weight: 600;
             display: block;
-            margin-bottom: 5px;
+            margin-bottom: 8px;
         }
 
-        .kpi-value {
-            font-size: 24px;
-            font-weight: 700;
-            color: #0f172a;
+        .kpi__num {
+            font-size: 30px;
+            font-weight: 800;
+            line-height: 1.4;
         }
 
-        /* Section Styling */
-        .section-title {
-            font-size: 14px;
-            color: #0f766e;
+        .kpi--danger .kpi__num {
+            color: #dc2626;
+        }
+
+        .kpi--success .kpi__num {
+            color: #065f46;
+        }
+
+        /* ─── Section Title ─── */
+        .sec-title {
+            font-size: 16px;
+            color: #065f46;
             font-weight: 700;
+            margin-bottom: 16px;
             display: flex;
             align-items: center;
             gap: 10px;
-            margin-bottom: 15px;
-            padding-bottom: 5px;
-            border-bottom: 1px solid #e2e8f0;
         }
 
-        /* Charts */
-        .chart-container {
-            margin-bottom: 30px;
+        .sec-title__bar {
+            display: block;
+            width: 5px;
+            height: 20px;
+            background: linear-gradient(to bottom, #059669, #06b6d4);
+            border-radius: 3px;
+            flex-shrink: 0;
+        }
+
+        /* ─── Chart Box ─── */
+        .chart-wrap {
             border: 1px solid #e2e8f0;
-            border-radius: 8px;
-            padding: 15px;
-            page-break-inside: avoid;
+            border-radius: 14px;
+            padding: 20px 22px;
+            margin-bottom: 32px;
+            background: linear-gradient(180deg, #fafffe 0%, #ffffff 100%);
         }
 
-        .bar-chart-row {
+        /* Horizontal bars */
+        .hbar {
             display: flex;
             align-items: center;
-            margin-bottom: 8px;
-            font-size: 11px;
+            margin-bottom: 10px;
         }
 
-        .bar-label {
-            width: 120px;
+        .hbar__name {
+            width: 130px;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
             padding-left: 10px;
+            color: #334155;
+            font-size: 12px;
         }
 
-        .bar-track {
+        .hbar__track {
             flex-grow: 1;
-            background: #f1f5f9;
-            height: 16px;
-            border-radius: 4px;
+            background: linear-gradient(to left, #f1f5f9, #e8ecf1);
+            height: 20px;
+            border-radius: 10px;
             overflow: hidden;
-            position: relative;
         }
 
-        .bar-fill {
-            background: #0d9488;
+        .hbar__fill {
             height: 100%;
-            border-radius: 4px;
-            min-width: 2px;
+            border-radius: 10px;
+            min-width: 3px;
+            background: linear-gradient(to left, #059669, #34d399);
         }
 
-        .bar-value {
+        .hbar__val {
             width: 60px;
             text-align: left;
             padding-right: 10px;
-            font-weight: 600;
-            color: #334155;
+            font-weight: 800;
+            color: #065f46;
+            font-size: 12px;
         }
 
-        /* Tables */
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 10px;
+        /* Movement chart */
+        .trend-chart {
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+            height: 160px;
+            padding-top: 24px;
+            direction: ltr;
+        }
+
+        .trend-bar-group {
+            flex: 1;
+            margin: 0 2px;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            height: 100%;
+        }
+
+        .trend-label {
+            text-align: center;
+            font-size: 7px;
+            color: #64748b;
+            margin-bottom: 1px;
+            line-height: 1;
+        }
+
+        /* Legend */
+        .legend {
+            display: flex;
+            justify-content: center;
+            gap: 24px;
             margin-bottom: 30px;
         }
 
-        th {
-            background: #f1f5f9;
+        .legend__item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 11px;
             color: #475569;
-            font-weight: 600;
+        }
+
+        .legend__dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        /* ─── Table ─── */
+        table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            font-size: 12px;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid #cbd5e1;
+            margin-bottom: 30px;
+        }
+
+        thead {
+            background: linear-gradient(135deg, #064e3b 0%, #047857 50%, #059669 100%);
+        }
+
+        th {
+            color: white;
+            font-weight: 700;
             text-align: right;
-            padding: 8px 10px;
-            border-bottom: 1px solid #e2e8f0;
+            padding: 14px 16px;
+            font-size: 12px;
+            line-height: 2.2;
         }
 
         td {
-            padding: 8px 10px;
+            padding: 12px 16px;
             border-bottom: 1px solid #f1f5f9;
             color: #334155;
+            line-height: 2.2;
+        }
+
+        tbody tr:nth-child(even) {
+            background: #f8fffe;
         }
 
         tr:last-child td {
             border-bottom: none;
         }
 
-        /* Footer */
-        .footer {
-            position: absolute;
-            bottom: 20mm;
-            left: 20mm;
-            right: 20mm;
-            border-top: 1px solid #e2e8f0;
-            padding-top: 10px;
+        /* Status pills */
+        .pill {
+            display: inline-block;
+            padding: 3px 12px;
+            border-radius: 12px;
+            font-size: 10px;
+            font-weight: 700;
+            line-height: 1.8;
+        }
+
+        .pill--in {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .pill--out {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .pill--tr {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+
+        /* ─── Page Footer ─── */
+        .page-footer {
+            margin-top: 40px;
+            padding-top: 14px;
             display: flex;
             justify-content: space-between;
+            align-items: center;
             font-size: 9px;
             color: #94a3b8;
+            position: relative;
         }
 
-        .text-center {
+        .page-footer::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(to left, #059669, #06b6d4, #0d9488);
+            border-radius: 2px;
+        }
+
+        .page-footer__num {
+            background: #065f46;
+            color: white;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+        /* Decorative watermark ring */
+        .watermark-ring {
+            position: fixed;
+            bottom: -100px;
+            left: -100px;
+            width: 350px;
+            height: 350px;
+            border-radius: 50%;
+            border: 1px solid rgba(5, 150, 105, 0.04);
+            pointer-events: none;
+        }
+
+        /* Empty state */
+        .empty-state {
             text-align: center;
-        }
-
-        .num-ltr {
-            direction: ltr;
-            unicode-bidi: embed;
+            color: #94a3b8;
+            padding: 30px;
+            font-size: 13px;
         }
     </style>
 </head>
 
 <body>
 
-    <!-- Cover Page / سرورق -->
-    <div class="page cover-bg">
-        <div>
-            <div class="text-xs" style="opacity: 0.8; margin-bottom: 10px;">{{ company_name }}</div>
-            <div class="cover-title">مکمل طور پر نجی<br>اور خفیہ</div>
-            <div class="cover-subtitle">ایگزیکٹو ڈیش بورڈ رپورٹ</div>
-        </div>
+    <!-- ═══════ COVER ═══════ -->
+    <div class="hero">
+        <div class="hero-accent"></div>
+        <div class="hero-badge">{{ company_name }}</div>
+        <div class="hero-title">مکمل طور پر نجی<br>اور خفیہ</div>
+        <div class="hero-sub">ایگزیکٹو ڈیش بورڈ رپورٹ</div>
 
-        <div class="cover-meta">
-            <div>
-                <div class="text-xs" style="opacity: 0.7;">تیار کردہ برائے</div>
-                <div style="font-size: 20px; font-weight: 600;">{{ selected_customer or "تمام گاہک" }}</div>
+        <div class="hero-divider"></div>
+        <div class="hero-meta">
+            <div class="meta-card">
+                <span class="meta-label">تیار کردہ برائے</span>
+                <div class="meta-value">{{ selected_customer or "تمام گاہک" }}</div>
             </div>
-            <div>
-                <div class="text-xs" style="opacity: 0.7;">تاریخ</div>
-                <div style="font-size: 14px;" class="num-ltr">{{ frappe.utils.format_date(frappe.utils.nowdate(), "d
-                    MMMM, YYYY") }}</div>
+            <div class="meta-card">
+                <span class="meta-label">تاریخ اجراء</span>
+                <div class="meta-value num-ltr" style="font-size: 15px;">{{
+                    frappe.utils.format_date(frappe.utils.nowdate(), "d MMMM, YYYY") }}</div>
             </div>
         </div>
     </div>
 
-    <!-- Executive Summary / ایگزیکٹو خلاصہ -->
-    <div class="page">
-        <div class="content-padding">
-            <div class="header">
-                <div class="company-logo">{{ company_name }}</div>
-                <div class="text-sm text-muted">ایگزیکٹو خلاصہ</div>
+    <!-- ═══════ EXECUTIVE SUMMARY ═══════ -->
+    <div class="content">
+        <div class="top-bar">
+            <div class="top-bar__name">{{ company_name }}</div>
+            <div class="top-bar__tag">ایگزیکٹو خلاصہ</div>
+        </div>
+
+        <!-- KPIs -->
+        <div class="kpi-strip">
+            <div class="kpi kpi--danger">
+                <div class="kpi__bar"></div>
+                <span class="kpi__label">واجب الادا رقم</span>
+                <div class="kpi__num num-ltr">{{ frappe.utils.fmt_money(total_outstanding) }}</div>
             </div>
-
-            <div class="kpi-grid">
-                <div class="kpi-card">
-                    <span class="kpi-label">واجب الادا رقم</span>
-                    <div class="kpi-value num-ltr" style="color: #ef4444;">{{ frappe.utils.fmt_money(total_outstanding)
-                        }}</div>
-                </div>
-                <div class="kpi-card">
-                    <span class="kpi-label">کل اندراجی مقدار (30 دن)</span>
-                    <div class="kpi-value num-ltr">{{ frappe.format_value(total_inward_30_days, {'fieldtype': 'Float'})
-                        }}</div>
+            <div class="kpi kpi--success">
+                <div class="kpi__bar"></div>
+                <span class="kpi__label">کل اندراجی مقدار (۳۰ دن)</span>
+                <div class="kpi__num num-ltr">{{ frappe.format_value(total_inward_30_days, {'fieldtype': 'Float'}) }}
                 </div>
             </div>
+        </div>
 
-            <!-- Stock Composition / اسٹاک ساخت -->
-            <div class="section-title">اسٹاک ساخت (اوپری اشیاء)</div>
-            <div class="chart-container">
-                {% for item in analytics.stock_composition[:8] %}
-                <div class="bar-chart-row">
-                    <div class="bar-label" title="{{ item.name }}">{{ item.name }}</div>
-                    <div class="bar-track">
-                        <div class="bar-fill"
-                            style="width: {{ (item.value / max_stock_value * 100) if max_stock_value else 0 }}%;"></div>
-                    </div>
-                    <div class="bar-value num-ltr">{{ frappe.format_value(item.value, {'fieldtype': 'Float',
-                        'precision': 0}) }}</div>
+        <!-- Stock Composition -->
+        <div class="sec-title"><span class="sec-title__bar"></span>اسٹاک ساخت (اوپری اشیاء)</div>
+        <div class="chart-wrap">
+            {% for item in analytics.stock_composition[:8] %}
+            <div class="hbar">
+                <div class="hbar__name" title="{{ item.name }}">{{ item.name }}</div>
+                <div class="hbar__track">
+                    <div class="hbar__fill"
+                        style="width: {{ (item.value / max_stock_value * 100) if max_stock_value else 0 }}%;"></div>
                 </div>
-                {% endfor %}
-                {% if not analytics.stock_composition %}
-                <div class="text-center text-muted" style="padding: 20px;">اسٹاک ڈیٹا دستیاب نہیں ہے</div>
-                {% endif %}
+                <div class="hbar__val num-ltr">{{ frappe.format_value(item.value, {'fieldtype': 'Float', 'precision':
+                    0}) }}</div>
             </div>
+            {% endfor %}
+            {% if not analytics.stock_composition %}
+            <div class="empty-state">اسٹاک ڈیٹا دستیاب نہیں ہے</div>
+            {% endif %}
+        </div>
 
-            <!-- Movement Trends / حرکت کے رجحانات -->
-            <div class="section-title">حرکت کے رجحانات (آخری 30 دن)</div>
-            <div class="chart-container"
-                style="display: flex; align-items: flex-end; justify-content: space-between; height: 150px; padding-top: 30px; direction: ltr;">
-                {% if analytics.movement_trends and analytics.movement_trends.labels %}
-                {% set max_vol = 1 %}
-                {% for i in range(analytics.movement_trends.labels|length) %}
-                {% set total = analytics.movement_trends.datasets[0]['values'][i] +
-                analytics.movement_trends.datasets[1]['values'][i] %}
-                {% if total > max_vol %}{% set max_vol = total %}{% endif %}
-                {% endfor %}
-                {% set max_vol = max_vol * 1.2 %}
+        <!-- Movement Trends -->
+        <div class="sec-title"><span class="sec-title__bar"></span>حرکت کے رجحانات (آخری ۳۰ دن)</div>
+        <div class="chart-wrap trend-chart">
+            {% if analytics.movement_trends and analytics.movement_trends.labels %}
+            {% set max_vol = 1 %}
+            {% for i in range(analytics.movement_trends.labels|length) %}
+            {% set total = analytics.movement_trends.datasets[0]['values'][i] +
+            analytics.movement_trends.datasets[1]['values'][i] %}
+            {% if total > max_vol %}{% set max_vol = total %}{% endif %}
+            {% endfor %}
+            {% set max_vol = max_vol * 1.2 %}
 
-                {% for i in range(analytics.movement_trends.labels|length) %}
-                {% set in_val = analytics.movement_trends.datasets[0]['values'][i] %}
-                {% set out_val = analytics.movement_trends.datasets[1]['values'][i] %}
+            {% for i in range(analytics.movement_trends.labels|length) %}
+            {% set in_val = analytics.movement_trends.datasets[0]['values'][i] %}
+            {% set out_val = analytics.movement_trends.datasets[1]['values'][i] %}
+            <div class="trend-bar-group">
+                {% if in_val > 0 %}
+                <div class="trend-label">{{ in_val|int }}</div>
                 <div
-                    style="flex: 1; margin: 0 2px; display: flex; flex-direction: column; justify-content: flex-end; height: 100%;">
-
-                    {% if in_val > 0 %}
-                    <div class="text-xs text-muted"
-                        style="text-align: center; font-size: 7px; line-height: 1; margin-bottom: 1px;">{{ in_val|int }}
-                    </div>
-                    <div style="height: {{ (in_val / max_vol * 100)|round }}%; background: #0d9488; min-height: 1px; opacity: 0.8;"
-                        title="اندراج: {{ in_val }}"></div>
-                    {% endif %}
-
-                    {% if out_val > 0 %}
-                    <div class="text-xs text-muted"
-                        style="text-align: center; font-size: 7px; line-height: 1; margin-bottom: 1px;">{{ out_val|int
-                        }}</div>
-                    <div style="height: {{ (out_val / max_vol * 100)|round }}%; background: #f59e0b; min-height: 1px; margin-top: 1px; opacity: 0.8;"
-                        title="اخراج: {{ out_val }}"></div>
-                    {% endif %}
-
-                    <div class="text-xs text-muted"
-                        style="text-align: center; margin-top: 4px; font-size: 7px; white-space: nowrap;">
-                        {{ analytics.movement_trends.labels[i] }}</div>
-                </div>
-                {% endfor %}
-                {% else %}
-                <div style="width: 100%; text-align: center; color: #94a3b8; align-self: center;">حرکت کا ڈیٹا نہیں ہے
+                    style="height: {{ (in_val / max_vol * 100)|round }}%; background: linear-gradient(to top, #059669, #34d399); min-height: 1px; border-radius: 3px 3px 0 0;">
                 </div>
                 {% endif %}
+                {% if out_val > 0 %}
+                <div class="trend-label">{{ out_val|int }}</div>
+                <div
+                    style="height: {{ (out_val / max_vol * 100)|round }}%; background: linear-gradient(to top, #d97706, #fbbf24); min-height: 1px; margin-top: 1px; border-radius: 3px 3px 0 0;">
+                </div>
+                {% endif %}
+                <div style="text-align: center; margin-top: 4px; font-size: 7px; color: #94a3b8; white-space: nowrap;">
+                    {{ analytics.movement_trends.labels[i] }}</div>
             </div>
-            <div class="text-center text-xs text-muted"
-                style="display: flex; justify-content: center; gap: 15px; margin-bottom: 20px;">
-                <span style="display: flex; align-items: center; gap: 4px;"><span
-                        style="width: 8px; height: 8px; background: #0d9488;"></span> اندراج</span>
-                <span style="display: flex; align-items: center; gap: 4px;"><span
-                        style="width: 8px; height: 8px; background: #f59e0b;"></span> اخراج</span>
-            </div>
+            {% endfor %}
+            {% else %}
+            <div style="width: 100%; text-align: center; color: #94a3b8; align-self: center; font-size: 13px;">حرکت کا
+                ڈیٹا نہیں ہے</div>
+            {% endif %}
+        </div>
 
+        <div class="legend">
+            <span class="legend__item"><span class="legend__dot"
+                    style="background: linear-gradient(135deg, #059669, #34d399);"></span> اندراج</span>
+            <span class="legend__item"><span class="legend__dot"
+                    style="background: linear-gradient(135deg, #d97706, #fbbf24);"></span> اخراج</span>
+        </div>
 
-            <div class="footer">
-                <div>خفیہ رپورٹ</div>
-                <div>صفحہ 1</div>
-            </div>
+        <div class="page-footer">
+            <div>خفیہ رپورٹ — {{ company_name }}</div>
+            <div class="page-footer__num">۱</div>
         </div>
     </div>
 
-    <!-- Details Page / تفصیلات -->
-    <div class="page">
-        <div class="content-padding">
-            <div class="header">
-                <div class="company-logo">{{ company_name }}</div>
-                <div class="text-sm text-muted">تفصیلی خلاصہ</div>
-            </div>
+    <!-- ═══════ STOCK MOVEMENTS ═══════ -->
+    <div class="content" style="page-break-before: always;">
+        <div class="top-bar">
+            <div class="top-bar__name">{{ company_name }}</div>
+            <div class="top-bar__tag">تفصیلی خلاصہ</div>
+        </div>
 
-            <!-- Stock Movements Table / اسٹاک کی نقل و حرکت -->
-            <div class="section-title">اسٹاک کی نقل و حرکت</div>
-            <table>
-                <thead>
-                    <tr>
-                        <th style="width: 12%">تاریخ</th>
-                        <th style="width: 15%">حوالہ</th>
-                        <th style="width: 25%">شے</th>
-                        <th style="width: 15%">بیچ</th>
-                        <th style="width: 10%">قسم</th>
-                        <th style="width: 13%">مقدار</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for mov in movements %}
-                    <tr>
-                        <td class="num-ltr">{{ frappe.utils.format_date(mov.posting_date) }}</td>
-                        <td>
-                            <div class="font-bold num-ltr">{{ mov.document_name }}</div>
-                        </td>
-                        <td>
-                            <div class="font-bold">{{ mov.get('item_code', '') }}</div>
-                        </td>
-                        <td class="num-ltr">{{ mov.get('batch_no', '') }}</td>
-                        <td>
-                            <span
-                                style="font-weight: 600; color: {{ '#059669' if mov.movement_type == 'Inward' else '#d97706' }};">
-                                {{ 'اندراج' if mov.movement_type == 'Inward' else ('اخراج' if mov.movement_type ==
-                                'Outward' else 'منتقلی') }}
-                            </span>
-                        </td>
-                        <td class="num-ltr">{{ frappe.format_value(mov.qty, {'fieldtype': 'Float'}) }} <span
-                                class="text-muted" style="font-size: 8px;">{{ mov.get('stock_uom', '') }}</span></td>
-                    </tr>
-                    {% else %}
-                    <tr>
-                        <td colspan="6" class="text-center text-muted">کوئی نقل و حرکت نہیں ملی</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+        <div class="sec-title"><span class="sec-title__bar"></span>اسٹاک کی نقل و حرکت</div>
+        <table>
+            <thead>
+                <tr>
+                    <th style="width: 13%">تاریخ</th>
+                    <th style="width: 16%">حوالہ</th>
+                    <th style="width: 24%">شے</th>
+                    <th style="width: 14%">بیچ</th>
+                    <th style="width: 10%">قسم</th>
+                    <th style="width: 13%">مقدار</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for mov in movements %}
+                <tr>
+                    <td class="num-ltr">{{ frappe.utils.format_date(mov.posting_date) }}</td>
+                    <td>
+                        <div class="font-bold num-ltr">{{ mov.document_name }}</div>
+                    </td>
+                    <td>
+                        <div class="font-bold">{{ mov.get('item_code', '') }}</div>
+                    </td>
+                    <td class="num-ltr">{{ mov.get('batch_no', '') }}</td>
+                    <td>
+                        {% if mov.movement_type == 'Inward' %}
+                        <span class="pill pill--in">اندراج</span>
+                        {% elif mov.movement_type == 'Outward' %}
+                        <span class="pill pill--out">اخراج</span>
+                        {% else %}
+                        <span class="pill pill--tr">منتقلی</span>
+                        {% endif %}
+                    </td>
+                    <td class="num-ltr">{{ frappe.format_value(mov.qty, {'fieldtype': 'Float'}) }}
+                        <span style="font-size: 9px; color: #94a3b8;">{{ mov.get('stock_uom', '') }}</span>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="6" class="empty-state">کوئی نقل و حرکت نہیں ملی</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
 
-            <div class="footer">
-                <div>خفیہ رپورٹ</div>
-                <div>صفحہ 2</div>
-            </div>
+        <div class="page-footer">
+            <div>خفیہ رپورٹ — {{ company_name }}</div>
+            <div class="page-footer__num">۲</div>
         </div>
     </div>
 
+    <div class="watermark-ring"></div>
 </body>
 
 </html>

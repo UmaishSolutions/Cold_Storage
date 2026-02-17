@@ -1264,9 +1264,17 @@ def download_dashboard_report(customer: str | None = None, lang: str | None = No
 	html = frappe.render_template(template, data)
 
 	# Generate PDF
-	pdf_content = get_pdf(
-		html,
-		{
+	if is_urdu:
+		pdf_opts = {
+			"margin-top": "0mm",
+			"margin-right": "0mm",
+			"margin-bottom": "0mm",
+			"margin-left": "0mm",
+			"encoding": "UTF-8",
+			"no-outline": None,
+		}
+	else:
+		pdf_opts = {
 			"page-size": "A4",
 			"margin-top": "0mm",
 			"margin-right": "0mm",
@@ -1274,9 +1282,9 @@ def download_dashboard_report(customer: str | None = None, lang: str | None = No
 			"margin-left": "0mm",
 			"encoding": "UTF-8",
 			"no-outline": None,
-			"disable-smart-shrinking": "true"
+			"disable-smart-shrinking": "true",
 		}
-	)
+	pdf_content = get_pdf(html, pdf_opts)
 
 	prefix = "ایگزیکٹو_رپورٹ" if is_urdu else "Executive_Report"
 	frappe.response.filename = f"{prefix}_{data.get('selected_customer') or 'All'}_{nowdate()}.pdf"
