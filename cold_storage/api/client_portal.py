@@ -81,6 +81,7 @@ def get_portal_snapshot(limit: int = DEFAULT_LIMIT, customer: str | None = None)
 			"invoices": [],
 			"reports": [],
 			"announcement": None,
+			"company_name": frappe.db.get_single_value("Cold Storage Settings", "company") or "",
 			"analytics": {
 				"stock_composition": [],
 				"movement_trends": {"labels": [], "datasets": []}
@@ -143,8 +144,9 @@ def get_portal_snapshot(limit: int = DEFAULT_LIMIT, customer: str | None = None)
 		]
 	}
 
-	# Fetch announcement
+	# Fetch settings
 	announcement = frappe.db.get_single_value("Cold Storage Settings", "portal_announcement")
+	company_name = frappe.db.get_single_value("Cold Storage Settings", "company") or ""
 
 	return {
 		"available_customers": available_customers,
@@ -155,6 +157,7 @@ def get_portal_snapshot(limit: int = DEFAULT_LIMIT, customer: str | None = None)
 		"invoices": invoice_rows,
 		"reports": report_rows,
 		"announcement": announcement,
+		"company_name": company_name,
 		"analytics": {
 			"stock_composition": stock_chart_data,
 			"movement_trends": trend_chart_data

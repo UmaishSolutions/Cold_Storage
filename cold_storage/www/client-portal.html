@@ -2281,6 +2281,13 @@
 
 				if (window.updateAnnouncement) updateAnnouncement(data.announcement);
 
+				// Set company name in eyebrow
+				if (data.company_name) {
+					const eyebrow = document.querySelector(".cs-eyebrow");
+					if (eyebrow) eyebrow.textContent = data.company_name;
+				}
+
+
 				renderAll();
 				renderCharts(state.analytics);
 
