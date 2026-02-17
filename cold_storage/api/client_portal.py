@@ -1231,7 +1231,7 @@ def _download_csv(filename: str, fieldnames: list[str], rows: list[dict]) -> Non
 
 
 @frappe.whitelist()
-def download_dashboard_report(customer: str | None = None) -> None:
+def download_dashboard_report(customer: str | None = None, lang: str | None = None) -> None:
 	"""Generate and download a comprehensive dashboard PDF report."""
 	_ensure_client_portal_access()
 	
@@ -1258,8 +1258,10 @@ def download_dashboard_report(customer: str | None = None) -> None:
 			
 	data["total_inward_30_days"] = total_inward
 
-	# Render Template
-	html = frappe.render_template("cold_storage/templates/pages/dashboard_report.html", data)
+	# Render Template (Urdu or English)
+	is_urdu = cstr(lang).strip().lower() == "ur"
+	template = "cold_storage/templates/pages/dashboard_report_ur.html" if is_urdu else "cold_storage/templates/pages/dashboard_report.html"
+	html = frappe.render_template(template, data)
 
 	# Generate PDF
 	pdf_content = get_pdf(
@@ -1276,6 +1278,7 @@ def download_dashboard_report(customer: str | None = None) -> None:
 		}
 	)
 
-	frappe.response.filename = f"Executive_Report_{data.get('selected_customer') or 'All'}_{nowdate()}.pdf"
+	prefix = "ایگزیکٹو_رپورٹ" if is_urdu else "Executive_Report"
+	frappe.response.filename = f"{prefix}_{data.get('selected_customer') or 'All'}_{nowdate()}.pdf"
 	frappe.response.filecontent = pdf_content
 	frappe.response.type = "pdf"
