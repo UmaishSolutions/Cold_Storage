@@ -53,6 +53,73 @@
 		margin: 0 !important;
 	}
 
+	#cs-print-container {
+		display: none;
+	}
+
+	@page {
+		size: A4 portrait;
+		margin: 1in;
+	}
+
+	@media print {
+
+		/* Force background colors */
+		* {
+			-webkit-print-color-adjust: exact !important;
+			print-color-adjust: exact !important;
+		}
+
+		/* Hide everything by default */
+		body {
+			margin: 0 !important;
+			padding: 0 !important;
+		}
+
+		body>* {
+			display: none !important;
+		}
+
+		/* Show only the print container */
+		#cs-print-container,
+		#cs-print-container * {
+			display: block !important;
+			visibility: visible !important;
+		}
+
+		#cs-print-container {
+			display: block !important;
+			width: 100%;
+			background: white;
+			padding: 0;
+			margin: 0;
+			/* Let @page handle margins */
+		}
+
+		/* Grid Overrides for Print */
+		#cs-print-container .cs-kpi-grid {
+			display: grid !important;
+			grid-template-columns: repeat(3, 1fr) !important;
+			gap: 1rem;
+		}
+
+		/* Sub-grids (Charts/Summaries) */
+		#cs-print-container>div[style*="grid"] {
+			display: grid !important;
+			grid-template-columns: 1fr 1fr !important;
+			gap: 1.5rem !important;
+		}
+
+		/* Card Styling for Print */
+		#cs-print-container .cs-chart-card,
+		#cs-print-container>div>div {
+			break-inside: avoid;
+			page-break-inside: avoid;
+			box-shadow: none !important;
+			border: 1px solid #eee !important;
+		}
+	}
+
 	:root {
 		--cs-bg-1: #f0fdfa;
 		--cs-bg-2: #e6eeeb;
@@ -128,7 +195,10 @@
 		position: relative;
 		width: 100%;
 		padding: 1.5rem;
-		background: #f3f4f6;
+		background:
+			radial-gradient(circle at 20% 50%, rgba(13, 148, 136, 0.04) 0%, transparent 50%),
+			radial-gradient(circle at 80% 20%, rgba(13, 148, 136, 0.03) 0%, transparent 40%),
+			linear-gradient(135deg, #f0f4f3 0%, #f5f7f6 50%, #eef2f1 100%);
 		font-family: 'Inter', system-ui, -apple-system, sans-serif;
 		color: var(--cs-copy);
 		-webkit-font-smoothing: antialiased;
@@ -339,12 +409,12 @@
 		display: flex;
 		flex-wrap: wrap;
 		gap: 0.55rem;
-		padding: 0.52rem;
+		padding: 0.55rem 0.65rem;
 		border-radius: 0.92rem;
 		border: 1px solid var(--cs-border);
-		background: rgba(255, 255, 255, 0.76);
-		box-shadow: var(--cs-shadow-soft);
-		backdrop-filter: blur(8px);
+		background: rgba(255, 255, 255, 0.82);
+		box-shadow: var(--cs-shadow-soft), inset 0 1px 3px rgba(0, 0, 0, 0.03);
+		backdrop-filter: blur(12px);
 		position: sticky;
 		top: 0.5rem;
 		z-index: 9;
@@ -361,7 +431,8 @@
 		padding: 0.35rem 0.72rem;
 		font-size: 0.78rem;
 		font-weight: 700;
-		transition: 0.2s ease;
+		transition: all 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+		cursor: pointer;
 	}
 
 	.cs-chip::before {
@@ -371,21 +442,25 @@
 		border-radius: 999px;
 		background: rgba(23, 136, 106, 0.38);
 		box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.6);
+		transition: transform 0.22s ease, background 0.22s ease;
 	}
 
 	.cs-chip:hover {
 		border-color: rgba(23, 136, 106, 0.42);
-		background: rgba(23, 136, 106, 0.12);
+		background: rgba(23, 136, 106, 0.1);
+		transform: translateY(-1px);
 	}
 
 	.cs-chip-active {
-		background: linear-gradient(130deg, rgba(23, 136, 106, 0.2), rgba(23, 136, 106, 0.08));
-		border-color: rgba(23, 136, 106, 0.52);
+		background: linear-gradient(130deg, rgba(13, 148, 136, 0.22), rgba(13, 148, 136, 0.1));
+		border-color: rgba(13, 148, 136, 0.55);
 		color: var(--cs-accent-strong);
+		box-shadow: 0 2px 8px rgba(13, 148, 136, 0.15);
 	}
 
 	.cs-chip-active::before {
 		background: var(--cs-accent-strong);
+		transform: scale(1.2);
 	}
 
 	.cs-chip-main {
@@ -434,6 +509,14 @@
 		border: 1px solid var(--cs-border);
 		background: var(--cs-surface);
 		box-shadow: var(--cs-shadow-soft);
+		transition: transform 0.25s ease, box-shadow 0.25s ease;
+		cursor: default;
+	}
+
+	.cs-kpi:hover {
+		transform: translateY(-3px);
+		box-shadow: 0 8px 25px rgba(13, 148, 136, 0.12), 0 2px 6px rgba(0, 0, 0, 0.06);
+		border-color: rgba(13, 148, 136, 0.25);
 	}
 
 	.cs-kpi::before {
@@ -441,7 +524,22 @@
 		position: absolute;
 		inset: 0 0 auto;
 		height: 3px;
-		background: linear-gradient(90deg, rgba(23, 136, 106, 0.92), rgba(23, 136, 106, 0.26));
+		background: linear-gradient(90deg, rgba(13, 148, 136, 0.95), rgba(13, 148, 136, 0.2));
+	}
+
+	.cs-kpi::after {
+		content: attr(data-icon);
+		position: absolute;
+		right: 0.7rem;
+		bottom: 0.5rem;
+		font-size: 1.6rem;
+		opacity: 0.12;
+		pointer-events: none;
+		transition: opacity 0.25s ease;
+	}
+
+	.cs-kpi:hover::after {
+		opacity: 0.22;
 	}
 
 	.cs-kpi-label {
@@ -494,8 +592,14 @@
 		border-radius: 1rem;
 		overflow: hidden;
 		background: var(--cs-surface);
-		box-shadow: var(--cs-shadow-soft);
+		box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04), 0 4px 12px rgba(0, 0, 0, 0.03);
 		backdrop-filter: blur(6px);
+		transition: box-shadow 0.3s ease, border-color 0.3s ease;
+	}
+
+	.cs-board:hover {
+		box-shadow: 0 4px 20px rgba(13, 148, 136, 0.08), 0 2px 8px rgba(0, 0, 0, 0.04);
+		border-color: rgba(13, 148, 136, 0.18);
 	}
 
 	.cs-board[data-span="6"] {
@@ -509,7 +613,7 @@
 		gap: 0.7rem;
 		padding: 0.84rem 0.96rem;
 		border-bottom: 1px solid rgba(19, 84, 70, 0.11);
-		background: linear-gradient(180deg, rgba(255, 255, 255, 0.88), rgba(245, 251, 248, 0.78));
+		background: linear-gradient(180deg, rgba(255, 255, 255, 0.95), rgba(248, 253, 251, 0.85));
 	}
 
 	.cs-board-head-main {
@@ -524,6 +628,8 @@
 		font-size: 0.98rem;
 		font-weight: 700;
 		color: var(--cs-headline);
+		padding-left: 0.6rem;
+		border-left: 3px solid var(--cs-accent);
 	}
 
 	.cs-board-meta {
@@ -580,6 +686,7 @@
 		vertical-align: middle;
 		color: #214239;
 		border-top: 1px solid rgba(19, 84, 70, 0.08);
+		transition: background 0.2s ease, border-color 0.2s ease;
 	}
 
 	.cs-table tbody tr:nth-child(even) td {
@@ -587,7 +694,11 @@
 	}
 
 	.cs-table tbody tr:hover td {
-		background: rgba(23, 136, 106, 0.1);
+		background: rgba(13, 148, 136, 0.07);
+	}
+
+	.cs-table tbody tr:hover td:first-child {
+		box-shadow: inset 3px 0 0 var(--cs-accent);
 	}
 
 	.cs-link {
@@ -1045,6 +1156,17 @@
 		gap: 1rem;
 		margin-top: 0.2rem;
 	}
+
+	/* Hide default Frappe footer on the portal */
+	footer,
+	.web-footer {
+		display: none !important;
+	}
+
+	/* Smooth scroll for nav jumps */
+	html {
+		scroll-behavior: smooth;
+	}
 </style>
 
 <section class="client-portal">
@@ -1110,30 +1232,40 @@
 				<span class="cs-chip-count" id="cs-nav-report-count">0</span>
 			</button>
 			<button class="cs-chip cs-chip-main" type="button" id="cs-focus-search-btn">Focus Search (/)</button>
+			<button class="cs-chip cs-chip-secondary" type="button" id="cs-snapshot-btn" onclick="downloadSnapshot()"
+				style="margin-left: 0.5rem; background: linear-gradient(135deg, var(--cs-accent), var(--cs-accent-hover)); color: white; border-color: var(--cs-accent-hover); box-shadow: 0 2px 8px rgba(13,148,136,0.25);">
+				<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+					stroke-linecap="round" stroke-linejoin="round" style="margin-right: 4px;">
+					<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+					<polyline points="7 10 12 15 17 10"></polyline>
+					<line x1="12" y1="15" x2="12" y2="3"></line>
+				</svg>
+				Download Snapshot
+			</button>
 		</nav>
 
 		<section class="cs-kpi-grid cs-animate" data-delay="2">
-			<div class="cs-kpi">
+			<div class="cs-kpi" data-icon="📦">
 				<div class="cs-kpi-label">Stock Rows</div>
 				<div class="cs-kpi-value" id="cs-kpi-stock-rows">0</div>
 			</div>
-			<div class="cs-kpi">
+			<div class="cs-kpi" data-icon="📊">
 				<div class="cs-kpi-label">Total Quantity</div>
 				<div class="cs-kpi-value" id="cs-kpi-total-qty">0</div>
 			</div>
-			<div class="cs-kpi">
+			<div class="cs-kpi" data-icon="🔄">
 				<div class="cs-kpi-label">Movements</div>
 				<div class="cs-kpi-value" id="cs-kpi-movements">0</div>
 			</div>
-			<div class="cs-kpi">
+			<div class="cs-kpi" data-icon="📄">
 				<div class="cs-kpi-label">Invoices</div>
 				<div class="cs-kpi-value" id="cs-kpi-invoices">0</div>
 			</div>
-			<div class="cs-kpi">
+			<div class="cs-kpi" data-icon="💰">
 				<div class="cs-kpi-label">Outstanding</div>
 				<div class="cs-kpi-value" id="cs-kpi-outstanding">0</div>
 			</div>
-			<div class="cs-kpi">
+			<div class="cs-kpi" data-icon="📋">
 				<div class="cs-kpi-label">Reports</div>
 				<div class="cs-kpi-value" id="cs-kpi-reports">0</div>
 			</div>
@@ -1227,7 +1359,6 @@
 								<th>Document</th>
 								<th>Customer</th>
 								<th class="text-end">Qty</th>
-								<th class="text-end">Action</th>
 							</tr>
 						</thead>
 						<tbody></tbody>
@@ -1382,6 +1513,8 @@
 <script>
 	(() => {
 		const snapshotMethod = "cold_storage.api.client_portal.get_portal_snapshot";
+
+
 		const downloadMethods = {
 			stock: "/api/method/cold_storage.api.client_portal.download_stock_csv",
 			movements: "/api/method/cold_storage.api.client_portal.download_movements_csv",
@@ -1719,9 +1852,6 @@
 			movementBody.innerHTML = rows
 				.map(
 					(row) => {
-						const doctype = row.movement_type === "Inward" ? "Cold Storage Inward" : (row.movement_type === "Outward" ? "Cold Storage Outward" : "");
-						const viewBtn = doctype ? `<button class="cs-btn cs-btn-sm" onclick="openDetails('${doctype}', '${row.document_name}')">View</button>` : "";
-
 						return `
 				<tr>
 					<td>${formatDate(row.posting_date)}</td>
@@ -1729,7 +1859,6 @@
 					<td>${escapeHtml(row.document_name || "")}</td>
 					<td>${escapeHtml(row.customer || "")}</td>
 					<td class="text-end fw-bold">${formatNumber(row.qty)}</td>
-					<td class="text-end">${viewBtn}</td>
 				</tr>
 			`;
 					}
@@ -2468,6 +2597,146 @@
 				}
 			}
 		}
+		// Snapshot Download Functionality
+		window.downloadSnapshot = () => {
+			// Create a print container if it doesn't exist
+			let printContainer = document.getElementById("cs-print-container");
+			if (!printContainer) {
+				printContainer = document.createElement("div");
+				printContainer.id = "cs-print-container";
+				document.body.appendChild(printContainer);
+			}
+			printContainer.innerHTML = ""; // Clear previous content
+
+			// 1. KPIs
+			const kpiGrid = document.querySelector(".cs-kpi-grid").cloneNode(true);
+			// Force print styling for KPIs
+			Array.from(kpiGrid.children).forEach(card => {
+				card.style.border = "1px solid #e2e8f0";
+				card.style.boxShadow = "none";
+				card.style.padding = "1rem";
+			});
+			printContainer.appendChild(kpiGrid);
+
+			// 3. Charts Container
+			const chartsContainer = document.createElement("div");
+			chartsContainer.style.marginTop = "0.5rem";
+			chartsContainer.style.marginBottom = "0.5rem";
+			chartsContainer.style.display = "flex";
+			chartsContainer.style.flexDirection = "column"; // Up Down
+			chartsContainer.style.gap = "0.5rem";
+
+			const stockChartCard = document.querySelector("#cs-chart-stock").closest(".cs-chart-card").cloneNode(true);
+			const trendChartCard = document.querySelector("#cs-chart-movements").closest(".cs-chart-card").cloneNode(true);
+
+			// Clean up charts for print
+			[stockChartCard, trendChartCard].forEach(card => {
+				card.style.border = "1px solid #e2e8f0";
+				card.style.boxShadow = "none";
+				card.style.breakInside = "avoid";
+				card.style.marginBottom = "0"; // Handled by gap
+				card.style.padding = "0.5rem"; // Reduce padding inside card
+			});
+
+			chartsContainer.appendChild(stockChartCard);
+			chartsContainer.appendChild(trendChartCard);
+			printContainer.appendChild(chartsContainer);
+
+			// 4. Summaries Container
+			const summariesContainer = document.createElement("div");
+			summariesContainer.style.marginTop = "1rem";
+			summariesContainer.style.display = "flex";
+			summariesContainer.style.flexDirection = "column";
+			summariesContainer.style.gap = "1rem";
+			printContainer.appendChild(summariesContainer);
+
+			// Helper for Summary Card
+			const createSummaryCard = (title, tableHtml, minHeight = "auto") => `
+				<div style="border: 1px solid #e2e8f0; border-radius: 8px; overflow: hidden; height: ${minHeight}; display: flex; flex-direction: column;">
+					<div style="background: #f8fafc; padding: 0.5rem 1rem; border-bottom: 1px solid #e2e8f0;">
+						<h2 style="font-size: 0.95rem; margin: 0; font-weight: 600; color: var(--cs-headline);">${title}</h2>
+					</div>
+					<div style="flex-grow: 1; padding: 0;">
+						${tableHtml}
+					</div>
+				</div>
+			`;
+
+			// 1. Financial Overview (Full Width)
+			const invoiceSummary = Object.values(state.invoices.reduce((acc, row) => {
+				const status = row.status || "Unknown";
+				if (!acc[status]) acc[status] = { status: status, total: 0, count: 0 };
+				acc[status].total += Number(row.outstanding_amount || 0);
+				acc[status].count += 1;
+				return acc;
+			}, {}));
+
+			const financeCard = document.createElement("div");
+			financeCard.innerHTML = createSummaryCard("Financial Overview", `
+				<table class="cs-table" style="width: 100%; border-collapse: collapse; font-size: 0.75rem;">
+					<thead>
+						<tr style="background: #f1f5f9; text-align: left;">
+							<th style="padding: 6px 8px;">Status</th>
+							<th style="padding: 6px 8px; text-align: right;">Count</th>
+							<th style="padding: 6px 8px; text-align: right;">Outstanding Amount</th>
+						</tr>
+					</thead>
+					<tbody>
+						${invoiceSummary.map((row, i) => `
+							<tr style="border-bottom: 1px solid #f1f5f9;">
+								<td style="padding: 6px 8px;">${statusPill(row.status)}</td>
+								<td style="padding: 6px 8px; text-align: right;">${row.count}</td>
+								<td style="padding: 6px 8px; text-align: right; font-weight: 600;">${formatMoney(row.total)}</td>
+							</tr>
+						`).join("")}
+					</tbody>
+				</table>
+			`);
+			summariesContainer.appendChild(financeCard);
+
+			// 2. Stock Overview (By Batch)
+			// Group by Item + Batch
+			const stockSummary = Object.values(state.stock.reduce((acc, row) => {
+				const item = row.item_name || row.item_code;
+				const batch = row.batch_no || "-";
+				const key = `${item}_${batch}`;
+
+				if (!acc[key]) acc[key] = { item: item, batch: batch, qty: 0 };
+				acc[key].qty += Number(row.qty || 0);
+				return acc;
+			}, {}));
+
+			const stockCard = document.createElement("div");
+			stockCard.innerHTML = createSummaryCard("Stock Overview (By Batch)", `
+				<table class="cs-table" style="width: 100%; border-collapse: collapse; font-size: 0.75rem;">
+					<thead>
+						<tr style="background: #f1f5f9; text-align: left;">
+							<th style="padding: 6px 8px;">Item</th>
+							<th style="padding: 6px 8px;">Batch</th>
+							<th style="padding: 6px 8px; text-align: right;">Total Qty</th>
+							<th style="padding: 6px 8px; text-align: right;">% of Stock</th>
+						</tr>
+					</thead>
+					<tbody>
+						${stockSummary.sort((a, b) => b.qty - a.qty).map((row, i) => { // Show all batches
+				const totalStock = stockSummary.reduce((sum, r) => sum + r.qty, 0);
+				const percent = totalStock ? ((row.qty / totalStock) * 100).toFixed(1) + "%" : "0%";
+				return `
+							<tr style="border-bottom: 1px solid #f1f5f9;">
+								<td style="padding: 6px 8px;">${escapeHtml(row.item).substring(0, 30)}</td>
+								<td style="padding: 6px 8px;">${escapeHtml(row.batch)}</td>
+								<td style="padding: 6px 8px; text-align: right; font-weight: 600;">${formatNumber(row.qty)}</td>
+								<td style="padding: 6px 8px; text-align: right; color: var(--cs-muted);">${percent}</td>
+							</tr>
+						`}).join("")}
+					</tbody>
+				</table>
+			`);
+			summariesContainer.appendChild(stockCard);
+
+			// Trigger Print
+			setTimeout(() => window.print(), 500); // Slight delay to ensure rendering
+		};
 	})();
 </script>
 {% endblock %}
