@@ -1682,7 +1682,7 @@
 				stockChartEl.innerHTML = "";
 				if (analytics.stock_composition && analytics.stock_composition.length > 0) {
 					new frappe.Chart(stockChartEl, {
-						title: "Top 5 Items (Stock)",
+						title: "Top 5 Batches (Stock)",
 						data: {
 							labels: analytics.stock_composition.map(d => d.name),
 							datasets: [{ values: analytics.stock_composition.map(d => d.value) }]

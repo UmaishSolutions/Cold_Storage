@@ -101,9 +101,16 @@ def get_portal_snapshot(limit: int = DEFAULT_LIMIT, customer: str | None = None)
 	invoice_rows = _dedupe_invoice_rows(invoice_rows)
 	report_rows = _dedupe_report_rows(report_rows)
 
-	# Chart Data: Stock Composition (Top 5 Items by Qty)
+	# Chart Data: Stock Composition (Top 5 Batches by Qty)
+	# Aggregate by batch_no
+	batch_qty_map = {}
+	for r in stock_rows:
+		batch = r.get("batch_no")
+		if batch:
+			batch_qty_map[batch] = batch_qty_map.get(batch, 0.0) + flt(r.get("qty"))
+	
 	stock_chart_data = sorted(
-		[{"name": r["item_name"], "value": r["qty"]} for r in stock_rows],
+		[{"name": k, "value": v} for k, v in batch_qty_map.items()],
 		key=lambda x: x["value"],
 		reverse=True
 	)[:5]
