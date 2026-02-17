@@ -82,6 +82,7 @@ def _ensure_top_customers_chart_source() -> None:
 		"Top Customers",
 		{
 			"report_name": "Cold Storage Customer Register",
+			"type": "Bar",
 			"use_report_chart": 1,
 		},
 		update_modified=False,

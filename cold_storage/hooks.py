@@ -12,7 +12,7 @@ required_apps = ["erpnext"]
 
 # Includes in <head>
 # app_include_css = "/assets/cold_storage/css/cold_storage.css"
-# app_include_js = "/assets/cold_storage/js/cold_storage.js"
+app_include_js = "/assets/cold_storage/js/cold_storage.js"
 
 desktop_data = "cold_storage.config.desktop.get_data"
 
