@@ -139,11 +139,6 @@ def get_portal_snapshot(limit: int = DEFAULT_LIMIT, customer: str | None = None)
 	# Fetch announcement
 	announcement = frappe.db.get_single_value("Cold Storage Settings", "portal_announcement")
 
-	# DEBUG: Inject into announcement
-	# frappe.msgprint(...)
-	debug_msg = f" [DEBUG: User={frappe.session.user}, Customers={customers}, Total={total_outstanding}]"
-	announcement = (announcement or "") + debug_msg
-
 	return {
 		"available_customers": available_customers,
 		"selected_customer": selected_customer,
