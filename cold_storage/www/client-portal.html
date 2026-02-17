@@ -44,6 +44,51 @@
 		min-height: 100vh;
 	}
 
+	/* Full Width Override */
+	.container {
+		max-width: 100% !important;
+		width: 100% !important;
+		padding-left: 0 !important;
+		padding-right: 0 !important;
+		margin: 0 !important;
+	}
+
+	:root {
+		--cs-bg-1: #f0fdfa;
+		--cs-bg-2: #e6eeeb;
+		--cs-bg-3: #d5e4df;
+		--cs-surface: #ffffff;
+		--cs-surface-glass: rgba(255, 255, 255, 0.92);
+		--cs-border: #e0e6e4;
+		--cs-border-hover: #c8d6d2;
+		--cs-headline: #111827;
+		/* Gray 900 */
+		--cs-copy: #374151;
+		/* Gray 700 */
+		--cs-muted: #6b7280;
+		/* Gray 500 */
+
+		--cs-accent: #0d9488;
+		/* Teal 600 */
+		--cs-accent-hover: #0f766e;
+		/* Teal 700 */
+		--cs-accent-subtle: #ccfbf1;
+		/* Teal 100 */
+
+		--cs-success: #10b981;
+		--cs-warning: #f59e0b;
+		--cs-error: #ef4444;
+
+		--cs-shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+		--cs-shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+		--cs-shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+
+		--cs-radius-sm: 0.375rem;
+		--cs-radius-md: 0.5rem;
+		--cs-radius-lg: 0.75rem;
+		--cs-radius-xl: 1rem;
+	}
+
 	.client-portal {
 		/* Deep Navy & Teal Professional Palette */
 		--cs-bg-1: #f4f7f6;
@@ -1830,8 +1875,9 @@
 							datasets: [{ values: analytics.stock_composition.map(d => d.value) }]
 						},
 						type: 'donut',
-						height: 375,
+						height: 420,
 						colors: colors,
+						strokeWidth: 45, // 1.5x thicker (default 30)
 						tooltipOptions: {
 							formatTooltipY: d => formatNumber(d)
 						}
@@ -1872,10 +1918,12 @@
 					if (trendLegendEl) {
 						trendLegendEl.innerHTML = `
 							<div style="display: flex; align-items: center; gap: 6px;">
-								<span style="font-size: 12px; font-weight: 600; color: #0f766e;">Inward</span>
+								<span style="width: 8px; height: 8px; border-radius: 50%; background-color: #0f766e;"></span>
+								<span style="font-size: 12px; font-weight: 600; color: #333;">Inward</span>
 							</div>
 							<div style="display: flex; align-items: center; gap: 6px;">
-								<span style="font-size: 12px; font-weight: 600; color: #f59e0b;">Outward</span>
+								<span style="width: 8px; height: 8px; border-radius: 50%; background-color: #f59e0b;"></span>
+								<span style="font-size: 12px; font-weight: 600; color: #333;">Outward</span>
 							</div>
 						`;
 					}
@@ -1883,7 +1931,7 @@
 					new frappe.Chart(trendChartEl, {
 						data: trendData,
 						type: 'bar',
-						height: 255,
+						height: 280,
 						colors: ['#0f766e', '#f59e0b'],
 						axisOptions: {
 							xIsSeries: true,
