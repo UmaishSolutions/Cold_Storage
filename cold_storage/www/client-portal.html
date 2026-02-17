@@ -1642,6 +1642,37 @@
 				.join("");
 		};
 
+		const renderCharts = (analytics) => {
+			if (!analytics || typeof frappe.Chart === "undefined") return;
+
+			// Stock Composition
+			const stockChartEl = document.getElementById("cs-chart-stock");
+			if (stockChartEl && analytics.stock_composition && analytics.stock_composition.length > 0) {
+				new frappe.Chart(stockChartEl, {
+					title: "Top 5 Items (Stock)",
+					data: {
+						labels: analytics.stock_composition.map(d => d.name),
+						datasets: [{ values: analytics.stock_composition.map(d => d.value) }]
+					},
+					type: 'donut',
+					height: 250,
+					colors: ['#0f766e', '#0d9488', '#14b8a6', '#2dd4bf', '#5eead4']
+				});
+			}
+
+			// Movement Trends
+			const trendChartEl = document.getElementById("cs-chart-trends");
+			if (trendChartEl && analytics.movement_trends && analytics.movement_trends.labels.length > 0) {
+				new frappe.Chart(trendChartEl, {
+					title: "Movements (Last 30 Days)",
+					data: analytics.movement_trends,
+					type: 'bar',
+					height: 250,
+					colors: ['#0f766e', '#f59e0b']
+				});
+			}
+		};
+
 		const renderReports = (rows, totalRows) => {
 			setPanelCount(reportCount, rows.length, totalRows);
 			if (!rows.length) {
@@ -1841,6 +1872,11 @@
 					emptyState.classList.remove("d-none");
 				}
 
+				updateCustomerFilter(availableCustomers, selectedCustomer);
+				updateItemList(); // Refresh Item Datalist
+
+				if (window.updateAnnouncement) updateAnnouncement(data.announcement);
+
 				renderAll();
 				renderCharts(state.analytics);
 				refreshLabel.textContent = `Last refresh: ${new Date().toLocaleString()}`;
@@ -1921,32 +1957,7 @@
 			});
 		});
 
-		/* Chart Rendering Logic */
-		const renderCharts = (analytics) => {
-			if (!analytics || !window.frappe || !window.frappe.Chart) return;
 
-			// Stock Composition Chart
-			new frappe.Chart("#cs-chart-stock", {
-				data: {
-					labels: analytics.stock_composition.map(i => i.name),
-					datasets: [{ values: analytics.stock_composition.map(i => i.value) }]
-				},
-				type: 'donut',
-				height: 250,
-				colors: ['#0d9488', '#14b8a6', '#2dd4bf', '#5eead4', '#99f6e4']
-			});
-
-			// Movement Trends Chart
-			new frappe.Chart("#cs-chart-movements", {
-				data: analytics.movement_trends,
-				type: 'bar',
-				height: 250,
-				colors: ['#0d9488', '#f59e0b']
-			});
-		};
-
-		// Initialize with data
-		renderCharts(state.analytics);
 
 		// Request Modal Logic
 		const requestModal = document.getElementById("cs-request-modal");

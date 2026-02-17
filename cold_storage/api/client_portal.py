@@ -80,6 +80,11 @@ def get_portal_snapshot(limit: int = DEFAULT_LIMIT, customer: str | None = None)
 			"movements": [],
 			"invoices": [],
 			"reports": [],
+			"announcement": None,
+			"analytics": {
+				"stock_composition": [],
+				"movement_trends": {"labels": [], "datasets": []}
+			}
 		}
 
 	stock_rows = _get_stock_rows(customers, max(row_limit, 50))
@@ -108,7 +113,7 @@ def get_portal_snapshot(limit: int = DEFAULT_LIMIT, customer: str | None = None)
 	
 	for row in movement_rows:
 		m_date = getdate(row["posting_date"])
-		if m_date < thirty_days_ago:
+		if not m_date or m_date < thirty_days_ago:
 			continue
 		
 		date_str = m_date.strftime("%Y-%m-%d")
@@ -130,10 +135,7 @@ def get_portal_snapshot(limit: int = DEFAULT_LIMIT, customer: str | None = None)
 	}
 
 	# Fetch announcement
-	try:
-		announcement = frappe.db.get_single_value("Cold Storage Settings", "portal_announcement")
-	except Exception:
-		announcement = None
+	announcement = frappe.db.get_single_value("Cold Storage Settings", "portal_announcement")
 
 	return {
 		"available_customers": available_customers,
