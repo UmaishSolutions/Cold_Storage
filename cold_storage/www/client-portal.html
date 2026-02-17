@@ -1109,6 +1109,7 @@
 								<th>Document</th>
 								<th>Customer</th>
 								<th class="text-end">Qty</th>
+								<th class="text-end">Action</th>
 							</tr>
 						</thead>
 						<tbody></tbody>
@@ -1220,6 +1221,43 @@
 			</div>
 		</div>
 	</div>
+	<!-- Details Modal -->
+	<div class="cs-modal-overlay d-none" id="cs-details-modal">
+		<div class="cs-modal">
+			<div class="cs-modal-header">
+				<h2 class="cs-modal-title" id="cs-details-title">Document Details</h2>
+				<button class="cs-btn cs-btn-sm" onclick="toggleDetailsModal(false)">&times;</button>
+			</div>
+			<div class="cs-modal-body" id="cs-details-body">
+				<div class="d-flex justify-content-between align-items-center mb-3">
+					<div>
+						<h4 class="m-0" id="cs-details-name"></h4>
+						<div class="cs-text-muted" id="cs-details-date"></div>
+					</div>
+					<span class="cs-pill" id="cs-details-status"></span>
+				</div>
+				<div class="cs-table-wrap">
+					<table class="table cs-table">
+						<thead>
+							<tr>
+								<th>Item</th>
+								<th>Qty</th>
+								<th>Batch</th>
+							</tr>
+						</thead>
+						<tbody id="cs-details-items"></tbody>
+					</table>
+				</div>
+			</div>
+			<div class="cs-modal-footer justify-content-between">
+				<button class="cs-btn" id="cs-details-print">
+					<span class="cs-btn-dot"></span> Print / Download
+				</button>
+				<button class="cs-btn" onclick="toggleDetailsModal(false)">Close</button>
+			</div>
+		</div>
+	</div>
+
 	<div class="cs-toast-container" id="cs-toast-container"></div>
 </section>
 
@@ -1562,14 +1600,21 @@
 			}
 			movementBody.innerHTML = rows
 				.map(
-					(row) => `
+					(row) => {
+						const doctype = row.movement_type === "Inward" ? "Cold Storage Inward" : (row.movement_type === "Outward" ? "Cold Storage Outward" : "");
+						const viewBtn = doctype ? `<button class="cs-btn cs-btn-sm" onclick="openDetails('${doctype}', '${row.document_name}')">View</button>` : "";
+
+						return `
 				<tr>
 					<td>${formatDate(row.posting_date)}</td>
-					<td>${movementTypePill(row.movement_type || "")}</td>
+					<td>${movementTypePill(row.movement_type)}</td>
 					<td>${escapeHtml(row.document_name || "")}</td>
 					<td>${escapeHtml(row.customer || "")}</td>
-					<td class="text-end">${formatNumber(row.qty)}</td>
-				</tr>`
+					<td class="text-end fw-bold">${formatNumber(row.qty)}</td>
+					<td class="text-end">${viewBtn}</td>
+				</tr>
+			`;
+					}
 				)
 				.join("");
 		};
@@ -2066,6 +2111,76 @@
 		setActiveSection("stock");
 		observeSections();
 		loadSnapshot();
+		// Details Modal Logic
+		const detailsModal = document.getElementById("cs-details-modal");
+		const detailsTitle = document.getElementById("cs-details-title");
+		const detailsName = document.getElementById("cs-details-name");
+		const detailsDate = document.getElementById("cs-details-date");
+		const detailsStatus = document.getElementById("cs-details-status");
+		const detailsItems = document.getElementById("cs-details-items");
+		const detailsPrint = document.getElementById("cs-details-print");
+
+		let currentDoc = null;
+
+		window.toggleDetailsModal = (show) => {
+			if (detailsModal) detailsModal.classList.toggle("d-none", !show);
+		}
+
+		window.openDetails = async (doctype, docname) => {
+			setLoading(true);
+			try {
+				const res = await callApi("cold_storage.api.client_portal.get_document_details", {
+					doctype: doctype,
+					docname: docname
+				});
+				const doc = res.message;
+				currentDoc = doc;
+
+				detailsName.textContent = doc.name;
+				detailsDate.textContent = doc.posting_date;
+				detailsStatus.innerHTML = statusPill(doc.status); // Use existing helper
+
+				detailsItems.innerHTML = doc.items.map(item => `
+				<tr>
+					<td>
+						<div class="fw-bold">${escapeHtml(item.item_code)}</div>
+						<div class="small text-muted">${escapeHtml(item.item_name || "")}</div>
+					</td>
+					<td>${formatNumber(item.qty)} ${escapeHtml(item.uom || "")}</td>
+					<td>${escapeHtml(item.batch_no || "-")}</td>
+				</tr>
+			`).join("");
+
+				toggleDetailsModal(true);
+			} catch (e) {
+				showToast("Failed to load details: " + e.message, "error");
+			} finally {
+				setLoading(false);
+			}
+		}
+
+		if (detailsPrint) {
+			detailsPrint.addEventListener("click", () => {
+				if (!currentDoc) return;
+				// Open standard print view in new tab
+				const url = `/api/method/frappe.www.printview.get_pdf?doctype=${encodeURIComponent(currentDoc.doctype)}&name=${encodeURIComponent(currentDoc.name)}&format=Standard&no_letterhead=0`;
+				window.open(url, '_blank');
+			});
+		}
+
+		// Update Announcement
+		const updateAnnouncement = (text) => {
+			const banner = document.getElementById("cs-announcement-banner");
+			const content = document.getElementById("cs-announcement-text");
+			if (banner && content) {
+				if (text) {
+					content.textContent = text;
+					banner.classList.remove("d-none");
+				} else {
+					banner.classList.add("d-none");
+				}
+			}
+		}
 	})();
 </script>
 {% endblock %}

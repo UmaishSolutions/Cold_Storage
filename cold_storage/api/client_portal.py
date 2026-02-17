@@ -129,6 +129,12 @@ def get_portal_snapshot(limit: int = DEFAULT_LIMIT, customer: str | None = None)
 		]
 	}
 
+	# Fetch announcement
+	try:
+		announcement = frappe.db.get_single_value("Cold Storage Settings", "portal_announcement")
+	except Exception:
+		announcement = None
+
 	return {
 		"available_customers": available_customers,
 		"selected_customer": selected_customer,
@@ -137,6 +143,7 @@ def get_portal_snapshot(limit: int = DEFAULT_LIMIT, customer: str | None = None)
 		"movements": movement_rows,
 		"invoices": invoice_rows,
 		"reports": report_rows,
+		"announcement": announcement,
 		"analytics": {
 			"stock_composition": stock_chart_data,
 			"movement_trends": trend_chart_data
@@ -181,6 +188,42 @@ def create_service_request(request_type: str, customer: str, items: list[dict], 
 	return {
 		"name": doc.name,
 		"message": _("Request created successfully")
+	}
+
+@frappe.whitelist()
+def get_document_details(doctype: str, docname: str) -> dict:
+	"""Fetch details and child items for a specific document."""
+	_ensure_client_portal_access()
+
+	if doctype not in ["Cold Storage Inward", "Cold Storage Outward"]:
+		frappe.throw(_("Invalid document type"))
+
+	if not frappe.db.exists(doctype, docname):
+		frappe.throw(_("Document not found"))
+
+	doc = frappe.get_doc(doctype, docname)
+	
+	# Security check: Ensure user has access to this customer
+	user_customers = get_customers_for_portal_user(frappe.session.user)
+	if doc.customer not in user_customers:
+		frappe.throw(_("You do not have permission to view this document"))
+
+	return {
+		"name": doc.name,
+		"status": "Draft" if doc.docstatus == 0 else ("Submitted" if doc.docstatus == 1 else "Cancelled"),
+		"posting_date": formatdate(doc.posting_date),
+		"customer": doc.customer,
+		"doctype": doctype, 
+		"items": [
+			{
+				"item_code": item.item_code,
+				"item_name": item.item_name,
+				"qty": item.qty,
+				"batch_no": item.batch_no,
+				"uom": item.uom
+			}
+			for item in doc.items
+		]
 	}
 @frappe.whitelist()
 def get_available_items(customer: str | None = None, request_type: str = "Inward") -> list[str]:
