@@ -753,6 +753,8 @@
 		padding: 1.5rem;
 		border: 1px solid var(--cs-border);
 		box-shadow: var(--cs-shadow-sm);
+		overflow: visible !important;
+		/* Ensure content like tooltips/labels can overflow */
 	}
 
 	.cs-chart-title {
@@ -961,6 +963,43 @@
 		z-index: 9999;
 		/* Ensure tooltip is above custom legend */
 	}
+
+	/* Movement chart spacing and axis labels */
+	#cs-chart-movements,
+	#cs-chart-movements .chart-container,
+	#cs-chart-movements svg,
+	#cs-chart-movements svg * {
+		overflow: visible !important;
+	}
+
+	#cs-chart-movements {
+		padding-bottom: 0 !important;
+		margin-bottom: 0 !important;
+	}
+
+	/* Hide built-in legend for movements chart */
+	#cs-chart-movements .chart-legend {
+		display: none !important;
+	}
+
+	#cs-chart-movements .x.axis text {
+		transform: rotate(90deg) translateX(7px) translateY(-2px) !important;
+		transform-box: fill-box !important;
+		transform-origin: center left !important;
+		text-anchor: start !important;
+		dominant-baseline: middle !important;
+		font-size: 0.64rem !important;
+		font-weight: 600;
+		letter-spacing: 0;
+		white-space: nowrap;
+	}
+
+	#cs-chart-movements-legend {
+		display: flex;
+		justify-content: center;
+		gap: 1rem;
+		margin-top: 0.2rem;
+	}
 </style>
 
 <section class="client-portal">
@@ -1071,6 +1110,7 @@
 			<article class="cs-chart-card">
 				<h3 class="cs-chart-title">Movement Trends (30 Days)</h3>
 				<div id="cs-chart-movements"></div>
+				<div id="cs-chart-movements-legend"></div>
 			</article>
 
 		</section>
@@ -1675,6 +1715,70 @@
 				.join("");
 		};
 
+		const buildMovementTrendData = (rows = [], dayWindow = 30) => {
+			if (!Array.isArray(rows) || !rows.length) {
+				return { labels: [], datasets: [] };
+			}
+
+			const pad2 = (value) => String(value).padStart(2, "0");
+			const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+			const toIsoDate = (dateObj) =>
+				`${dateObj.getFullYear()}-${pad2(dateObj.getMonth() + 1)}-${pad2(dateObj.getDate())}`;
+			const formatLabel = (dateObj) => `${pad2(dateObj.getDate())} ${monthNames[dateObj.getMonth()]}`;
+
+			const parsePostingDate = (value) => {
+				const raw = String(value || "").trim();
+				if (!raw) return null;
+
+				const isoMatch = raw.match(/^(\d{4})-(\d{2})-(\d{2})/);
+				if (isoMatch) {
+					const year = Number(isoMatch[1]);
+					const month = Number(isoMatch[2]);
+					const day = Number(isoMatch[3]);
+					return new Date(year, month - 1, day);
+				}
+
+				const parsed = new Date(raw);
+				if (Number.isNaN(parsed.getTime())) return null;
+				return new Date(parsed.getFullYear(), parsed.getMonth(), parsed.getDate());
+			};
+
+			const cutoffDate = new Date();
+			cutoffDate.setHours(0, 0, 0, 0);
+			cutoffDate.setDate(cutoffDate.getDate() - dayWindow);
+
+			const dateMap = {};
+
+			rows.forEach((row) => {
+				const movementType = String(row.movement_type || "").trim();
+				if (movementType !== "Inward" && movementType !== "Outward") return;
+
+				const postingDate = parsePostingDate(row.posting_date);
+				if (!postingDate || postingDate < cutoffDate) return;
+
+				const isoDate = toIsoDate(postingDate);
+				if (!dateMap[isoDate]) {
+					dateMap[isoDate] = { dateObj: postingDate, inward: 0, outward: 0 };
+				}
+
+				const qty = Number(row.qty) || 0;
+				if (movementType === "Inward") {
+					dateMap[isoDate].inward += qty;
+				} else {
+					dateMap[isoDate].outward += qty;
+				}
+			});
+
+			const sortedIsoDates = Object.keys(dateMap).sort((a, b) => a.localeCompare(b));
+			return {
+				labels: sortedIsoDates.map((isoDate) => formatLabel(dateMap[isoDate].dateObj)),
+				datasets: [
+					{ name: "Inward", values: sortedIsoDates.map((isoDate) => dateMap[isoDate].inward) },
+					{ name: "Outward", values: sortedIsoDates.map((isoDate) => dateMap[isoDate].outward) },
+				],
+			};
+		};
+
 		const renderCharts = (analytics) => {
 			console.log("[DEBUG] renderCharts called", analytics);
 			const stockChartEl = document.getElementById("cs-chart-stock");
@@ -1753,13 +1857,38 @@
 			if (trendChartEl) {
 				// Clear previous
 				trendChartEl.innerHTML = "";
-				if (analytics.movement_trends && analytics.movement_trends.labels && analytics.movement_trends.labels.length > 0) {
+				const trendLegendEl = document.getElementById("cs-chart-movements-legend");
+				if (trendLegendEl) trendLegendEl.innerHTML = "";
+
+				const normalizedTrendData = buildMovementTrendData(state.movements, 30);
+				const trendData =
+					normalizedTrendData && normalizedTrendData.labels && normalizedTrendData.labels.length > 0
+						? normalizedTrendData
+						: (analytics.movement_trends || { labels: [], datasets: [] });
+
+				if (trendData && trendData.labels && trendData.labels.length > 0) {
+
+					// Custom Legend
+					if (trendLegendEl) {
+						trendLegendEl.innerHTML = `
+							<div style="display: flex; align-items: center; gap: 6px;">
+								<span style="font-size: 12px; font-weight: 600; color: #0f766e;">Inward</span>
+							</div>
+							<div style="display: flex; align-items: center; gap: 6px;">
+								<span style="font-size: 12px; font-weight: 600; color: #f59e0b;">Outward</span>
+							</div>
+						`;
+					}
+
 					new frappe.Chart(trendChartEl, {
-						title: "Movements (Last 30 Days)",
-						data: analytics.movement_trends,
+						data: trendData,
 						type: 'bar',
-						height: 250,
-						colors: ['#0f766e', '#f59e0b']
+						height: 255,
+						colors: ['#0f766e', '#f59e0b'],
+						axisOptions: {
+							xIsSeries: true,
+							seriesLabelSpaceRatio: 2.8
+						}
 					});
 				} else {
 					trendChartEl.innerHTML = "<div class='text-muted text-center p-4'>No movement data</div>";

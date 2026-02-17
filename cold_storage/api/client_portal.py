@@ -116,27 +116,27 @@ def get_portal_snapshot(limit: int = DEFAULT_LIMIT, customer: str | None = None)
 	)[:5]
 
 	# Chart Data: Movement Trends (Last 30 Days)
-	# Group movements by date and type
-	movement_trends = {}
+	# Group movements by actual posting date (not string) to keep chronological order.
+	movement_trends: dict = {}
 	thirty_days_ago = getdate(add_days(now_datetime(), -30))
 	
 	for row in movement_rows:
 		m_date = getdate(row["posting_date"])
 		if not m_date or m_date < thirty_days_ago:
 			continue
-		
-		date_str = m_date.strftime("%Y-%m-%d")
-		if date_str not in movement_trends:
-			movement_trends[date_str] = {"Inward": 0, "Outward": 0}
-		
+
+		if m_date not in movement_trends:
+			movement_trends[m_date] = {"Inward": 0.0, "Outward": 0.0}
+
 		m_type = row["movement_type"]
 		if m_type in ["Inward", "Outward"]:
-			movement_trends[date_str][m_type] += flt(row["qty"])
+			movement_trends[m_date][m_type] += flt(row["qty"])
 
 	# Format for Frappe Charts
-	sorted_dates = sorted(movement_trends.keys())
+	sorted_dates = sorted(movement_trends)
+	sorted_labels = [posting_date.strftime("%d %b") for posting_date in sorted_dates]
 	trend_chart_data = {
-		"labels": sorted_dates,
+		"labels": sorted_labels,
 		"datasets": [
 			{"name": "Inward", "values": [movement_trends[d]["Inward"] for d in sorted_dates]},
 			{"name": "Outward", "values": [movement_trends[d]["Outward"] for d in sorted_dates]}
