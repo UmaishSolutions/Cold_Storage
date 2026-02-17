@@ -102,7 +102,7 @@ def get_portal_snapshot(limit: int = DEFAULT_LIMIT, customer: str | None = None)
 	invoice_rows = _dedupe_invoice_rows(invoice_rows)
 	report_rows = _dedupe_report_rows(report_rows)
 
-	# Chart Data: Stock Composition (Top 5 Batches by Qty)
+	# Chart Data: Top Batches by Stock Qty
 	# Aggregate by batch_no
 	batch_qty_map = {}
 	for r in stock_rows:
@@ -114,7 +114,7 @@ def get_portal_snapshot(limit: int = DEFAULT_LIMIT, customer: str | None = None)
 		[{"name": k, "value": v} for k, v in batch_qty_map.items()],
 		key=lambda x: x["value"],
 		reverse=True
-	)[:5]
+	)[:10]
 
 	# Chart Data: Movement Trends (Last 30 Days)
 	# Group movements by actual posting date (not string) to keep chronological order.
