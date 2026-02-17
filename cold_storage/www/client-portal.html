@@ -1365,7 +1365,7 @@
 
 		const formatMoney = (value) => {
 			const num = Number(value || 0);
-			if (!Number.isFinite(num)) return "0";
+			if (!Number.isFinite(num)) return "0.00";
 			return num.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 		};
 
@@ -1555,9 +1555,9 @@
 			customerFilter.value = target;
 		};
 
-		const updateKpis = (stock, movements, invoices, reports) => {
+		const updateKpis = (stock, movements, invoices, reports, totalOutstanding) => {
 			const totalQty = stock.reduce((sum, row) => sum + Number(row.qty || 0), 0);
-			const totalOutstanding = invoices.reduce((sum, row) => sum + Number(row.outstanding_amount || 0), 0);
+			// const totalOutstanding = invoices.reduce((sum, row) => sum + Number(row.outstanding_amount || 0), 0); // Deprecated
 
 			kpiStockRows.textContent = formatNumber(stock.length);
 			kpiTotalQty.textContent = formatNumber(totalQty);
@@ -1763,7 +1763,8 @@
 			invoiceRows = filterInvoicesByStatus(invoiceRows);
 
 			// ... existing rendering ...
-			updateKpis(stockRows, movementRows, invoiceRows, state.reports); // Use filtered rows for KPIs? Maybe total is better.
+			// ... existing rendering ...
+			updateKpis(stockRows, movementRows, invoiceRows, state.reports, state.total_outstanding || 0); // Use filtered rows for KPIs? Maybe total is better.
 			// Let's use total for KPIs to show "Overview", but filtered for table
 			// Actually KPIs usually reflect view. Let's keep it simple for now.
 
@@ -1855,6 +1856,7 @@
 				state.invoices = data.invoices || [];
 				state.reports = data.reports || [];
 				state.analytics = data.analytics || {};
+				state.total_outstanding = data.total_outstanding || 0;
 
 				if (state.customers.length) {
 					customersBanner.classList.remove("d-none");

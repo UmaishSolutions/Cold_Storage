@@ -22,7 +22,7 @@ from cold_storage.setup.client_portal_user_permissions import (
 )
 
 DEFAULT_LIMIT: Final[int] = 20
-MAX_LIMIT: Final[int] = 100
+MAX_LIMIT: Final[int] = 1000
 ADMIN_ROLE: Final[str] = "Cold Storage Admin"
 SYSTEM_MANAGER_ROLE: Final[str] = "System Manager"
 REPORTS_WITH_CUSTOMER_FILTER: Final[set[str]] = {
@@ -84,13 +84,15 @@ def get_portal_snapshot(limit: int = DEFAULT_LIMIT, customer: str | None = None)
 			"analytics": {
 				"stock_composition": [],
 				"movement_trends": {"labels": [], "datasets": []}
-			}
+			},
+			"total_outstanding": 0.0
 		}
 
 	stock_rows = _get_stock_rows(customers, max(row_limit, 50))
 	movement_rows = _get_movement_rows(customers, row_limit)
 	invoice_rows = _get_invoice_rows(customers, row_limit)
 	report_rows = _get_report_links(selected_customer)
+	total_outstanding = _get_total_outstanding(customers)
 
 	available_customers = _dedupe_strings(available_customers)
 	customers = _dedupe_strings(customers)
@@ -137,6 +139,11 @@ def get_portal_snapshot(limit: int = DEFAULT_LIMIT, customer: str | None = None)
 	# Fetch announcement
 	announcement = frappe.db.get_single_value("Cold Storage Settings", "portal_announcement")
 
+	# DEBUG: Inject into announcement
+	# frappe.msgprint(...)
+	debug_msg = f" [DEBUG: User={frappe.session.user}, Customers={customers}, Total={total_outstanding}]"
+	announcement = (announcement or "") + debug_msg
+
 	return {
 		"available_customers": available_customers,
 		"selected_customer": selected_customer,
@@ -149,7 +156,8 @@ def get_portal_snapshot(limit: int = DEFAULT_LIMIT, customer: str | None = None)
 		"analytics": {
 			"stock_composition": stock_chart_data,
 			"movement_trends": trend_chart_data
-		}
+		},
+		"total_outstanding": total_outstanding
 	}
 
 @frappe.whitelist()
@@ -685,27 +693,7 @@ def _get_invoice_rows(customers: list[str], row_limit: int) -> list[dict]:
 	if not customers:
 		return []
 
-	invoice_names = frappe.db.sql(
-		"""
-		select sales_invoice
-		from `tabCold Storage Inward`
-		where docstatus = 1
-			and customer in %(customers)s
-			and ifnull(sales_invoice, '') != ''
-		union
-		select sales_invoice
-		from `tabCold Storage Outward`
-		where docstatus = 1
-			and customer in %(customers)s
-			and ifnull(sales_invoice, '') != ''
-		""",
-		{"customers": tuple(customers)},
-		as_list=True,
-	)
-	names = [row[0] for row in invoice_names if row and row[0]]
-	if not names:
-		return []
-
+	# Fetch all submitted Sales Invoices for these customers
 	rows = frappe.db.sql(
 		"""
 		select
@@ -718,19 +706,38 @@ def _get_invoice_rows(customers: list[str], row_limit: int) -> list[dict]:
 			outstanding_amount,
 			status
 		from `tabSales Invoice`
-		where name in %(invoice_names)s
+		where docstatus = 1
+			and customer in %(customers)s
 		order by posting_date desc, modified desc
 		limit %(row_limit)s
 		""",
 		{
-			"invoice_names": tuple(names),
+			"customers": tuple(customers),
 			"row_limit": cint(row_limit),
 		},
 		as_dict=True,
 	)
+	
 	for row in rows:
 		row["route"] = _to_invoice_route(row.get("name"))
 	return rows
+
+
+def _get_total_outstanding(customers: list[str]) -> float:
+	if not customers:
+		return 0.0
+	
+	total = frappe.db.sql(
+		"""
+		select sum(outstanding_amount)
+		from `tabSales Invoice`
+		where docstatus = 1
+			and customer in %(customers)s
+		""",
+		{"customers": tuple(customers)}
+	)[0][0]
+	
+	return flt(total or 0.0)
 
 
 def _get_report_links(selected_customer: str = "") -> list[dict]:
