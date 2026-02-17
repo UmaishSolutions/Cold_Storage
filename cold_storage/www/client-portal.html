@@ -993,7 +993,7 @@
 
 	.cs-req-item-row {
 		display: grid;
-		grid-template-columns: 2fr 1fr auto;
+		grid-template-columns: 2fr 1.5fr 1fr auto;
 		gap: 0.5rem;
 		align-items: end;
 		margin-bottom: 0.5rem;
@@ -1443,6 +1443,12 @@
 					<button class="cs-btn cs-btn-sm" id="cs-modal-close" type="button">Close</button>
 				</div>
 				<div class="cs-modal-body">
+					<div class="cs-field">
+						<label class="cs-label">Customer</label>
+						<select class="cs-select" id="cs-req-customer">
+							<option value="">-- Select Customer --</option>
+						</select>
+					</div>
 					<div class="cs-field">
 						<label class="cs-label">Request Type</label>
 						<select class="cs-select" id="cs-req-type">
@@ -2382,26 +2388,81 @@
 		const submitRequestBtn = document.getElementById("cs-submit-request-btn");
 		const itemList = document.getElementById("item-list");
 
+		const reqCustomerInput = document.getElementById("cs-req-customer");
+
+		let availableItems = []; // Cache for current available items
+
+		const getModalCustomer = () => {
+			// Use modal customer dropdown first, then selectedCustomer, then first available
+			return (reqCustomerInput && reqCustomerInput.value)
+				|| selectedCustomer
+				|| (state.customers && state.customers.length > 0 ? state.customers[0] : "");
+		};
+
 		const updateItemList = async () => {
-			if (!selectedCustomer) return;
+			const customer = getModalCustomer();
+
+			if (!customer) {
+				availableItems = [];
+				// Update any existing dropdowns to show no items
+				document.querySelectorAll(".cs-req-item-row .item-code-select").forEach(sel => {
+					sel.innerHTML = '<option value="">-- Select Customer First --</option>';
+				});
+				return;
+			}
+
 			const type = reqTypeInput.value;
-			itemList.innerHTML = ""; // Clear existing options
+			itemList.innerHTML = ""; // Clear datalist
 
 			try {
 				const res = await callApi("cold_storage.api.client_portal.get_available_items", {
-					customer: selectedCustomer,
+					customer: customer,
 					request_type: type
 				});
-				const items = res.message || [];
-				items.forEach(code => {
+				availableItems = res.message || [];
+
+				// Update datalist for any text inputs
+				availableItems.forEach(code => {
 					const option = document.createElement("option");
 					option.value = code;
 					itemList.appendChild(option);
 				});
+
+				// Update all existing select dropdowns in item rows
+				document.querySelectorAll(".cs-req-item-row .item-code-select").forEach(sel => {
+					const currentVal = sel.value;
+					sel.innerHTML = '<option value="">-- Select Item --</option>' +
+						availableItems.map(code =>
+							`<option value="${escapeHtml(code)}"${code === currentVal ? ' selected' : ''}>${escapeHtml(code)}</option>`
+						).join("");
+				});
 			} catch (err) {
-				console.error(err);
-				setSystemState("Sync failed", "is-error");
-				setLoading(false);
+				console.error("Failed to load items:", err);
+				availableItems = [];
+			}
+		};
+
+		const populateModalCustomers = () => {
+			if (!reqCustomerInput) return;
+			const customers = state.customers || [];
+			reqCustomerInput.innerHTML = '';
+
+			if (customers.length <= 1) {
+				// Single customer - auto select and hide
+				if (customers.length === 1) {
+					reqCustomerInput.innerHTML = `<option value="${escapeHtml(customers[0])}">${escapeHtml(customers[0])}</option>`;
+					reqCustomerInput.value = customers[0];
+				}
+				reqCustomerInput.closest('.cs-field').style.display = customers.length === 0 ? 'none' : '';
+			} else {
+				// Multiple customers - show selection
+				reqCustomerInput.innerHTML = '<option value="">-- Select Customer --</option>' +
+					customers.map(c => `<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`).join('');
+				// Pre-select if a customer is already selected in the main dropdown
+				if (selectedCustomer && customers.includes(selectedCustomer)) {
+					reqCustomerInput.value = selectedCustomer;
+				}
+				reqCustomerInput.closest('.cs-field').style.display = '';
 			}
 		};
 
@@ -2410,15 +2471,28 @@
 			requestModal.classList.toggle("d-none", !show);
 			if (show) {
 				// Reset form
+				reqTypeInput.value = "Inward"; // Always start with Inward
 				reqDateInput.value = new Date().toISOString().split("T")[0];
 				reqItemsContainer.innerHTML = "";
-				addRequestItemRow();
-				updateItemList(); // Fetch items
+				populateModalCustomers();
+				updateItemList().then(() => addRequestItemRow()); // Fetch items first, then add row
 			}
 		};
 
 		if (reqTypeInput) {
-			reqTypeInput.addEventListener("change", updateItemList);
+			reqTypeInput.addEventListener("change", () => {
+				// Clear existing rows and refresh items for new type
+				reqItemsContainer.innerHTML = "";
+				updateItemList().then(() => addRequestItemRow());
+			});
+		}
+
+		if (reqCustomerInput) {
+			reqCustomerInput.addEventListener("change", () => {
+				// Clear existing rows and refresh items for new customer
+				reqItemsContainer.innerHTML = "";
+				updateItemList().then(() => addRequestItemRow());
+			});
 		}
 
 		const addRequestItemRow = () => {
@@ -2426,7 +2500,17 @@
 			row.className = "cs-req-item-row";
 			row.innerHTML = `
 				<div class="cs-field">
-					<input class="cs-input item-code" placeholder="Item Code" list="item-list">
+					<select class="cs-select item-code-select">
+						<option value="">-- Select Item --</option>
+						${availableItems.map(code =>
+				`<option value="${escapeHtml(code)}">${escapeHtml(code)}</option>`
+			).join("")}
+					</select>
+				</div>
+				<div class="cs-field">
+					<select class="cs-select item-batch-select">
+						<option value="">-- Select Batch --</option>
+					</select>
 				</div>
 				<div class="cs-field">
 					<input class="cs-input item-qty" type="number" placeholder="Qty" step="0.01">
@@ -2438,16 +2522,35 @@
 				row.remove();
 			});
 
-			// Simple item details fetch on blur
-			const itemInput = row.querySelector(".item-code");
-			itemInput.addEventListener("change", async () => {
-				if (!itemInput.value) return;
+			// When item changes, fetch batches for that item
+			const itemSelect = row.querySelector(".item-code-select");
+			const batchSelect = row.querySelector(".item-batch-select");
+			itemSelect.addEventListener("change", async () => {
+				const itemCode = itemSelect.value;
+				const customer = getModalCustomer();
+				const type = reqTypeInput.value;
+				batchSelect.innerHTML = '<option value="">Loading...</option>';
+
+				if (!itemCode || !customer) {
+					batchSelect.innerHTML = '<option value="">-- Select Batch --</option>';
+					return;
+				}
+
 				try {
-					const res = await callApi("cold_storage.api.client_portal.get_item_details", { item_code: itemInput.value });
-					if (res.message) {
-						itemInput.title = res.message.item_name || "";
-					}
-				} catch (e) { console.error(e); }
+					const res = await callApi("cold_storage.api.client_portal.get_available_batches", {
+						customer: customer,
+						item_code: itemCode,
+						request_type: type
+					});
+					const batches = res.message || [];
+					batchSelect.innerHTML = '<option value="">-- Select Batch --</option>' +
+						batches.map(b =>
+							`<option value="${escapeHtml(b.batch_no)}">${escapeHtml(b.batch_no)} (Qty: ${formatNumber(b.qty)})</option>`
+						).join("");
+				} catch (err) {
+					console.error("Failed to load batches:", err);
+					batchSelect.innerHTML = '<option value="">-- No Batches --</option>';
+				}
 			});
 
 			reqItemsContainer.appendChild(row);
@@ -2486,10 +2589,15 @@
 			const items = [];
 
 			document.querySelectorAll(".cs-req-item-row").forEach(row => {
-				const code = row.querySelector(".item-code").value;
+				const codeEl = row.querySelector(".item-code-select") || row.querySelector(".item-code");
+				const code = codeEl ? codeEl.value : "";
+				const batchEl = row.querySelector(".item-batch-select");
+				const batch_no = batchEl ? batchEl.value : "";
 				const qty = row.querySelector(".item-qty").value;
 				if (code && qty > 0) {
-					items.push({ item_code: code, qty: qty });
+					const item = { item_code: code, qty: qty };
+					if (batch_no) item.batch_no = batch_no;
+					items.push(item);
 				}
 			});
 
@@ -2498,7 +2606,7 @@
 				return;
 			}
 
-			if (!selectedCustomer) {
+			if (!getModalCustomer()) {
 				showToast("No customer selected.", "error");
 				return;
 			}
@@ -2509,7 +2617,7 @@
 			try {
 				const res = await callApi("cold_storage.api.client_portal.create_service_request", {
 					request_type: type,
-					customer: selectedCustomer,
+					customer: getModalCustomer(),
 					items: items,
 					required_date: date
 				});

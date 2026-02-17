@@ -242,27 +242,49 @@ def get_document_details(doctype: str, docname: str) -> dict:
 	}
 @frappe.whitelist()
 def get_available_items(customer: str | None = None, request_type: str = "Inward") -> list[str]:
-	"""Fetch available item codes for the customer based on request type."""
+	"""Fetch available item codes for the customer based on request type.
+	
+	Inward: Items the customer has batches for (their goods).
+	Outward: Items the customer currently has in stock (qty > 0).
+	"""
 	_ensure_client_portal_access()
 	
+	if not customer:
+		return []
+	
+	# Validate customer scope
+	_customers, _available, _selected = _resolve_customer_scope(customer)
+	if not _customers:
+		return []
+
 	if request_type == "Outward":
 		# For Outward, only allow items currently in stock for this customer
-		if not customer:
-			return []
-		
-		# Validate customer scope
-		_customers, _available, _selected = _resolve_customer_scope(customer)
-		if not _customers:
-			return []
-
+		# Uses same UNION ALL pattern as _get_stock_rows to handle both
+		# direct batch_no and Serial and Batch Bundle entries
 		return frappe.db.sql(
 			"""
 			select distinct stock.item_code
 			from `tabBatch` batch
 			join (
-				select item_code, batch_no, sum(actual_qty) as qty
-				from `tabStock Ledger Entry`
-				where is_cancelled = 0
+				select item_code, batch_no, sum(qty) as qty
+				from (
+					select sle.item_code, sle.batch_no, sle.actual_qty as qty
+					from `tabStock Ledger Entry` sle
+					where sle.is_cancelled = 0
+						and ifnull(sle.batch_no, '') != ''
+
+					union all
+
+					select sle.item_code, sbe.batch_no, sbe.qty as qty
+					from `tabStock Ledger Entry` sle
+					inner join `tabSerial and Batch Entry` sbe
+						on sbe.parent = sle.serial_and_batch_bundle
+					where sle.is_cancelled = 0
+						and ifnull(sle.batch_no, '') = ''
+						and ifnull(sle.serial_and_batch_bundle, '') != ''
+						and ifnull(sbe.batch_no, '') != ''
+						and ifnull(sbe.is_cancelled, 0) = 0
+				) combined
 				group by item_code, batch_no
 			) stock on stock.batch_no = batch.name
 			where batch.custom_customer = %(customer)s
@@ -273,12 +295,126 @@ def get_available_items(customer: str | None = None, request_type: str = "Inward
 			pluck=True
 		)
 
-	# For Inward, return all enabled Stock Items
+	# For Inward, return items the customer has batches for (their goods)
+	customer_items = frappe.db.sql(
+		"""
+		select distinct batch.item
+		from `tabBatch` batch
+		inner join `tabItem` item on item.name = batch.item
+		where batch.custom_customer = %(customer)s
+			and item.disabled = 0
+			and item.is_stock_item = 1
+		order by batch.item
+		""",
+		{"customer": customer},
+		pluck=True
+	)
+
+	# If customer has historical items, return those
+	# Otherwise fallback to all enabled stock items so new customers can also create requests
+	if customer_items:
+		return customer_items
+
 	return frappe.get_all(
 		"Item",
 		filters={"disabled": 0, "is_stock_item": 1, "has_batch_no": 1},
 		pluck="name",
 		order_by="name asc"
+	)
+
+@frappe.whitelist()
+def get_available_batches(customer: str, item_code: str, request_type: str = "Inward") -> list[dict]:
+	"""Fetch available batches for the customer and item combination.
+	
+	Inward: All batches the customer owns for the item.
+	Outward: Only batches with positive stock (qty > 0).
+	
+	Returns list of dicts: [{batch_no, qty}]
+	"""
+	_ensure_client_portal_access()
+	
+	if not customer or not item_code:
+		return []
+	
+	# Validate customer scope
+	_customers, _available, _selected = _resolve_customer_scope(customer)
+	if not _customers:
+		return []
+
+	if request_type == "Outward":
+		# Only batches with positive stock
+		return frappe.db.sql(
+			"""
+			select batch.name as batch_no, stock.qty
+			from `tabBatch` batch
+			join (
+				select batch_no, sum(qty) as qty
+				from (
+					select sle.batch_no, sle.actual_qty as qty
+					from `tabStock Ledger Entry` sle
+					where sle.is_cancelled = 0
+						and sle.item_code = %(item_code)s
+						and ifnull(sle.batch_no, '') != ''
+
+					union all
+
+					select sbe.batch_no, sbe.qty as qty
+					from `tabStock Ledger Entry` sle
+					inner join `tabSerial and Batch Entry` sbe
+						on sbe.parent = sle.serial_and_batch_bundle
+					where sle.is_cancelled = 0
+						and sle.item_code = %(item_code)s
+						and ifnull(sle.batch_no, '') = ''
+						and ifnull(sle.serial_and_batch_bundle, '') != ''
+						and ifnull(sbe.batch_no, '') != ''
+						and ifnull(sbe.is_cancelled, 0) = 0
+				) combined
+				group by batch_no
+				having sum(qty) > 0
+			) stock on stock.batch_no = batch.name
+			where batch.custom_customer = %(customer)s
+				and batch.item = %(item_code)s
+			order by batch.name
+			""",
+			{"customer": customer, "item_code": item_code},
+			as_dict=True
+		)
+
+	# For Inward, all batches the customer owns for this item
+	return frappe.db.sql(
+		"""
+		select batch.name as batch_no, ifnull(stock.qty, 0) as qty
+		from `tabBatch` batch
+		left join (
+			select batch_no, sum(qty) as qty
+			from (
+				select sle.batch_no, sle.actual_qty as qty
+				from `tabStock Ledger Entry` sle
+				where sle.is_cancelled = 0
+					and sle.item_code = %(item_code)s
+					and ifnull(sle.batch_no, '') != ''
+
+				union all
+
+				select sbe.batch_no, sbe.qty as qty
+				from `tabStock Ledger Entry` sle
+				inner join `tabSerial and Batch Entry` sbe
+					on sbe.parent = sle.serial_and_batch_bundle
+				where sle.is_cancelled = 0
+					and sle.item_code = %(item_code)s
+					and ifnull(sle.batch_no, '') = ''
+					and ifnull(sle.serial_and_batch_bundle, '') != ''
+					and ifnull(sbe.batch_no, '') != ''
+					and ifnull(sbe.is_cancelled, 0) = 0
+			) combined
+			group by batch_no
+		) stock on stock.batch_no = batch.name
+		where batch.custom_customer = %(customer)s
+			and batch.item = %(item_code)s
+		order by batch.name
+		""",
+		{"customer": customer, "item_code": item_code},
+		as_dict=True
 	)
 
 @frappe.whitelist()
