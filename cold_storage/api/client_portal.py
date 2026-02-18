@@ -1290,3 +1290,34 @@ def download_dashboard_report(customer: str | None = None, lang: str | None = No
 	frappe.response.filename = f"{prefix}_{data.get('selected_customer') or 'All'}_{nowdate()}.pdf"
 	frappe.response.filecontent = pdf_content
 	frappe.response.type = "pdf"
+
+
+@frappe.whitelist(allow_guest=True)
+def download_brochure() -> None:
+	"""Generate and download the Cold Storage product brochure as a PDF."""
+	company_name = frappe.db.get_single_value("Cold Storage Settings", "company") or "Cold Storage"
+	company_name = frappe.db.get_value("Company", company_name, "company_name") or company_name
+
+	html = frappe.render_template(
+		"cold_storage/templates/pages/brochure.html",
+		{"company_name": company_name},
+	)
+
+	pdf_content = get_pdf(
+		html,
+		{
+			"page-size": "A4",
+			"orientation": "Landscape",
+			"margin-top": "0mm",
+			"margin-right": "0mm",
+			"margin-bottom": "0mm",
+			"margin-left": "0mm",
+			"encoding": "UTF-8",
+			"no-outline": None,
+			"disable-smart-shrinking": "true",
+		},
+	)
+
+	frappe.response.filename = f"Cold_Storage_Brochure_{nowdate()}.pdf"
+	frappe.response.filecontent = pdf_content
+	frappe.response.type = "pdf"
