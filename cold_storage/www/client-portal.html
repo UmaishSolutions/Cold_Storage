@@ -2779,19 +2779,29 @@
 			const type = reqTypeInput.value;
 			const date = reqDateInput.value;
 			const items = [];
+			const invalidRows = [];
 
-			document.querySelectorAll(".cs-req-item-row").forEach(row => {
+			document.querySelectorAll(".cs-req-item-row").forEach((row, idx) => {
 				const codeEl = row.querySelector(".item-code-select") || row.querySelector(".item-code");
 				const code = codeEl ? codeEl.value : "";
 				const batchEl = row.querySelector(".item-batch-select");
 				const batch_no = batchEl ? batchEl.value : "";
-				const qty = row.querySelector(".item-qty").value;
-				if (code && qty > 0) {
-					const item = { item_code: code, qty: qty };
-					if (batch_no) item.batch_no = batch_no;
-					items.push(item);
+				const warehouseEl = row.querySelector(".item-warehouse-select");
+				const warehouse = warehouseEl ? warehouseEl.value : "";
+				const qty = Number(row.querySelector(".item-qty").value || 0);
+				const hasAnyValue = Boolean(code || batch_no || warehouse || qty > 0);
+				if (!hasAnyValue) return;
+				if (!code || !batch_no || !warehouse || qty <= 0) {
+					invalidRows.push(idx + 1);
+					return;
 				}
+				items.push({ item_code: code, batch_no, warehouse, qty });
 			});
+
+			if (invalidRows.length) {
+				showToast(`Complete item, batch, warehouse and quantity for row(s): ${invalidRows.join(", ")}`, "error");
+				return;
+			}
 
 			if (!items.length) {
 				showToast("Please add at least one item.", "error");
