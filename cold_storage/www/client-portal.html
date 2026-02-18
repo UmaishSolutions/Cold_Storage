@@ -2484,6 +2484,83 @@
 
 		let availableItems = []; // Cache for current available items
 
+		const setSelectOptions = (selectEl, options, placeholder, selectedValue = "") => {
+			if (!selectEl) return;
+			selectEl.innerHTML = "";
+			const prompt = document.createElement("option");
+			prompt.value = "";
+			prompt.textContent = placeholder;
+			selectEl.appendChild(prompt);
+
+			(options || []).forEach((option) => {
+				const opt = document.createElement("option");
+				opt.value = option.value;
+				opt.textContent = option.label;
+				selectEl.appendChild(opt);
+			});
+
+			if (selectedValue && (options || []).some((option) => option.value === selectedValue)) {
+				selectEl.value = selectedValue;
+			} else {
+				selectEl.value = "";
+			}
+
+			selectEl.disabled = !(options || []).length;
+		};
+
+		const collectWarehouseOptions = ({ customer = "", itemCode = "", batchNo = "", movementType = "Inward" } = {}) => {
+			const rows = state.stock || [];
+			const aggregateByWarehouse = (pool) => {
+				const totals = new Map();
+				pool.forEach((row) => {
+					const warehouse = String(row.warehouse || "").trim();
+					if (!warehouse) return;
+					const qty = Number(row.qty || 0);
+					const safeQty = Number.isFinite(qty) ? qty : 0;
+					totals.set(warehouse, (totals.get(warehouse) || 0) + safeQty);
+				});
+
+				return Array.from(totals.entries())
+					.map(([warehouse, qty]) => ({ warehouse, qty }))
+					.sort((a, b) => a.warehouse.localeCompare(b.warehouse));
+			};
+
+			const baseFilter = (row) => {
+				if (customer && row.customer !== customer) return false;
+				if (itemCode && row.item_code !== itemCode) return false;
+				if (batchNo && row.batch_no !== batchNo) return false;
+				if (movementType === "Outward" && Number(row.qty || 0) <= 0) return false;
+				return true;
+			};
+
+			let matches = rows.filter(baseFilter);
+			if (!matches.length && customer) {
+				matches = rows.filter((row) => row.customer === customer);
+			}
+			if (!matches.length) {
+				matches = rows;
+			}
+			return aggregateByWarehouse(matches);
+		};
+
+		const renderWarehouseSelect = (selectEl, customer, itemCode, batchNo, movementType) => {
+			if (!selectEl) return;
+			const previous = selectEl.value;
+			const warehouses = collectWarehouseOptions({
+				customer,
+				itemCode,
+				batchNo,
+				movementType
+			});
+			const options = warehouses.map((row) => ({
+				value: row.warehouse,
+				label: movementType === "Outward"
+					? `${row.warehouse} (Avail: ${formatNumber(row.qty)})`
+					: row.warehouse
+			}));
+			setSelectOptions(selectEl, options, "-- Select Warehouse --", previous);
+		};
+
 		const getModalCustomer = () => {
 			// Use modal customer dropdown first, then selectedCustomer, then first available
 			return (reqCustomerInput && reqCustomerInput.value)
@@ -2605,6 +2682,11 @@
 					</select>
 				</div>
 				<div class="cs-field">
+					<select class="cs-select item-warehouse-select">
+						<option value="">-- Select Warehouse --</option>
+					</select>
+				</div>
+				<div class="cs-field">
 					<input class="cs-input item-qty" type="number" placeholder="Qty" step="0.01">
 				</div>
 				<button class="cs-btn cs-btn-sm remove-row" type="button">&times;</button>
@@ -2617,6 +2699,18 @@
 			// When item changes, fetch batches for that item
 			const itemSelect = row.querySelector(".item-code-select");
 			const batchSelect = row.querySelector(".item-batch-select");
+			const warehouseSelect = row.querySelector(".item-warehouse-select");
+
+			const refreshRowWarehouses = () => {
+				renderWarehouseSelect(
+					warehouseSelect,
+					getModalCustomer(),
+					itemSelect.value,
+					batchSelect.value,
+					reqTypeInput.value
+				);
+			};
+
 			itemSelect.addEventListener("change", async () => {
 				const itemCode = itemSelect.value;
 				const customer = getModalCustomer();
@@ -2625,6 +2719,7 @@
 
 				if (!itemCode || !customer) {
 					batchSelect.innerHTML = '<option value="">-- Select Batch --</option>';
+					refreshRowWarehouses();
 					return;
 				}
 
@@ -2643,7 +2738,12 @@
 					console.error("Failed to load batches:", err);
 					batchSelect.innerHTML = '<option value="">-- No Batches --</option>';
 				}
+
+				refreshRowWarehouses();
 			});
+
+			batchSelect.addEventListener("change", refreshRowWarehouses);
+			refreshRowWarehouses();
 
 			reqItemsContainer.appendChild(row);
 		};
