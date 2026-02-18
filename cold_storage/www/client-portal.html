@@ -929,6 +929,15 @@
 		.cs-charts-grid {
 			padding: 0 1rem;
 		}
+
+		.cs-req-item-row {
+			grid-template-columns: 1fr;
+			gap: 0.42rem;
+		}
+
+		.cs-req-item-row .remove-row {
+			width: 100%;
+		}
 	}
 
 	@media (max-width: 520px) {
@@ -1078,7 +1087,7 @@
 
 	.cs-req-item-row {
 		display: grid;
-		grid-template-columns: 2fr 1.5fr 1fr auto;
+		grid-template-columns: 2fr 1.3fr 1.3fr 1fr auto;
 		gap: 0.5rem;
 		align-items: end;
 		margin-bottom: 0.5rem;
