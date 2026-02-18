@@ -1,113 +1,223 @@
-# Cold Storage
+<div align="center">
 
-Cold Storage is a Frappe/ERPNext app for service-based warehouse operations where goods are stored for customers and billed for storage handling services.
+# ❄️ Cold Storage
 
-## What the App Includes
+### Enterprise Warehouse Management for Service-Based Cold Storage Operations
 
-- End-to-end transaction flows:
-  - `Cold Storage Inward` (receipt)
-  - `Cold Storage Outward` (dispatch)
-  - `Cold Storage Transfer` (ownership and location transfers)
-- Automated posting:
-  - Stock Entries for movement
-  - Sales Invoices for chargeable services
-  - Journal Entries for labor/transfer accounting flows
-- Strict customer ownership enforcement on `Batch` via `Batch.custom_customer`
-- Company-scoped validation for warehouses/accounts/cost centers
-- Company abbreviation based naming series for operational and accounting documents
-- Modern full-width client portal at `/client-portal`
-- Report exports from portal (CSV and PDF for selected reports)
-- Workspace with grouped sidebar sections, charts, number cards, and report links
-- Role/Role Profile/DocType permission sync automation
-- Automatic customer-based `User Permission` provisioning for portal users
+[![Frappe](https://img.shields.io/badge/Built_on-Frappe_v16-blue?style=for-the-badge&logo=data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0Ij48cGF0aCBmaWxsPSJ3aGl0ZSIgZD0iTTEyIDJDNi40OCAyIDIgNi40OCAyIDEyczQuNDggMTAgMTAgMTAgMTAtNC40OCAxMC0xMFMxNy41MiAyIDEyIDJ6Ii8+PC9zdmc+)](https://frappeframework.com)
+[![ERPNext](https://img.shields.io/badge/Requires-ERPNext-0089FF?style=for-the-badge)](https://erpnext.com)
+[![Python](https://img.shields.io/badge/Python-3.14+-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://python.org)
+[![License](https://img.shields.io/badge/License-MIT-10B981?style=for-the-badge)](LICENSE)
 
-## Core DocTypes
+---
 
-- `Cold Storage Settings` (Single)
-- `Charge Configuration` (Child table in settings)
-- `Cold Storage Inward` + `Cold Storage Inward Item`
-- `Cold Storage Outward` + `Cold Storage Outward Item`
-- `Cold Storage Transfer` + `Cold Storage Transfer Item`
+*A complete Frappe/ERPNext application for managing cold storage warehouse operations — from goods receipt to dispatch — with automated billing, inventory tracking, and a modern self-service client portal.*
 
-## Reports
+</div>
 
-- `Cold Storage Inward Register`
-- `Cold Storage Outward Register`
-- `Cold Storage Transfer Register`
-- `Cold Storage Customer Register`
-- `Cold Storage Warehouse Utilization`
-- `Cold Storage Warehouse Occupancy Timeline`
-- `Cold Storage Yearly Inward Outward Trend`
+---
 
-## Print Formats
+## 🎯 Overview
 
-- `Cold Storage Inward Receipt QR`
-- `Cold Storage Outward Dispatch QR`
-- `Cold Storage Transfer QR`
+Cold Storage is built for **service-based warehouse businesses** that store goods on behalf of customers and charge for storage and handling services. Unlike trading-focused inventory systems, this app is designed around the unique workflows of cold storage facilities:
 
-## Roles and Access
+- **Receive** goods from customers → **Store** them in temperature-controlled warehouses → **Dispatch** on demand → **Bill** for services automatically
 
-Managed by code (`cold_storage.setup.role_based_access.sync_role_based_access`):
+```mermaid
+graph LR
+    A["📦 Inward<br/>Goods Receipt"] --> B["🏭 Storage<br/>Warehouse"]
+    B --> C["🚚 Outward<br/>Dispatch"]
+    B --> D["🔄 Transfer<br/>Ownership / Location"]
+    A --> E["💰 Auto Invoice<br/>Service Charges"]
+    C --> E
+    D --> E
+    style A fill:#059669,color:#fff,stroke:none
+    style B fill:#0284c7,color:#fff,stroke:none
+    style C fill:#d97706,color:#fff,stroke:none
+    style D fill:#7c3aed,color:#fff,stroke:none
+    style E fill:#dc2626,color:#fff,stroke:none
+```
 
-- `Cold Storage Admin`
-- `Cold Storage Warehouse Manager`
-- `Cold Storage Inbound Operator`
-- `Cold Storage Dispatch Operator`
-- `Cold Storage Inventory Controller`
-- `Cold Storage Billing Executive`
-- `Cold Storage Client Portal User`
-- `Cold Storage Quality Inspector`
-- `Cold Storage Maintenance Technician`
+---
 
-Client portal access:
+## ✨ Key Features
 
-- Allowed: `Cold Storage Client Portal User`, `Cold Storage Admin`, `System Manager`
-- Customer users are customer-scoped through `User Permission` records on `Customer`
-- Admin/System Manager can view global scope and filter by customer in portal
+<table>
+<tr>
+<td width="50%">
 
-## Requirements
+### 📦 Inward / Outward / Transfer
+Complete transaction lifecycle with strict customer-batch ownership, automatic Stock Entry creation, and real-time inventory updates.
 
-- Frappe Bench
-- ERPNext (required app)
-- Python `3.14+` (from `pyproject.toml`)
+</td>
+<td width="50%">
 
-## Installation
+### 💰 Automated Billing
+Sales Invoices and Journal Entries are auto-created on submit based on configurable charge rates per Item Group.
+
+</td>
+</tr>
+<tr>
+<td>
+
+### 🌐 Self-Service Client Portal
+A modern, full-width dashboard at `/client-portal` with real-time KPIs, stock composition charts, movement trends, and PDF report downloads (English + Urdu).
+
+</td>
+<td>
+
+### 📊 7 Built-In Reports
+Inward Register, Outward Register, Transfer Register, Customer Register, Warehouse Utilization, Occupancy Timeline, and Yearly Trend analysis.
+
+</td>
+</tr>
+<tr>
+<td>
+
+### 🔐 9-Role Access Control
+Granular role-based permissions from Admin to Dispatch Operator, with automated Role Profile sync and customer-scoped portal access.
+
+</td>
+<td>
+
+### 📱 QR Code Print Formats
+Professional print formats for Inward Receipts, Outward Dispatches, and Transfers — each embedded with scannable QR codes.
+
+</td>
+</tr>
+</table>
+
+---
+
+## 🏛️ Architecture
+
+### Core DocTypes
+
+| DocType | Purpose | Auto-Creates |
+|---------|---------|-------------|
+| **Cold Storage Settings** | Global config: company, accounts, charge rates | — |
+| **Cold Storage Inward** | Record goods received from customers | Stock Entry + Sales Invoice |
+| **Cold Storage Outward** | Record goods dispatched to customers | Stock Entry + Sales Invoice |
+| **Cold Storage Transfer** | Ownership or location transfers | Stock Entry + Journal Entry |
+
+Each transaction DocType has a child table (`Inward Item`, `Outward Item`, `Transfer Item`) for line-item details including item, batch, quantity, and UOM.
+
+### Custom Fields on Standard DocTypes
+
+| DocType | Field | Purpose |
+|---------|-------|---------|
+| **Batch** | `custom_customer` | Enforces strict batch → customer ownership |
+| **Warehouse** | `custom_storage_capacity` | Maximum storable quantity for utilization analytics |
+
+---
+
+## 📊 Reports
+
+| Report | Description |
+|--------|-------------|
+| 📥 **Inward Register** | All goods received with customer, item, batch, and date filters |
+| 📤 **Outward Register** | All dispatches with quantity and date tracking |
+| 🔄 **Transfer Register** | Ownership and location transfer history |
+| 👤 **Customer Register** | Customer-wise stock summary and activity |
+| 📈 **Warehouse Utilization** | Current capacity usage vs. `custom_storage_capacity` |
+| 📅 **Occupancy Timeline** | Historical warehouse occupancy over time |
+| 📉 **Yearly Inward/Outward Trend** | Annual movement patterns and seasonal analysis |
+
+---
+
+## 🌐 Client Portal
+
+The self-service portal at `/client-portal` gives customers real-time visibility into their storage operations:
+
+| Feature | Description |
+|---------|-------------|
+| 📊 **Dashboard KPIs** | Outstanding amount, inward volume, stock count — at a glance |
+| 🥧 **Stock Composition** | Visual breakdown of stored items by quantity |
+| 📈 **Movement Trends** | 30-day inward/outward bar chart |
+| 📋 **Stock Movements** | Filterable table of all transactions |
+| 📥 **PDF Reports** | Downloadable Executive Report in **English** and **اردو** |
+| 🔍 **Smart Search** | Keyboard-shortcut (`/`) powered search across all data |
+| 👤 **Customer Scope** | Portal users see only their own data; admins can filter by customer |
+
+---
+
+## 🔐 Roles & Permissions
+
+Roles are managed in code and synced automatically on install/migrate:
+
+| Role | Scope |
+|------|-------|
+| 🛡️ **Cold Storage Admin** | Full access to all doctypes and settings |
+| 🏭 **Warehouse Manager** | Manage warehouses, view all transactions |
+| 📥 **Inbound Operator** | Create and manage Inward documents |
+| 📤 **Dispatch Operator** | Create and manage Outward documents |
+| 📦 **Inventory Controller** | View stock, manage transfers |
+| 💰 **Billing Executive** | Access invoicing and accounting entries |
+| 🌐 **Client Portal User** | Self-service portal access (customer-scoped) |
+| 🔍 **Quality Inspector** | Inspection and quality workflows |
+| 🔧 **Maintenance Technician** | Equipment and facility management |
+
+---
+
+## 🚀 Installation
+
+### Prerequisites
+
+- [Frappe Bench](https://frappeframework.com/docs/user/en/installation) (v16+)
+- [ERPNext](https://erpnext.com) (required dependency)
+- Python **3.14+**
+
+### Quick Start
 
 ```bash
+# Navigate to your bench directory
 cd $PATH_TO_YOUR_BENCH
+
+# Get the app
 bench get-app https://github.com/UmaishSolutions/Cold_Storage.git
+
+# Install on your site
 bench --site <site-name> install-app cold_storage
 bench --site <site-name> migrate
 bench --site <site-name> clear-cache
 ```
 
-## Post-Install Checklist
+### Post-Install Checklist
 
-1. Open `Cold Storage Settings` and configure:
+1. **Configure Settings** → Open `Cold Storage Settings` and set:
    - Default Company
    - Default Income Account
-   - Labour Account (Debit)
-   - Labour Manager Account (Credit)
+   - Labour Account (Debit) / Labour Manager Account (Credit)
    - Transfer Expense Account
    - Charge Configurations per Item Group
-2. Confirm `Warehouse.custom_storage_capacity` values for utilization/occupancy analytics.
-3. Assign relevant Cold Storage Role Profiles to users.
-4. For portal users, map customer(s) through:
-   - `Customer > portal_users`, or
-   - customer email/contact mapping
 
-## Operational Sync Commands
+2. **Set Warehouse Capacities** → Update `Warehouse.custom_storage_capacity` for utilization analytics
 
-If you need to re-apply security and portal mappings:
+3. **Assign Roles** → Apply Cold Storage Role Profiles to your users
+
+4. **Portal Users** → Map customers through `Customer > portal_users` or the contact email
+
+---
+
+## 🛠️ Administration
+
+### Sync Security & Portal Mappings
 
 ```bash
-cd $PATH_TO_YOUR_BENCH
+# Re-apply role-based access control
 bench --site <site-name> execute cold_storage.setup.role_based_access.sync_role_based_access
+
+# Re-sync portal user → customer mappings
 bench --site <site-name> execute cold_storage.setup.client_portal_user_permissions.sync_customer_user_permissions_for_client_portal_users
+
 bench --site <site-name> clear-cache
 ```
 
-## Local Development
+---
+
+## 🧪 Development
+
+### Setup
 
 ```bash
 cd apps/cold_storage
@@ -115,31 +225,64 @@ pre-commit install
 pre-commit run --all-files
 ```
 
-Run tests:
+### Run Tests
 
 ```bash
-cd $PATH_TO_YOUR_BENCH
 bench --site <site-name> set-config allow_tests true
 bench --site <site-name> run-tests --app cold_storage
 ```
 
-## Troubleshooting
+### Code Quality
 
-- Install error: `Could not find Default UOM: Nos`
-  - Run `bench --site <site-name> migrate` to apply current post-install/migration handlers.
-  - Ensure at least one enabled UOM exists.
-- Portal user cannot see records:
-  - Verify user has `Cold Storage Client Portal User`.
-  - Verify user has Customer `User Permission` records.
-  - Re-run the sync commands above.
-- Permission matrix drift after manual permission edits:
-  - Re-run `sync_role_based_access` command above.
+- **Linting**: Ruff with `line-length = 110`, targeting Python 3.14
+- **Type Safety**: All whitelisted API methods require type annotations
+- **Pre-commit**: Automated formatting and lint checks
 
-## CI Workflows
+---
 
-- `ci.yml`: installs app on a fresh bench and runs tests
-- `linter.yml`: pre-commit, Semgrep, and dependency audit checks
+## 🐛 Troubleshooting
 
-## License
+<details>
+<summary><strong>❌ Install error: "Could not find Default UOM: Nos"</strong></summary>
 
-MIT. See `LICENSE` and `license.txt`.
+Run `bench --site <site-name> migrate` to apply post-install handlers. Ensure at least one enabled UOM exists.
+</details>
+
+<details>
+<summary><strong>❌ Portal user cannot see records</strong></summary>
+
+1. Verify user has the `Cold Storage Client Portal User` role
+2. Verify `User Permission` records exist for the Customer
+3. Re-run the sync commands from the Administration section above
+</details>
+
+<details>
+<summary><strong>❌ Permission matrix drift after manual edits</strong></summary>
+
+Re-run `sync_role_based_access` to restore the code-defined permission matrix.
+</details>
+
+---
+
+## 🔄 CI/CD
+
+| Workflow | Purpose |
+|----------|---------|
+| `ci.yml` | Installs app on a fresh bench and runs the full test suite |
+| `linter.yml` | Pre-commit hooks, Semgrep analysis, and dependency audit |
+
+---
+
+## 📜 License
+
+This project is licensed under the **MIT License**. See [LICENSE](LICENSE) for details.
+
+---
+
+<div align="center">
+
+**Built with ❤️ by [Umaish Solutions](mailto:solutions@umaish.com)**
+
+*Powered by [Frappe Framework](https://frappeframework.com) & [ERPNext](https://erpnext.com)*
+
+</div>
