@@ -7,6 +7,7 @@ STATUS_EMPTY = "Empty"
 STATUS_AVAILABLE = "Available"
 STATUS_NEAR_FULL = "Near Full"
 STATUS_OVER_CAPACITY = "Over Capacity"
+PERCENT_PRECISION = 2
 
 
 def execute(filters=None):
@@ -60,6 +61,7 @@ def get_columns():
 			"label": _("Utilization (%)"),
 			"fieldname": "utilization_pct",
 			"fieldtype": "Percent",
+			"precision": PERCENT_PRECISION,
 			"width": 140,
 		},
 		{
@@ -123,9 +125,10 @@ def get_data(filters):
 		row.remaining_capacity_qty = (
 			row.warehouse_capacity - row.available_stock_qty if row.warehouse_capacity else 0.0
 		)
-		row.utilization_pct = (
+		raw_utilization_pct = (
 			(row.available_stock_qty / row.warehouse_capacity * 100.0) if row.warehouse_capacity else 0.0
 		)
+		row.utilization_pct = round_percent(raw_utilization_pct)
 		row.status = get_utilization_status(
 			available_stock_qty=row.available_stock_qty,
 			warehouse_capacity=row.warehouse_capacity,
@@ -180,7 +183,8 @@ def get_chart_data(data):
 def get_report_summary(data):
 	total_capacity = sum(flt(row.warehouse_capacity) for row in data if flt(row.warehouse_capacity) > 0)
 	total_available_stock = sum(flt(row.available_stock_qty) for row in data)
-	overall_utilization = (total_available_stock / total_capacity * 100.0) if total_capacity else 0.0
+	raw_overall_utilization = (total_available_stock / total_capacity * 100.0) if total_capacity else 0.0
+	overall_utilization = round_percent(raw_overall_utilization)
 	over_capacity_count = sum(1 for row in data if row.status == STATUS_OVER_CAPACITY)
 	capacity_missing_count = sum(1 for row in data if row.status == STATUS_CAPACITY_NOT_SET)
 
@@ -226,3 +230,7 @@ def get_report_message(data) -> str | None:
 	return _(
 		"Storage Capacity is not set for {0} warehouse(s). Set Warehouse > Storage Capacity to calculate utilization. Net Bag stock is auto-converted using 1 Jute Bag = 2 Net Bag."
 	).format(capacity_missing_count)
+
+
+def round_percent(value: float) -> float:
+	return flt(value, PERCENT_PRECISION)

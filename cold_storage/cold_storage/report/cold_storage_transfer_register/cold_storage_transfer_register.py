@@ -2,7 +2,6 @@ import frappe
 from frappe import _
 from frappe.utils import flt
 
-
 DOCSTATUS_LABELS = {0: "Draft", 1: "Submitted", 2: "Cancelled"}
 
 
@@ -17,16 +16,57 @@ def execute(filters=None):
 
 def get_columns():
 	return [
-		{"label": _("Transfer"), "fieldname": "name", "fieldtype": "Link", "options": "Cold Storage Transfer", "width": 180},
+		{
+			"label": _("Transfer"),
+			"fieldname": "name",
+			"fieldtype": "Link",
+			"options": "Cold Storage Transfer",
+			"width": 180,
+		},
 		{"label": _("Posting Date"), "fieldname": "posting_date", "fieldtype": "Date", "width": 110},
 		{"label": _("Transfer Type"), "fieldname": "transfer_type", "fieldtype": "Data", "width": 180},
-		{"label": _("Customer"), "fieldname": "customer", "fieldtype": "Link", "options": "Customer", "width": 160},
-		{"label": _("From Customer"), "fieldname": "from_customer", "fieldtype": "Link", "options": "Customer", "width": 160},
-		{"label": _("To Customer"), "fieldname": "to_customer", "fieldtype": "Link", "options": "Customer", "width": 160},
+		{
+			"label": _("Customer"),
+			"fieldname": "customer",
+			"fieldtype": "Link",
+			"options": "Customer",
+			"width": 160,
+		},
+		{
+			"label": _("From Customer"),
+			"fieldname": "from_customer",
+			"fieldtype": "Link",
+			"options": "Customer",
+			"width": 160,
+		},
+		{
+			"label": _("To Customer"),
+			"fieldname": "to_customer",
+			"fieldtype": "Link",
+			"options": "Customer",
+			"width": 160,
+		},
 		{"label": _("Total Qty"), "fieldname": "total_qty", "fieldtype": "Float", "width": 110},
-		{"label": _("Transfer Charges"), "fieldname": "total_transfer_charges", "fieldtype": "Currency", "width": 140},
-		{"label": _("Stock Entry"), "fieldname": "stock_entry", "fieldtype": "Link", "options": "Stock Entry", "width": 170},
-		{"label": _("Journal Entry"), "fieldname": "journal_entry", "fieldtype": "Link", "options": "Journal Entry", "width": 170},
+		{
+			"label": _("Transfer Charges"),
+			"fieldname": "total_transfer_charges",
+			"fieldtype": "Currency",
+			"width": 140,
+		},
+		{
+			"label": _("Stock Entry"),
+			"fieldname": "stock_entry",
+			"fieldtype": "Link",
+			"options": "Stock Entry",
+			"width": 170,
+		},
+		{
+			"label": _("Journal Entry"),
+			"fieldname": "journal_entry",
+			"fieldtype": "Link",
+			"options": "Journal Entry",
+			"width": 170,
+		},
 		{"label": _("Status"), "fieldname": "status", "fieldtype": "Data", "width": 100},
 	]
 
@@ -108,5 +148,10 @@ def get_report_summary(data):
 	return [
 		{"value": len(data), "label": _("Transfers"), "datatype": "Int", "indicator": "Blue"},
 		{"value": total_qty, "label": _("Total Transfer Qty"), "datatype": "Float", "indicator": "Green"},
-		{"value": total_charges, "label": _("Total Transfer Charges"), "datatype": "Currency", "indicator": "Orange"},
+		{
+			"value": total_charges,
+			"label": _("Total Transfer Charges"),
+			"datatype": "Currency",
+			"indicator": "Orange",
+		},
 	]

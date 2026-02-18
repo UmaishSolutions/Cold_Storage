@@ -7,7 +7,6 @@ import frappe
 from frappe.custom.doctype.custom_field.custom_field import create_custom_fields
 from frappe.custom.doctype.property_setter.property_setter import make_property_setter
 
-
 APP_CUSTOM_FIELDS = {
 	"Batch": [
 		{
@@ -38,6 +37,8 @@ WORKSPACE_NAME = "Cold Storage"
 WAREHOUSE_OCCUPANCY_REPORT = "Cold Storage Warehouse Occupancy Timeline"
 WAREHOUSE_OCCUPANCY_CHART = "Warehouse Occupancy Timeline"
 WAREHOUSE_OCCUPANCY_CHART_BLOCK_ID = "chart-warehouse-occupancy-timeline"
+ACTIVE_BATCHES_NUMBER_CARD = "Active Batches"
+ACTIVE_BATCHES_NUMBER_CARD_BLOCK_ID = "number-card-active-batches"
 
 
 def _ensure_batch_customizations() -> None:
@@ -71,6 +72,24 @@ def _ensure_dashboard_chart_types() -> None:
 		frappe.cache.delete_key(f"chart-data:{chart_name}")
 
 
+def _ensure_top_customers_chart_source() -> None:
+	"""Ensure Top Customers chart is based on available stock (Customer Register)."""
+	if not frappe.db.exists("Dashboard Chart", "Top Customers"):
+		return
+
+	frappe.db.set_value(
+		"Dashboard Chart",
+		"Top Customers",
+		{
+			"report_name": "Cold Storage Customer Register",
+			"type": "Bar",
+			"use_report_chart": 1,
+		},
+		update_modified=False,
+	)
+	frappe.cache.delete_key("chart-data:Top Customers")
+
+
 def _ensure_workspace_assets() -> None:
 	"""Ensure cold storage analytics are visible on the workspace dashboard."""
 	if not frappe.db.exists("Workspace", WORKSPACE_NAME):
@@ -81,9 +100,7 @@ def _ensure_workspace_assets() -> None:
 
 	if frappe.db.exists("Report", WAREHOUSE_OCCUPANCY_REPORT):
 		has_report_link = any(
-			link.type == "Link"
-			and link.link_type == "Report"
-			and link.link_to == WAREHOUSE_OCCUPANCY_REPORT
+			link.type == "Link" and link.link_type == "Report" and link.link_to == WAREHOUSE_OCCUPANCY_REPORT
 			for link in workspace.get("links", [])
 		)
 		if not has_report_link:
@@ -129,6 +146,54 @@ def _ensure_workspace_assets() -> None:
 			workspace.content = frappe.as_json(content_blocks)
 			updated = True
 
+	if frappe.db.exists("Number Card", ACTIVE_BATCHES_NUMBER_CARD):
+		has_number_card = any(
+			card.number_card_name == ACTIVE_BATCHES_NUMBER_CARD for card in workspace.get("number_cards", [])
+		)
+		if not has_number_card:
+			workspace.append(
+				"number_cards",
+				{
+					"label": ACTIVE_BATCHES_NUMBER_CARD,
+					"number_card_name": ACTIVE_BATCHES_NUMBER_CARD,
+				},
+			)
+			updated = True
+
+		content_blocks = _get_workspace_content_blocks(workspace.content)
+		has_number_card_block = any(
+			block.get("type") == "number_card"
+			and (block.get("data") or {}).get("number_card_name") == ACTIVE_BATCHES_NUMBER_CARD
+			for block in content_blocks
+		)
+		if not has_number_card_block:
+			# Prefer replacing legacy duplicate "Total Active Items" slot to keep top-row density unchanged.
+			replaced_existing_slot = False
+			for block in content_blocks:
+				if block.get("type") != "number_card":
+					continue
+				data = block.get("data") or {}
+				if (
+					block.get("id") == "jXtpNEtdDN"
+					and data.get("number_card_name") == "Total Active Items"
+				):
+					data["number_card_name"] = ACTIVE_BATCHES_NUMBER_CARD
+					block["data"] = data
+					replaced_existing_slot = True
+					break
+
+			if not replaced_existing_slot:
+				content_blocks.append(
+					{
+						"id": ACTIVE_BATCHES_NUMBER_CARD_BLOCK_ID,
+						"type": "number_card",
+						"data": {"number_card_name": ACTIVE_BATCHES_NUMBER_CARD, "col": 3},
+					}
+				)
+
+			workspace.content = frappe.as_json(content_blocks)
+			updated = True
+
 	if updated:
 		workspace.save(ignore_permissions=True)
 		frappe.clear_cache(doctype="Workspace")
@@ -149,17 +214,42 @@ def _get_workspace_content_blocks(content: str | None) -> list[dict]:
 	return [block for block in blocks if isinstance(block, dict)]
 
 
+def _ensure_default_uom_setting(*, create_uom_if_missing: bool) -> None:
+	"""Keep Cold Storage Settings.default_uom linked to a valid UOM."""
+	if not frappe.db.exists("DocType", "Cold Storage Settings"):
+		return
+
+	from cold_storage.cold_storage.doctype.cold_storage_settings.cold_storage_settings import (
+		resolve_default_uom,
+	)
+
+	resolved_uom = resolve_default_uom(create_if_missing=create_uom_if_missing)
+	if not resolved_uom:
+		return
+
+	current_uom = frappe.db.get_single_value("Cold Storage Settings", "default_uom")
+	if current_uom and frappe.db.exists("UOM", current_uom):
+		return
+
+	frappe.db.set_single_value("Cold Storage Settings", "default_uom", resolved_uom)
+
+
 def after_install() -> None:
+	_ensure_default_uom_setting(create_uom_if_missing=True)
 	_ensure_batch_customizations()
 	_ensure_dashboard_chart_types()
+	_ensure_top_customers_chart_source()
 	_ensure_workspace_assets()
 	_sync_role_based_access()
 
 
 def after_migrate() -> None:
+	_ensure_default_uom_setting(create_uom_if_missing=True)
 	_ensure_batch_customizations()
 	_ensure_dashboard_chart_types()
+	_ensure_top_customers_chart_source()
 	_ensure_workspace_assets()
+	_sync_role_based_access()
 
 
 def _sync_role_based_access() -> None:

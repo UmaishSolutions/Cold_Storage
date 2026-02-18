@@ -1,13 +1,15 @@
+from datetime import date
+
 import frappe
 from frappe import _
 from frappe.utils import cint, flt, getdate, nowdate
-from datetime import date
 
 STATUS_CAPACITY_NOT_SET = "Capacity Not Set"
 STATUS_EMPTY = "Empty"
 STATUS_AVAILABLE = "Available"
 STATUS_NEAR_FULL = "Near Full"
 STATUS_OVER_CAPACITY = "Over Capacity"
+PERCENT_PRECISION = 2
 
 
 def execute(filters=None):
@@ -93,6 +95,7 @@ def get_columns():
 			"label": _("Occupancy (%)"),
 			"fieldname": "occupancy_pct",
 			"fieldtype": "Percent",
+			"precision": PERCENT_PRECISION,
 			"width": 130,
 		},
 		{
@@ -246,7 +249,8 @@ def build_rows(warehouses, months, opening_qty_map, monthly_change_map):
 
 			capacity = flt(warehouse.warehouse_capacity)
 			remaining_capacity = capacity - occupied_qty if capacity else 0.0
-			occupancy_pct = (occupied_qty / capacity * 100.0) if capacity else 0.0
+			raw_occupancy_pct = (occupied_qty / capacity * 100.0) if capacity else 0.0
+			occupancy_pct = round_percent(raw_occupancy_pct)
 
 			rows.append(
 				frappe._dict(
@@ -311,16 +315,12 @@ def get_chart_data(data, months, warehouses, filters):
 	labels = [month.strftime("%b %Y") for month in months]
 	datasets = []
 	for warehouse in selected_warehouses:
-		values = [
-			flt(occupancy_map.get((warehouse, month.strftime("%Y-%m-01")), 0)) for month in months
-		]
+		values = [flt(occupancy_map.get((warehouse, month.strftime("%Y-%m-01")), 0)) for month in months]
 		datasets.append({"name": warehouse, "values": values})
 
 	if not filters.get("warehouse"):
 		total_occupancy_by_month = get_total_occupancy_by_month(data)
-		total_values = [
-			flt(total_occupancy_by_month.get(month.strftime("%Y-%m-01"), 0)) for month in months
-		]
+		total_values = [flt(total_occupancy_by_month.get(month.strftime("%Y-%m-01"), 0)) for month in months]
 		datasets.append({"name": _("All Warehouses (Total)"), "values": total_values})
 
 	return {
@@ -351,7 +351,8 @@ def get_total_occupancy_by_month(data):
 	total_occupancy_by_month = {}
 	for month_start, occupied in total_occupied_by_month.items():
 		capacity = flt(total_capacity_by_month.get(month_start))
-		total_occupancy_by_month[month_start] = (occupied / capacity * 100.0) if capacity else 0.0
+		raw_total_occupancy = (occupied / capacity * 100.0) if capacity else 0.0
+		total_occupancy_by_month[month_start] = round_percent(raw_total_occupancy)
 
 	return total_occupancy_by_month
 
@@ -363,9 +364,12 @@ def get_report_summary(data, months, warehouses):
 	latest_month = months[-1].strftime("%Y-%m-01")
 	latest_rows = [row for row in data if row.month_start == latest_month]
 
-	total_capacity = sum(flt(row.warehouse_capacity) for row in latest_rows if flt(row.warehouse_capacity) > 0)
+	total_capacity = sum(
+		flt(row.warehouse_capacity) for row in latest_rows if flt(row.warehouse_capacity) > 0
+	)
 	total_occupied = sum(flt(row.occupied_stock_qty) for row in latest_rows)
-	overall_occupancy_pct = (total_occupied / total_capacity * 100.0) if total_capacity else 0.0
+	raw_overall_occupancy_pct = (total_occupied / total_capacity * 100.0) if total_capacity else 0.0
+	overall_occupancy_pct = round_percent(raw_overall_occupancy_pct)
 	over_capacity_count = sum(1 for row in latest_rows if row.status == STATUS_OVER_CAPACITY)
 	without_capacity_count = sum(1 for row in warehouses if flt(row.warehouse_capacity) <= 0)
 
@@ -417,3 +421,7 @@ def get_report_message(warehouses):
 	return _(
 		"Storage Capacity is not set for {0} warehouse(s). Set Warehouse > Storage Capacity to calculate occupancy timeline. Net Bag stock is auto-converted using 1 Jute Bag = 2 Net Bag."
 	).format(without_capacity_count)
+
+
+def round_percent(value: float) -> float:
+	return flt(value, PERCENT_PRECISION)

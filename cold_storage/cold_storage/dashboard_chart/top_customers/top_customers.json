@@ -16,7 +16,7 @@
  "name": "Top Customers",
  "number_of_groups": 0,
  "owner": "Administrator",
- "report_name": "Cold Storage Outward Register",
+ "report_name": "Cold Storage Customer Register",
  "roles": [
   {
    "role": "System Manager"

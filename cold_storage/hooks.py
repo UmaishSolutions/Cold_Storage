@@ -12,7 +12,7 @@ required_apps = ["erpnext"]
 
 # Includes in <head>
 # app_include_css = "/assets/cold_storage/css/cold_storage.css"
-# app_include_js = "/assets/cold_storage/js/cold_storage.js"
+app_include_js = "/assets/cold_storage/js/cold_storage.js"
 
 desktop_data = "cold_storage.config.desktop.get_data"
 
@@ -39,18 +39,18 @@ fixtures = [
 	{"dt": "Role Profile", "filters": [["role_profile", "like", "Cold Storage %"]]},
 ]
 
+jinja = {
+	"methods": [
+		"cold_storage.cold_storage.utils.get_document_qr_code_data_uri",
+	],
+}
+
 portal_menu_items = [
 	{
 		"title": "Cold Storage Portal",
 		"route": "/client-portal",
 		"reference_doctype": "Cold Storage Inward",
 		"role": "Cold Storage Client Portal User",
-	},
-	{
-		"title": "Cold Storage Portal",
-		"route": "/client-portal",
-		"reference_doctype": "Cold Storage Inward",
-		"role": "Cold Storage Admin",
 	},
 ]
 
@@ -102,5 +102,8 @@ doc_events = {
 	},
 	"Customer": {
 		"on_update": "cold_storage.setup.client_portal_user_permissions.sync_customer_user_permissions_for_customer",
+	},
+	"GL Entry": {
+		"autoname": "cold_storage.events.naming.autoname_cold_storage_gl_entry",
 	},
 }

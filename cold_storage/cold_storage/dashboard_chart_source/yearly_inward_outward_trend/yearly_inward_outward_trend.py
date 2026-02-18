@@ -1,8 +1,9 @@
+from datetime import date
+
 import frappe
 from frappe import _
 from frappe.utils import cint, flt, getdate
 from frappe.utils.dashboard import cache_source
-from datetime import date
 
 
 def _normalize_filters(filters):

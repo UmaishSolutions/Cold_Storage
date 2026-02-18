@@ -8,7 +8,6 @@ from collections import defaultdict
 import frappe
 from frappe.utils import cint
 
-
 CLIENT_PORTAL_ROLE = "Cold Storage Client Portal User"
 
 
@@ -33,9 +32,7 @@ def sync_customer_user_permissions_for_customer(doc, method: str | None = None) 
 	if not customer:
 		return
 
-	portal_users = {
-		row.user for row in (doc.get("portal_users") or []) if getattr(row, "user", None)
-	}
+	portal_users = {row.user for row in (doc.get("portal_users") or []) if getattr(row, "user", None)}
 	for user in sorted(portal_users):
 		if not _is_active_user(user):
 			continue

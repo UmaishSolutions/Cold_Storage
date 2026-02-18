@@ -6,6 +6,10 @@ from unittest.mock import patch
 
 from cold_storage.cold_storage.utils import (
 	get_batch_balance,
+	get_document_qr_code_data_uri,
+	get_document_qr_code_payload,
+	get_document_sidebar_qr_code_data_uri,
+	get_document_sidebar_qr_code_payload,
 	search_batches_for_customer_warehouse,
 	search_items_for_customer_stock,
 	search_warehouses_for_batch,
@@ -23,7 +27,9 @@ class TestUtils(TestCase):
 			"cold_storage.cold_storage.utils.get_batch_qty",
 			return_value=5.5,
 		):
-			self.assertEqual(get_batch_balance("BATCH-0001", warehouse="Main - CO", item_code="ITEM-001"), 5.5)
+			self.assertEqual(
+				get_batch_balance("BATCH-0001", warehouse="Main - CO", item_code="ITEM-001"), 5.5
+			)
 
 	def test_get_batch_balance_ignores_item_code_and_uses_batch_warehouse(self):
 		with patch(
@@ -206,7 +212,12 @@ class TestUtils(TestCase):
 				searchfield="name",
 				start=0,
 				page_len=20,
-				filters={"batch_no": "", "company": "Default Co", "customer": "CUST-0001", "item": "ITEM-001"},
+				filters={
+					"batch_no": "",
+					"company": "Default Co",
+					"customer": "CUST-0001",
+					"item": "ITEM-001",
+				},
 			)
 			self.assertEqual(rows, [])
 			stock_ledger_calls = [
@@ -277,3 +288,89 @@ class TestUtils(TestCase):
 		self.assertEqual(rows, [])
 		db_sql.assert_not_called()
 		mocked_get_batch_qty.assert_not_called()
+
+	def test_get_document_qr_code_payload_returns_empty_when_document_is_missing(self):
+		self.assertEqual(get_document_qr_code_payload("", "CS-IN-00001"), "")
+		self.assertEqual(get_document_qr_code_payload("Cold Storage Inward", ""), "")
+
+	def test_get_document_qr_code_payload_uses_form_url(self):
+		with patch(
+			"cold_storage.cold_storage.utils.frappe.utils.get_url_to_form",
+			return_value="https://erp.example.com/app/cold-storage-inward/CS-IN-00001",
+		) as get_url_to_form:
+			payload = get_document_qr_code_payload("Cold Storage Inward", "CS-IN-00001")
+
+		self.assertEqual(payload, "https://erp.example.com/app/cold-storage-inward/CS-IN-00001")
+		get_url_to_form.assert_called_once_with("Cold Storage Inward", "CS-IN-00001")
+
+	def test_get_document_qr_code_data_uri_returns_empty_without_payload(self):
+		with patch(
+			"cold_storage.cold_storage.utils.get_document_qr_code_payload",
+			return_value="",
+		):
+			self.assertEqual(get_document_qr_code_data_uri("Cold Storage Inward", "CS-IN-00001"), "")
+
+	def test_get_document_qr_code_data_uri_returns_svg_data_uri(self):
+		with patch(
+			"cold_storage.cold_storage.utils.get_document_qr_code_payload",
+			return_value="https://erp.example.com/app/cold-storage-inward/CS-IN-00001",
+		):
+			data_uri = get_document_qr_code_data_uri(
+				"Cold Storage Inward",
+				"CS-IN-00001",
+			)
+
+		self.assertTrue(data_uri.startswith("data:image/svg+xml;base64,"))
+		self.assertGreater(len(data_uri), len("data:image/svg+xml;base64,"))
+
+	def test_get_document_sidebar_qr_code_payload_contains_required_fields(self):
+		with (
+			patch("cold_storage.cold_storage.utils.frappe.db.exists", return_value=True),
+			patch(
+				"cold_storage.cold_storage.utils.frappe.get_doc",
+				return_value={
+					"owner": "john@example.com",
+					"posting_date": "2026-02-15",
+					"receipt_no": "RCPT-0001",
+					"customer": "CUST-0001",
+					"total_qty": 12,
+					"remarks": "Keep frozen at -18C",
+					"items": [
+						{
+							"item": "ITEM-001",
+							"batch_no": "BATCH-001",
+							"warehouse": "Main - CO",
+						}
+					],
+				},
+			),
+			patch("cold_storage.cold_storage.utils.frappe.db.get_value", return_value="John Doe"),
+			patch(
+				"cold_storage.cold_storage.utils.frappe.utils.get_url_to_form",
+				return_value="https://erp.example.com/app/cold-storage-inward/CS-IN-00001",
+			),
+		):
+			payload = get_document_sidebar_qr_code_payload("Cold Storage Inward", "CS-IN-00001")
+
+		self.assertIn("Receipt #: RCPT-0001", payload)
+		self.assertIn("Date: 2026-02-15", payload)
+		self.assertIn("Customer: CUST-0001", payload)
+		self.assertIn("Item: ITEM-001", payload)
+		self.assertIn("Batch No: BATCH-001", payload)
+		self.assertIn("Warehouse: Main - CO", payload)
+		self.assertIn("Quantity: 12.0", payload)
+		self.assertIn("Remarks: Keep frozen at -18C", payload)
+		self.assertIn("Posted By: John Doe", payload)
+
+	def test_get_document_sidebar_qr_code_data_uri_returns_svg_data_uri(self):
+		with (
+			patch("cold_storage.cold_storage.utils.frappe.has_permission", return_value=True),
+			patch(
+				"cold_storage.cold_storage.utils.get_document_sidebar_qr_code_payload",
+				return_value="Document: Cold Storage Inward\nID: CS-IN-00001",
+			),
+		):
+			data_uri = get_document_sidebar_qr_code_data_uri("Cold Storage Inward", "CS-IN-00001")
+
+		self.assertTrue(data_uri.startswith("data:image/svg+xml;base64,"))
+		self.assertGreater(len(data_uri), len("data:image/svg+xml;base64,"))

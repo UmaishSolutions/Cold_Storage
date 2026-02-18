@@ -1,11 +1,12 @@
 # Copyright (c) 2026, Umaish Solutions and contributors
 # For license information, please see license.txt
 
+from collections import defaultdict
+
 import frappe
 from frappe import _
 from frappe.model.document import Document
 from frappe.utils import flt, nowdate
-from collections import defaultdict
 
 
 class ColdStorageTransfer(Document):
@@ -30,8 +31,19 @@ class ColdStorageTransfer(Document):
 		to_customer: DF.Link | None
 		total_qty: DF.Float
 		total_transfer_charges: DF.Currency
-		transfer_type: DF.Literal["", "Ownership Transfer", "Inter-Warehouse Transfer", "Intra-Warehouse Transfer"]
+		transfer_type: DF.Literal[
+			"", "Ownership Transfer", "Inter-Warehouse Transfer", "Intra-Warehouse Transfer"
+		]
 	# end: auto-generated types
+
+	def before_naming(self) -> None:
+		from cold_storage.cold_storage.doctype.cold_storage_settings.cold_storage_settings import (
+			get_default_company,
+		)
+		from cold_storage.cold_storage.naming import get_series_for_company
+
+		self.company = self.company or get_default_company()
+		self.naming_series = get_series_for_company("transfer", self.company)
 
 	def validate(self) -> None:
 		self._set_company()
@@ -96,9 +108,7 @@ class ColdStorageTransfer(Document):
 			if self.transfer_type in ["Inter-Warehouse Transfer", "Intra-Warehouse Transfer"]:
 				if not row.source_warehouse:
 					frappe.throw(
-						_("Row {0}: Source Warehouse is required for {1}").format(
-							row.idx, self.transfer_type
-						)
+						_("Row {0}: Source Warehouse is required for {1}").format(row.idx, self.transfer_type)
 					)
 				validate_warehouse_company(
 					row.source_warehouse, self.company, row_idx=row.idx, label=_("Source Warehouse")
@@ -107,15 +117,15 @@ class ColdStorageTransfer(Document):
 			if self.transfer_type == "Inter-Warehouse Transfer":
 				if not row.target_warehouse:
 					frappe.throw(
-						_("Row {0}: Target Warehouse is required for Inter-Warehouse Transfer").format(row.idx)
+						_("Row {0}: Target Warehouse is required for Inter-Warehouse Transfer").format(
+							row.idx
+						)
 					)
 				validate_warehouse_company(
 					row.target_warehouse, self.company, row_idx=row.idx, label=_("Target Warehouse")
 				)
 				if row.source_warehouse == row.target_warehouse:
-					frappe.throw(
-						_("Row {0}: Source and Target Warehouse must be different").format(row.idx)
-					)
+					frappe.throw(_("Row {0}: Source and Target Warehouse must be different").format(row.idx))
 
 			if self.transfer_type == "Intra-Warehouse Transfer":
 				# In intra-warehouse transfer, target is always the same warehouse.
@@ -156,9 +166,7 @@ class ColdStorageTransfer(Document):
 					)
 
 			key = (row.batch_no, row.source_warehouse, row.item)
-			requested_qty_map[key]["qty"] = flt(requested_qty_map[key]["qty"]) + flt(
-				getattr(row, "qty", 0)
-			)
+			requested_qty_map[key]["qty"] = flt(requested_qty_map[key]["qty"]) + flt(getattr(row, "qty", 0))
 			requested_qty_map[key]["rows"].append(row.idx)
 
 		for (batch_no, source_warehouse, item_code), data in requested_qty_map.items():
@@ -325,6 +333,9 @@ class ColdStorageTransfer(Document):
 		)
 
 		je = frappe.new_doc("Journal Entry")
+		from cold_storage.cold_storage.naming import get_series_for_company
+
+		je.naming_series = get_series_for_company("journal_entry", settings.company)
 		je.posting_date = self.posting_date or nowdate()
 		je.company = settings.company
 		je.user_remark = _("{0} — {1}").format(self.transfer_type, self.name)

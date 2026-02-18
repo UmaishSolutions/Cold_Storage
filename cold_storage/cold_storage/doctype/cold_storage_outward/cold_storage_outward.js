@@ -46,6 +46,10 @@ frappe.ui.form.on("Cold Storage Outward", {
 	    });
 	},
 
+	company(frm) {
+		set_company_prefixed_series(frm);
+	},
+
     onload(frm) {
         if (frm.fields_dict.items && frm.fields_dict.items.grid) {
             frm.fields_dict.items.grid.meta.editable_grid = true;
@@ -82,6 +86,7 @@ frappe.ui.form.on("Cold Storage Outward", {
                 }
             });
         }
+		set_company_prefixed_series(frm);
 
 
         if (frm.doc.sales_invoice) {
@@ -99,8 +104,76 @@ frappe.ui.form.on("Cold Storage Outward", {
             );
         }
 
+		render_sidebar_qr_code(frm);
     },
 });
+
+function set_company_prefixed_series(frm) {
+	if (!frm.is_new() || !frm.doc.company) {
+		return;
+	}
+
+	frappe.db.get_value("Company", frm.doc.company, "abbr").then((r) => {
+		const abbr = ((r && r.message && r.message.abbr) || frm.doc.company || "CO")
+			.toString()
+			.replace(/[^A-Za-z0-9]/g, "")
+			.toUpperCase() || "CO";
+		const series = `${abbr}-CS-OUT-.YYYY.-`;
+		frm.set_df_property("naming_series", "options", series);
+		if (frm.doc.naming_series !== series) {
+			frm.set_value("naming_series", series);
+		}
+	});
+}
+
+function render_sidebar_qr_code(frm) {
+	if (!frm.sidebar || !frm.sidebar.sidebar) {
+		return;
+	}
+
+	const sidebar = frm.sidebar.sidebar;
+	sidebar.find(".cs-doc-qr-section").remove();
+
+	if (frm.is_new()) {
+		return;
+	}
+
+	const section = $(
+		`<div class="sidebar-section cs-doc-qr-section border-bottom">
+			<div class="cs-doc-qr-content text-center"></div>
+		</div>`
+	);
+
+	sidebar.find(".sidebar-meta-details").after(section);
+	const content = section.find(".cs-doc-qr-content");
+
+	const docname = frm.doc.name;
+	frappe.call({
+		method: "cold_storage.cold_storage.utils.get_document_sidebar_qr_code_data_uri",
+		args: {
+			doctype: frm.doctype,
+			docname,
+			scale: 3,
+		},
+		callback(r) {
+			if (frm.doc.name !== docname) {
+				return;
+			}
+
+			const dataUri = r && r.message;
+			if (!dataUri) {
+				section.remove();
+				return;
+			}
+
+			content.html(
+				`<div class="text-center">
+					<img src="${dataUri}" alt="Document QR" style="width: 100%; max-width: 170px; border: 1px solid var(--border-color); border-radius: 8px; padding: 6px; background: #fff;" />
+				</div>`
+			);
+		},
+	});
+}
 
 frappe.ui.form.on("Cold Storage Outward Item", {
     item(frm, cdt, cdn) {
@@ -113,17 +186,14 @@ frappe.ui.form.on("Cold Storage Outward Item", {
                     frappe.model.set_value(cdt, cdn, "uom", r.stock_uom);
                     if (r.item_group) {
                         frappe.call({
-                            method: "frappe.client.get_list",
+                            method: "cold_storage.cold_storage.doctype.cold_storage_settings.cold_storage_settings.get_item_group_rates",
                             args: {
-                                doctype: "Charge Configuration",
-                                filters: { parent: "Cold Storage Settings", item_group: r.item_group },
-                                fields: ["handling_rate", "loading_rate"],
-                                limit_page_length: 1,
+                                item_group: r.item_group,
                             },
                             callback(resp) {
-                                if (resp.message && resp.message.length) {
-                                    frappe.model.set_value(cdt, cdn, "handling_rate", resp.message[0].handling_rate);
-                                    frappe.model.set_value(cdt, cdn, "loading_rate", resp.message[0].loading_rate);
+                                if (resp.message) {
+                                    frappe.model.set_value(cdt, cdn, "handling_rate", flt(resp.message.handling_rate));
+                                    frappe.model.set_value(cdt, cdn, "loading_rate", flt(resp.message.loading_rate));
                                 }
                             },
                         });

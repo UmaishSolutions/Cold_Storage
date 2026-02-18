@@ -1,7 +1,8 @@
+from datetime import date
+
 import frappe
 from frappe import _
 from frappe.utils import cint, flt, getdate
-from datetime import date
 
 
 def execute(filters=None):

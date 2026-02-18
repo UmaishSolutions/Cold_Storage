@@ -33,7 +33,6 @@
             "reqd": 1
         },
         {
-            "default": "Nos",
             "fieldname": "default_uom",
             "fieldtype": "Link",
             "label": "Default UOM",
@@ -93,6 +92,17 @@
             "label": "Transfer Expense Account",
             "options": "Account",
             "reqd": 1
+        },
+        {
+            "fieldname": "portal_section",
+            "fieldtype": "Section Break",
+            "label": "Client Portal"
+        },
+        {
+            "fieldname": "portal_announcement",
+            "fieldtype": "Small Text",
+            "label": "Portal Announcement (Banner)",
+            "description": "Message to display on the top of the client portal dashboard."
         },
         {
             "fieldname": "charge_configuration_section",

@@ -2,11 +2,10 @@
 # For license information, please see license.txt
 
 import frappe
-from frappe.tests import IntegrationTestCase
-from frappe.utils import flt, nowdate
-
 from erpnext.stock.doctype.item.test_item import make_item
 from erpnext.stock.doctype.stock_entry.stock_entry_utils import make_stock_entry
+from frappe.tests import IntegrationTestCase
+from frappe.utils import flt, nowdate
 
 
 class TestColdStorageIntegration(IntegrationTestCase):
@@ -41,9 +40,9 @@ class TestColdStorageIntegration(IntegrationTestCase):
 		self.warehouse = warehouses[0]
 		self.finished_warehouse = warehouses[1]
 
-		self.cost_center = frappe.get_cached_value("Company", self.company, "cost_center") or frappe.db.get_value(
-			"Cost Center", {"company": self.company, "is_group": 0}, "name"
-		)
+		self.cost_center = frappe.get_cached_value(
+			"Company", self.company, "cost_center"
+		) or frappe.db.get_value("Cost Center", {"company": self.company, "is_group": 0}, "name")
 		self.income_account = frappe.db.get_value(
 			"Account",
 			{"company": self.company, "is_group": 0, "root_type": "Income"},
@@ -57,9 +56,7 @@ class TestColdStorageIntegration(IntegrationTestCase):
 		self.uom = frappe.db.exists("UOM", "Nos") or frappe.db.get_value("UOM", {}, "name")
 
 		if not all([self.cost_center, self.income_account, self.expense_account, self.uom]):
-			self.skipTest(
-				"Missing setup prerequisites (cost center/income account/expense account/UOM)."
-			)
+			self.skipTest("Missing setup prerequisites (cost center/income account/expense account/UOM).")
 
 		self.customer_a = self._ensure_customer("CS Test Customer A")
 		self.customer_b = self._ensure_customer("CS Test Customer B")
@@ -248,9 +245,7 @@ class TestColdStorageIntegration(IntegrationTestCase):
 			doc.insert()
 
 	def test_transfer_rejects_requested_qty_above_available(self):
-		item_code, batch_no, source_warehouse = self._make_batch_with_stock(
-			customer=self.customer_a, qty=5
-		)
+		item_code, batch_no, source_warehouse = self._make_batch_with_stock(customer=self.customer_a, qty=5)
 		doc = self._make_transfer_doc(
 			transfer_type="Inter-Warehouse Transfer",
 			customer=self.customer_a,
@@ -265,9 +260,7 @@ class TestColdStorageIntegration(IntegrationTestCase):
 			doc.insert()
 
 	def test_ownership_transfer_cancel_deletes_generated_target_batches(self):
-		item_code, batch_no, source_warehouse = self._make_batch_with_stock(
-			customer=self.customer_a, qty=8
-		)
+		item_code, batch_no, source_warehouse = self._make_batch_with_stock(customer=self.customer_a, qty=8)
 		doc = self._make_transfer_doc(
 			transfer_type="Ownership Transfer",
 			from_customer=self.customer_a,

@@ -2,7 +2,6 @@ import frappe
 from frappe import _
 from frappe.utils import flt
 
-
 DOCSTATUS_LABELS = {0: "Draft", 1: "Submitted", 2: "Cancelled"}
 
 
@@ -17,13 +16,37 @@ def execute(filters=None):
 
 def get_columns():
 	return [
-		{"label": _("Outward"), "fieldname": "name", "fieldtype": "Link", "options": "Cold Storage Outward", "width": 180},
+		{
+			"label": _("Outward"),
+			"fieldname": "name",
+			"fieldtype": "Link",
+			"options": "Cold Storage Outward",
+			"width": 180,
+		},
 		{"label": _("Posting Date"), "fieldname": "posting_date", "fieldtype": "Date", "width": 110},
-		{"label": _("Customer"), "fieldname": "customer", "fieldtype": "Link", "options": "Customer", "width": 180},
+		{
+			"label": _("Customer"),
+			"fieldname": "customer",
+			"fieldtype": "Link",
+			"options": "Customer",
+			"width": 180,
+		},
 		{"label": _("Total Qty"), "fieldname": "total_qty", "fieldtype": "Float", "width": 110},
 		{"label": _("Total Charges"), "fieldname": "total_charges", "fieldtype": "Currency", "width": 130},
-		{"label": _("Stock Entry"), "fieldname": "stock_entry", "fieldtype": "Link", "options": "Stock Entry", "width": 170},
-		{"label": _("Sales Invoice"), "fieldname": "sales_invoice", "fieldtype": "Link", "options": "Sales Invoice", "width": 170},
+		{
+			"label": _("Stock Entry"),
+			"fieldname": "stock_entry",
+			"fieldtype": "Link",
+			"options": "Stock Entry",
+			"width": 170,
+		},
+		{
+			"label": _("Sales Invoice"),
+			"fieldname": "sales_invoice",
+			"fieldtype": "Link",
+			"options": "Sales Invoice",
+			"width": 170,
+		},
 		{"label": _("Status"), "fieldname": "status", "fieldtype": "Data", "width": 100},
 	]
 
@@ -95,5 +118,10 @@ def get_report_summary(data):
 	return [
 		{"value": len(data), "label": _("Outward Dispatches"), "datatype": "Int", "indicator": "Blue"},
 		{"value": total_qty, "label": _("Total Outward Qty"), "datatype": "Float", "indicator": "Red"},
-		{"value": total_charges, "label": _("Total Outward Charges"), "datatype": "Currency", "indicator": "Orange"},
+		{
+			"value": total_charges,
+			"label": _("Total Outward Charges"),
+			"datatype": "Currency",
+			"indicator": "Orange",
+		},
 	]

@@ -1,11 +1,12 @@
 # Copyright (c) 2026, Umaish Solutions and contributors
 # For license information, please see license.txt
 
+from collections import defaultdict
+
 import frappe
 from frappe import _
 from frappe.model.document import Document
 from frappe.utils import flt, nowdate
-from collections import defaultdict
 
 
 class ColdStorageOutward(Document):
@@ -29,6 +30,15 @@ class ColdStorageOutward(Document):
 		total_charges: DF.Currency
 		total_qty: DF.Float
 	# end: auto-generated types
+
+	def before_naming(self) -> None:
+		from cold_storage.cold_storage.doctype.cold_storage_settings.cold_storage_settings import (
+			get_default_company,
+		)
+		from cold_storage.cold_storage.naming import get_series_for_company
+
+		self.company = self.company or get_default_company()
+		self.naming_series = get_series_for_company("outward", self.company)
 
 	def validate(self) -> None:
 		self._set_company()
@@ -99,7 +109,9 @@ class ColdStorageOutward(Document):
 			requested_qty_map[key]["rows"].append(row.idx)
 
 		for (batch_no, warehouse, item_code), data in requested_qty_map.items():
-			available_qty = flt(get_batch_balance(batch_no=batch_no, warehouse=warehouse, item_code=item_code))
+			available_qty = flt(
+				get_batch_balance(batch_no=batch_no, warehouse=warehouse, item_code=item_code)
+			)
 			requested_qty = flt(data["qty"])
 			if requested_qty > available_qty:
 				rows = ", ".join(str(idx) for idx in data["rows"])
@@ -169,13 +181,22 @@ class ColdStorageOutward(Document):
 	# ── Sales Invoice Creation ───────────────────────────────────
 
 	def _create_sales_invoice(self) -> None:
-		from cold_storage.cold_storage.doctype.cold_storage_settings.cold_storage_settings import (
-			get_settings,
+		from cold_storage.cold_storage.doctype.cold_storage_settings import (
+			cold_storage_settings as cs_settings,
 		)
 
-		settings = get_settings()
+		settings = cs_settings.get_settings()
+		resolve_default_uom = getattr(cs_settings, "resolve_default_uom", None)
+		invoice_uom = (
+			resolve_default_uom(create_if_missing=False) if callable(resolve_default_uom) else None
+		) or settings.default_uom
+		if not invoice_uom:
+			frappe.throw(_("Please configure at least one UOM before invoicing dispatch charges"))
 
 		si = frappe.new_doc("Sales Invoice")
+		from cold_storage.cold_storage.naming import get_series_for_company
+
+		si.naming_series = get_series_for_company("sales_invoice", settings.company)
 		si.customer = self.customer
 		si.company = settings.company
 		si.posting_date = self.posting_date or nowdate()
@@ -187,13 +208,15 @@ class ColdStorageOutward(Document):
 				si.append(
 					"items",
 					{
-						"item_name": _("Handling — {0} ({1})").format(row.item_name or row.item, row.batch_no),
+						"item_name": _("Handling — {0} ({1})").format(
+							row.item_name or row.item, row.batch_no
+						),
 						"description": _("Handling charges for Batch {0}, Qty {1}").format(
 							row.batch_no, row.qty
 						),
 						"qty": row.qty,
 						"rate": row.handling_rate,
-						"uom": row.uom or settings.default_uom or "Nos",
+						"uom": row.uom or invoice_uom,
 						"income_account": settings.default_income_account,
 						"cost_center": settings.cost_center,
 					},
@@ -208,7 +231,7 @@ class ColdStorageOutward(Document):
 						),
 						"qty": row.qty,
 						"rate": row.loading_rate,
-						"uom": row.uom or settings.default_uom or "Nos",
+						"uom": row.uom or invoice_uom,
 						"income_account": settings.default_income_account,
 						"cost_center": settings.cost_center,
 					},

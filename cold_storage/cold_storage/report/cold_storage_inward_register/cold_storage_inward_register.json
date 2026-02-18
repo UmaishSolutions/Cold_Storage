@@ -10,7 +10,7 @@
  "idx": 0,
  "is_standard": "Yes",
  "letter_head": null,
- "modified": "2026-02-14 13:21:36.868445",
+ "modified": "2026-02-14 20:37:58.569768",
  "modified_by": "Administrator",
  "module": "Cold Storage",
  "name": "Cold Storage Inward Register",
@@ -37,6 +37,9 @@
   },
   {
    "role": "Cold Storage Billing Executive"
+  },
+  {
+   "role": "Cold Storage Client Portal User"
   }
  ],
  "timeout": 0

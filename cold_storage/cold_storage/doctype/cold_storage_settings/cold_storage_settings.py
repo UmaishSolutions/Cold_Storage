@@ -31,9 +31,20 @@ class ColdStorageSettings(Document):
 	# end: auto-generated types
 
 	def validate(self) -> None:
+		self._ensure_default_uom()
 		self._validate_accounts_belong_to_company()
 		self._validate_cost_center_belongs_to_company()
 		self._validate_gst_template_company()
+
+	def _ensure_default_uom(self) -> None:
+		"""Keep default_uom linked to an existing UOM record."""
+		if self.default_uom and frappe.db.exists("UOM", self.default_uom):
+			return
+
+		resolved_uom = resolve_default_uom(create_if_missing=False)
+		if not resolved_uom:
+			frappe.throw(_("Please create at least one UOM before saving Cold Storage Settings"))
+		self.default_uom = resolved_uom
 
 	def _validate_accounts_belong_to_company(self) -> None:
 		"""Ensure all configured accounts belong to the selected company."""
@@ -50,9 +61,7 @@ class ColdStorageSettings(Document):
 			account_company = frappe.db.get_value("Account", account, "company")
 			if account_company != self.company:
 				frappe.throw(
-					frappe._(
-						"{0} ({1}) does not belong to Company {2}"
-					).format(label, account, self.company)
+					frappe._("{0} ({1}) does not belong to Company {2}").format(label, account, self.company)
 				)
 
 	def _validate_cost_center_belongs_to_company(self) -> None:
@@ -87,6 +96,34 @@ class ColdStorageSettings(Document):
 def get_settings() -> "ColdStorageSettings":
 	"""Return the singleton Cold Storage Settings document."""
 	return frappe.get_single("Cold Storage Settings")
+
+
+def resolve_default_uom(*, create_if_missing: bool = False) -> str | None:
+	"""Return a valid UOM for cold-storage transactions."""
+	if frappe.db.exists("UOM", "Nos"):
+		return "Nos"
+
+	enabled_uom = frappe.db.get_value("UOM", {"enabled": 1}, "name")
+	if enabled_uom:
+		return enabled_uom
+
+	any_uom = frappe.db.get_value("UOM", {}, "name")
+	if any_uom:
+		return any_uom
+
+	if not create_if_missing:
+		return None
+
+	uom = frappe.get_doc(
+		{
+			"doctype": "UOM",
+			"uom_name": "Nos",
+			"enabled": 1,
+			"must_be_whole_number": 1,
+		}
+	)
+	uom.insert(ignore_permissions=True)
+	return uom.name
 
 
 def get_default_company() -> str:
@@ -144,3 +181,24 @@ def get_transfer_rate(item_group: str, transfer_type: str) -> float:
 		return 0.0
 
 	return get_charge_rate(item_group, rate_field)
+
+
+@frappe.whitelist()
+def get_item_group_rates(item_group: str) -> dict[str, float]:
+	"""Return configured charge rates for an item group."""
+	if not item_group:
+		return {
+			"unloading_rate": 0.0,
+			"handling_rate": 0.0,
+			"loading_rate": 0.0,
+			"inter_warehouse_transfer_rate": 0.0,
+			"intra_warehouse_transfer_rate": 0.0,
+		}
+
+	return {
+		"unloading_rate": get_charge_rate(item_group, "unloading_rate"),
+		"handling_rate": get_charge_rate(item_group, "handling_rate"),
+		"loading_rate": get_charge_rate(item_group, "loading_rate"),
+		"inter_warehouse_transfer_rate": get_charge_rate(item_group, "inter_warehouse_transfer_rate"),
+		"intra_warehouse_transfer_rate": get_charge_rate(item_group, "intra_warehouse_transfer_rate"),
+	}

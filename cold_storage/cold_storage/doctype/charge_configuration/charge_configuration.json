@@ -2,6 +2,7 @@
     "actions": [],
     "creation": "2026-02-13 07:00:00.000000",
     "doctype": "DocType",
+    "editable_grid": 1,
     "engine": "InnoDB",
     "field_order": [
         "item_group",
@@ -51,14 +52,16 @@
             "fieldname": "inter_warehouse_transfer_rate",
             "fieldtype": "Currency",
             "in_list_view": 1,
-            "label": "Inter-Warehouse Transfer Rate"
+            "label": "Inter-Warehouse Transfer Rate",
+            "reqd": 1
         },
         {
             "default": "0",
             "fieldname": "intra_warehouse_transfer_rate",
             "fieldtype": "Currency",
             "in_list_view": 1,
-            "label": "Intra-Warehouse Transfer Rate"
+            "label": "Intra-Warehouse Transfer Rate",
+            "reqd": 1
         }
     ],
     "index_web_pages_for_search": 0,

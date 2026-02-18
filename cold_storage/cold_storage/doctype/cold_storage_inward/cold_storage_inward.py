@@ -30,6 +30,15 @@ class ColdStorageInward(Document):
 		total_unloading_charges: DF.Currency
 	# end: auto-generated types
 
+	def before_naming(self) -> None:
+		from cold_storage.cold_storage.doctype.cold_storage_settings.cold_storage_settings import (
+			get_default_company,
+		)
+		from cold_storage.cold_storage.naming import get_series_for_company
+
+		self.company = self.company or get_default_company()
+		self.naming_series = get_series_for_company("inward", self.company)
+
 	def validate(self) -> None:
 		self._set_company()
 		self._validate_items()
@@ -146,13 +155,22 @@ class ColdStorageInward(Document):
 
 	def _create_sales_invoice(self) -> None:
 		"""Create a Sales Invoice with one line per item row for unloading charges."""
-		from cold_storage.cold_storage.doctype.cold_storage_settings.cold_storage_settings import (
-			get_settings,
+		from cold_storage.cold_storage.doctype.cold_storage_settings import (
+			cold_storage_settings as cs_settings,
 		)
 
-		settings = get_settings()
+		settings = cs_settings.get_settings()
+		resolve_default_uom = getattr(cs_settings, "resolve_default_uom", None)
+		invoice_uom = (
+			resolve_default_uom(create_if_missing=False) if callable(resolve_default_uom) else None
+		) or settings.default_uom
+		if not invoice_uom:
+			frappe.throw(_("Please configure at least one UOM before invoicing inward charges"))
 
 		si = frappe.new_doc("Sales Invoice")
+		from cold_storage.cold_storage.naming import get_series_for_company
+
+		si.naming_series = get_series_for_company("sales_invoice", settings.company)
 		si.customer = self.customer
 		si.company = settings.company
 		si.posting_date = self.posting_date or nowdate()
@@ -169,7 +187,7 @@ class ColdStorageInward(Document):
 					),
 					"qty": row.qty,
 					"rate": row.unloading_rate,
-					"uom": row.uom or settings.default_uom or "Nos",
+					"uom": row.uom or invoice_uom,
 					"income_account": settings.default_income_account,
 					"cost_center": settings.cost_center,
 				},
@@ -201,11 +219,20 @@ class ColdStorageInward(Document):
 
 		settings = get_settings()
 		amount = flt(self.total_unloading_charges)
+		debit_party = ColdStorageInward._get_party_details_for_account(
+			self, settings.labour_account, settings.company
+		)
+		credit_party = ColdStorageInward._get_party_details_for_account(
+			self, settings.labour_manager_account, settings.company
+		)
 
 		if not amount:
 			return
 
 		je = frappe.new_doc("Journal Entry")
+		from cold_storage.cold_storage.naming import get_series_for_company
+
+		je.naming_series = get_series_for_company("journal_entry", settings.company)
 		je.posting_date = self.posting_date or nowdate()
 		je.company = settings.company
 		je.user_remark = _("Labour charges for Inward {0}").format(self.name)
@@ -216,6 +243,7 @@ class ColdStorageInward(Document):
 				"account": settings.labour_account,
 				"debit_in_account_currency": amount,
 				"cost_center": settings.cost_center,
+				**debit_party,
 			},
 		)
 		je.append(
@@ -224,6 +252,7 @@ class ColdStorageInward(Document):
 				"account": settings.labour_manager_account,
 				"credit_in_account_currency": amount,
 				"cost_center": settings.cost_center,
+				**credit_party,
 			},
 		)
 
@@ -238,6 +267,66 @@ class ColdStorageInward(Document):
 			),
 			alert=True,
 		)
+
+	def _get_party_details_for_account(self, account: str | None, company: str | None = None) -> dict:
+		"""Return party fields required for receivable/payable accounts."""
+		if not account:
+			return {}
+
+		account_type = frappe.db.get_value("Account", account, "account_type")
+		if account_type == "Receivable":
+			if not self.customer:
+				frappe.throw(_("Customer is required for receivable account {0}").format(account))
+			return {"party_type": "Customer", "party": self.customer}
+
+		if account_type == "Payable":
+			supplier = self._resolve_supplier_for_payable_account(account, company)
+			if supplier:
+				return {"party_type": "Supplier", "party": supplier}
+			frappe.throw(
+				_(
+					"Account {0} is Payable and needs Supplier party mapping. "
+					"Map this account in Supplier > Accounts for company {1}, "
+					"or configure a non-Payable account in Cold Storage Settings"
+				).format(account, company or _("(Not Set)"))
+			)
+
+		return {}
+
+	def _resolve_supplier_for_payable_account(self, account: str, company: str | None = None) -> str | None:
+		"""Resolve Supplier for a payable account using Supplier > Accounts mapping."""
+		filters: dict[str, str] = {"parenttype": "Supplier", "account": account}
+		if company:
+			filters["company"] = company
+
+		suppliers = sorted(
+			{
+				supplier
+				for supplier in frappe.get_all("Party Account", filters=filters, pluck="parent")
+				if supplier
+			}
+		)
+		if len(suppliers) == 1:
+			return suppliers[0]
+		if len(suppliers) > 1:
+			frappe.throw(
+				_(
+					"Account {0} is mapped to multiple Suppliers in company {1}: {2}. "
+					"Please keep a unique mapping or use a non-Payable account"
+				).format(account, company or _("(Not Set)"), ", ".join(suppliers))
+			)
+
+		# Fallback: infer supplier from account name pattern "<Supplier> - <Company Abbr>".
+		candidate_name = account.rsplit(" - ", 1)[0].strip()
+		if candidate_name and frappe.db.exists("Supplier", candidate_name):
+			return candidate_name
+
+		if candidate_name:
+			candidates = frappe.get_all("Supplier", filters={"supplier_name": candidate_name}, pluck="name")
+			if len(candidates) == 1:
+				return candidates[0]
+
+		return None
 
 	# ── Cancellation ─────────────────────────────────────────────
 
