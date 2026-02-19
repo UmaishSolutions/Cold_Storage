@@ -7,7 +7,7 @@ from io import BytesIO
 import frappe
 from erpnext.stock.doctype.batch.batch import get_batch_qty
 from frappe import _
-from frappe.utils import flt, nowdate
+from frappe.utils import cint, flt, nowdate
 
 
 @frappe.whitelist()
@@ -452,7 +452,23 @@ def get_document_sidebar_qr_code_data_uri(doctype: str, docname: str, scale: int
 	return _get_qr_code_data_uri(payload, scale=scale)
 
 
-def get_document_qr_code_data_uri(doctype: str, docname: str, scale: int = 4) -> str:
-	"""Return an SVG data URI for a document QR code, suitable for print formats."""
-	payload = get_document_qr_code_payload(doctype, docname)
+def get_document_qr_code_data_uri(
+	doctype: str,
+	docname: str,
+	scale: int = 4,
+	prefer_submitted_payload: int = 0,
+) -> str:
+	"""Return an SVG data URI for a document QR code, suitable for print formats.
+
+	If ``prefer_submitted_payload`` is enabled and the document is submitted, use the
+	detailed submitted-document QR payload.
+	"""
+	payload = ""
+	if prefer_submitted_payload and doctype and docname and frappe.db.exists(doctype, docname):
+		if cint(frappe.db.get_value(doctype, docname, "docstatus")) == 1:
+			payload = get_document_sidebar_qr_code_payload(doctype, docname)
+
+	if not payload:
+		payload = get_document_qr_code_payload(doctype, docname)
+
 	return _get_qr_code_data_uri(payload, scale=scale)

@@ -42,6 +42,7 @@ fixtures = [
 jinja = {
 	"methods": [
 		"cold_storage.cold_storage.utils.get_document_qr_code_data_uri",
+		"cold_storage.cold_storage.utils.get_document_sidebar_qr_code_data_uri",
 	],
 }
 

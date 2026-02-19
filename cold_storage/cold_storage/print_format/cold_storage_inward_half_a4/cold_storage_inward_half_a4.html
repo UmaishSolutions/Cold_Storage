@@ -1,0 +1,304 @@
+{% set qr_data_uri = doc.get("submitted_qr_code_data_uri") %}
+{% set company_logo = frappe.db.get_value("Company", doc.company, "company_logo") if doc.company else None %}
+{% set header_logo = company_logo or "/assets/cold_storage/images/cold-storage-logo.svg" %}
+{% set customer_territory = frappe.db.get_value("Customer", doc.customer, "territory") if doc.customer else None %}
+{% set item_rows = (doc.items or [])[:5] %}
+{% set hidden_rows = ((doc.items or [])|length) - 5 %}
+
+<style>
+	@page {
+		size: A4 portrait;
+		margin: 8mm;
+	}
+
+	:root {
+		--cs-bg-1: #f8fafc;
+		--cs-bg-2: #f1f5f9;
+		--cs-surface: #ffffff;
+		--cs-border: #e2e8f0;
+		--cs-headline: #0f172a;
+		--cs-copy: #334155;
+		--cs-muted: #64748b;
+		--cs-accent: #0d9488;
+		--cs-accent-subtle: #ccfbf1;
+		--cs-accent-strong: #065f46;
+		--cs-dark: #0f172a;
+		--cs-dark-2: #1e293b;
+	}
+
+	.cs-half-a4 {
+		font-family: "Manrope", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+		color: var(--cs-headline);
+		width: 100%;
+		max-width: 194mm;
+		min-height: 138mm;
+		background: var(--cs-surface);
+		border: 1px solid var(--cs-border);
+		border-radius: 10px;
+		box-sizing: border-box;
+		overflow: hidden;
+		page-break-inside: avoid;
+	}
+
+	.cs-head {
+		position: relative;
+		background: linear-gradient(135deg, var(--cs-dark) 0%, var(--cs-dark-2) 62%, #0f3a33 100%);
+		color: #f8fafc;
+		padding: 8px 10px;
+		min-height: 118px;
+	}
+
+	.cs-head-main {
+		padding: 0 130px;
+		text-align: center;
+	}
+
+	.cs-title {
+		margin: 0;
+		font-family: "Sora", "Manrope", "Segoe UI", sans-serif;
+		font-size: 16px;
+		font-weight: 700;
+	}
+
+	.cs-company-name {
+		margin-top: 2px;
+		font-size: 22px;
+		font-weight: 700;
+		color: #ecfeff;
+	}
+
+	.cs-subtitle {
+		margin-top: 2px;
+		font-size: 11px;
+		color: #94a3b8;
+	}
+
+	.cs-logo {
+		position: absolute;
+		top: 8px;
+		left: 10px;
+		width: 112px;
+		height: 102px;
+		background: #ffffff;
+		border: 1px solid rgba(148, 163, 184, 0.22);
+		border-radius: 9px;
+		padding: 6px;
+		box-sizing: border-box;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+	}
+
+	.cs-logo img {
+		max-width: 100%;
+		max-height: 100%;
+		object-fit: contain;
+		display: block;
+	}
+
+	.cs-qr {
+		position: absolute;
+		top: 8px;
+		right: 10px;
+		background: #ffffff;
+		border: 1px solid rgba(148, 163, 184, 0.22);
+		border-radius: 9px;
+		width: 100px;
+		height: 100px;
+		box-sizing: border-box;
+		overflow: hidden;
+		padding: 0;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+	}
+
+	.cs-qr img {
+		width: 100%;
+		height: 100%;
+		object-fit: contain;
+		display: block;
+	}
+
+	.cs-body {
+		padding: 8px 10px 6px;
+		background: linear-gradient(180deg, #ffffff 0%, var(--cs-bg-1) 100%);
+	}
+
+	.cs-grid {
+		display: grid;
+		grid-template-columns: 1fr 1fr;
+		gap: 6px 14px;
+		margin-bottom: 8px;
+	}
+
+	.cs-label {
+		display: block;
+		font-size: 9px;
+		text-transform: uppercase;
+		letter-spacing: 0.04em;
+		color: var(--cs-muted);
+	}
+
+	.cs-value {
+		font-size: 12px;
+		font-weight: 600;
+		color: var(--cs-headline);
+	}
+
+	.cs-table {
+		width: 100%;
+		border-collapse: collapse;
+	}
+
+	.cs-table th {
+		background: var(--cs-accent-subtle);
+		color: var(--cs-accent-strong);
+		font-size: 9px;
+		text-transform: uppercase;
+		letter-spacing: 0.03em;
+		padding: 5px 4px;
+		border: 1px solid var(--cs-border);
+	}
+
+	.cs-table td {
+		font-size: 10px;
+		padding: 4px;
+		border: 1px solid var(--cs-border);
+		color: var(--cs-copy);
+	}
+
+	.cs-right {
+		text-align: right;
+	}
+
+	.cs-muted-row td {
+		color: var(--cs-muted);
+		font-style: italic;
+	}
+
+	.cs-foot {
+		margin-top: 6px;
+		display: flex;
+		justify-content: space-between;
+		align-items: stretch;
+		gap: 8px;
+	}
+
+	.cs-totals {
+		border: 1px solid var(--cs-border);
+		background: #f0fdfa;
+		border-radius: 6px;
+		padding: 6px 8px;
+		min-width: 44%;
+		font-size: 11px;
+		color: var(--cs-headline);
+	}
+
+	.cs-totals div + div {
+		margin-top: 2px;
+	}
+
+	.cs-signatures {
+		display: grid;
+		grid-template-columns: 1fr 1fr;
+		gap: 10px;
+		flex: 1;
+		align-items: end;
+	}
+
+	.cs-sign {
+		font-size: 10px;
+		color: var(--cs-copy);
+		border-top: 1px solid #94a3b8;
+		padding-top: 2px;
+		text-align: center;
+	}
+
+	.cs-remarks {
+		margin-top: 6px;
+		font-size: 10px;
+		color: var(--cs-copy);
+	}
+</style>
+
+	<div class="cs-half-a4">
+			<div class="cs-head">
+				{% if header_logo %}
+				<div class="cs-logo">
+					<img src="{{ header_logo }}" alt="{{ doc.company or 'Company' }} Logo" />
+				</div>
+				{% endif %}
+				<div class="cs-head-main">
+					<div class="cs-company-name">{{ doc.company or "-" }}</div>
+					<h2 class="cs-title">Cold Storage Inward Receipt</h2>
+				<div class="cs-subtitle">Voucher: {{ doc.name }}</div>
+			</div>
+			<div class="cs-qr">
+				{% if qr_data_uri %}
+				<img src="{{ qr_data_uri }}" alt="Document QR Code" />
+				{% endif %}
+			</div>
+		</div>
+
+		<div class="cs-body">
+			<div class="cs-grid">
+				<div>
+					<span class="cs-label">Customer</span>
+					<div class="cs-value">{{ doc.customer or "-" }}</div>
+				</div>
+				<div>
+					<span class="cs-label">Posting Date</span>
+					<div class="cs-value">{{ frappe.utils.format_date(doc.posting_date) if doc.posting_date else "-" }}</div>
+				</div>
+				<div>
+					<span class="cs-label">Territory</span>
+					<div class="cs-value">{{ customer_territory or "-" }}</div>
+				</div>
+				<div>
+					<span class="cs-label">Receipt Number</span>
+				<div class="cs-value">{{ doc.receipt_no or "-" }}</div>
+			</div>
+		</div>
+
+		<table class="cs-table">
+			<thead>
+				<tr>
+					<th style="width: 6%;">#</th>
+					<th style="width: 34%;">Item</th>
+					<th style="width: 22%;">Batch</th>
+					<th style="width: 26%;">Warehouse</th>
+					<th style="width: 12%;" class="cs-right">Qty</th>
+				</tr>
+			</thead>
+			<tbody>
+				{% for row in item_rows %}
+				<tr>
+					<td>{{ row.idx }}</td>
+					<td>{{ row.item_name or row.item or "-" }}</td>
+					<td>{{ row.batch_no or "-" }}</td>
+					<td>{{ row.warehouse or "-" }}</td>
+					<td class="cs-right">{{ row.get_formatted("qty", doc) }}</td>
+				</tr>
+				{% endfor %}
+				{% if hidden_rows > 0 %}
+				<tr class="cs-muted-row">
+					<td colspan="5">+ {{ hidden_rows }} more item row(s) on the document.</td>
+				</tr>
+				{% endif %}
+			</tbody>
+		</table>
+
+		<div class="cs-foot">
+			<div class="cs-signatures">
+				<div class="cs-sign">Prepared By</div>
+				<div class="cs-sign">Customer Signature</div>
+				</div>
+				<div class="cs-totals">
+					<div><strong>Total Qty:</strong> {{ doc.get_formatted("total_qty", doc) }}</div>
+				</div>
+			</div>
+
+		<div class="cs-remarks"><strong>Remarks:</strong> {{ doc.remarks or "-" }}</div>
+	</div>
+</div>
