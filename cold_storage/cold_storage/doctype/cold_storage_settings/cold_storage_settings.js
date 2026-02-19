@@ -46,7 +46,9 @@ frappe.ui.form.on("Cold Storage Settings", {
 });
 
 function add_whatsapp_buttons(frm) {
-	frm.add_custom_button(__("Check Setup"), () => check_whatsapp_setup(frm), __("WhatsApp"));
+	frm.clear_custom_buttons();
+	frm.add_custom_button(__("Check Setup"), () => check_whatsapp_setup(frm));
+	frm.change_custom_button_type(__("Check Setup"), null, "primary");
 
 	frm.add_custom_button(
 		__("Fill Recommended Templates"),
