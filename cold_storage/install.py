@@ -42,7 +42,9 @@ ACTIVE_BATCHES_NUMBER_CARD_BLOCK_ID = "number-card-active-batches"
 LIVE_BATCH_STOCK_REPORT = "Cold Storage Live Batch Stock"
 LIVE_BATCH_STOCK_SHORTCUT_LABEL = "Live Batch Stock"
 LIVE_BATCH_STOCK_SHORTCUT_BLOCK_ID = "shortcut-cold-storage-live-batch-stock"
+REPORTS_SECTION_LABEL = "Reports"
 SETUP_SECTION_LABEL = "Setup"
+MASTERS_SECTION_LABEL = "Masters"
 LIVE_BATCH_STOCK_REPORT_ROLES = (
 	"System Manager",
 	"Cold Storage Admin",
@@ -265,19 +267,20 @@ def _ensure_workspace_assets() -> None:
 
 
 def _ensure_workspace_sidebar_assets() -> None:
-	"""Ensure live batch stock report appears in the app sidebar navigation."""
+	"""Ensure live batch stock report appears inside Reports section in sidebar."""
 	if not frappe.db.exists("Workspace Sidebar", WORKSPACE_NAME):
 		return
 
 	sidebar = frappe.get_doc("Workspace Sidebar", WORKSPACE_NAME)
-	has_live_batch_stock_link = any(
-		item.type == "Link" and item.link_type == "Report" and item.link_to == LIVE_BATCH_STOCK_REPORT
-		for item in sidebar.get("items", [])
-	)
-	if has_live_batch_stock_link:
-		return
+	items = list(sidebar.get("items", []))
+	existing_live_items = [
+		item
+		for item in items
+		if item.type == "Link" and item.link_type == "Report" and item.link_to == LIVE_BATCH_STOCK_REPORT
+	]
+	items_without_live = [item for item in items if item not in existing_live_items]
 
-	new_item = {
+	live_item = {
 		"type": "Link",
 		"label": LIVE_BATCH_STOCK_SHORTCUT_LABEL,
 		"link_type": "Report",
@@ -289,26 +292,141 @@ def _ensure_workspace_sidebar_assets() -> None:
 		"show_arrow": 0,
 		"icon": "",
 	}
+	if existing_live_items:
+		source = existing_live_items[0]
+		live_item.update(
+			{
+				"label": source.get("label") or LIVE_BATCH_STOCK_SHORTCUT_LABEL,
+				"child": source.get("child", 1),
+				"collapsible": source.get("collapsible", 1),
+				"keep_closed": source.get("keep_closed", 0),
+				"indent": source.get("indent", 0),
+				"show_arrow": source.get("show_arrow", 0),
+				"icon": source.get("icon") or "",
+			}
+		)
 
-	items = list(sidebar.get("items", []))
+	reports_section_index = next(
+		(
+			idx
+			for idx, item in enumerate(items_without_live)
+			if item.get("type") == "Section Break"
+			and (item.get("label") or "").strip() == REPORTS_SECTION_LABEL
+		),
+		None,
+	)
 	setup_section_index = next(
 		(
 			idx
-			for idx, item in enumerate(items)
+			for idx, item in enumerate(items_without_live)
 			if item.get("type") == "Section Break"
 			and (item.get("label") or "").strip() == SETUP_SECTION_LABEL
 		),
 		None,
 	)
+	insert_at = len(items_without_live)
+	if reports_section_index is not None:
+		next_section_after_reports = next(
+			(
+				idx
+				for idx in range(reports_section_index + 1, len(items_without_live))
+				if items_without_live[idx].get("type") == "Section Break"
+			),
+			None,
+		)
+		insert_at = next_section_after_reports if next_section_after_reports is not None else len(items_without_live)
+	elif setup_section_index is not None:
+		insert_at = setup_section_index
 
-	if setup_section_index is None:
-		sidebar.append("items", new_item)
-	else:
-		items.insert(setup_section_index, new_item)
-		sidebar.set("items", items)
+	items_without_live.insert(insert_at, live_item)
+	items_with_required_masters = _ensure_sidebar_link_under_section(
+		items_without_live,
+		section_label=MASTERS_SECTION_LABEL,
+		link_type="DocType",
+		link_to="Item",
+		label="Item",
+	)
+	items_with_required_masters = _ensure_sidebar_link_under_section(
+		items_with_required_masters,
+		section_label=MASTERS_SECTION_LABEL,
+		link_type="DocType",
+		link_to="Customer",
+		label="Customer",
+	)
 
+	sidebar.set("items", items_with_required_masters)
+	for idx, item in enumerate(sidebar.get("items", []), start=1):
+		item.idx = idx
 	sidebar.save(ignore_permissions=True)
 	frappe.clear_cache(doctype="Workspace Sidebar")
+
+
+def _ensure_sidebar_link_under_section(
+	items: list, *, section_label: str, link_type: str, link_to: str, label: str
+) -> list:
+	"""Place a sidebar link under a specific section, deduplicating existing entries."""
+	captured_item = None
+	clean_items = []
+	for item in items:
+		if (
+			item.get("type") == "Link"
+			and (item.get("link_type") or "").strip() == link_type
+			and (item.get("link_to") or "").strip() == link_to
+		):
+			if captured_item is None:
+				captured_item = item
+			continue
+		clean_items.append(item)
+
+	link_item = {
+		"type": "Link",
+		"label": label,
+		"link_type": link_type,
+		"link_to": link_to,
+		"child": 1,
+		"collapsible": 1,
+		"keep_closed": 0,
+		"indent": 0,
+		"show_arrow": 0,
+		"icon": "",
+	}
+	if captured_item:
+		link_item.update(
+			{
+				"label": captured_item.get("label") or label,
+				"child": captured_item.get("child", 1),
+				"collapsible": captured_item.get("collapsible", 1),
+				"keep_closed": captured_item.get("keep_closed", 0),
+				"indent": captured_item.get("indent", 0),
+				"show_arrow": captured_item.get("show_arrow", 0),
+				"icon": captured_item.get("icon") or "",
+			}
+		)
+
+	section_index = next(
+		(
+			idx
+			for idx, item in enumerate(clean_items)
+			if item.get("type") == "Section Break"
+			and (item.get("label") or "").strip() == section_label
+		),
+		None,
+	)
+	if section_index is None:
+		clean_items.append(link_item)
+		return clean_items
+
+	next_section_index = next(
+		(
+			idx
+			for idx in range(section_index + 1, len(clean_items))
+			if clean_items[idx].get("type") == "Section Break"
+		),
+		None,
+	)
+	insert_at = next_section_index if next_section_index is not None else len(clean_items)
+	clean_items.insert(insert_at, link_item)
+	return clean_items
 
 
 def _ensure_live_batch_stock_report_roles() -> None:
