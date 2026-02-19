@@ -85,6 +85,20 @@ Professional print formats for Inward Receipts, Outward Dispatches, and Transfer
 
 </td>
 </tr>
+<tr>
+<td>
+
+### 💬 WhatsApp Integration (Meta Cloud API)
+Company-scoped WhatsApp notifications for Inward/Outward submit events, with template mode, text fallback mode, setup diagnostics, and test-message tools.
+
+</td>
+<td>
+
+### 🧰 Operations-Friendly UX
+One-click "Send Notification" on submitted vouchers, JSON formatting for template params, and guided setup checks to reduce configuration errors.
+
+</td>
+</tr>
 </table>
 
 ---
@@ -197,6 +211,12 @@ bench --site <site-name> clear-cache
 
 4. **Portal Users** → Map customers through `Customer > portal_users` or the contact email
 
+5. **(Optional) WhatsApp Setup** → In `Cold Storage Settings`, enable WhatsApp and configure:
+   - Phone Number ID
+   - Permanent Access Token
+   - API Version + Template Language
+   - Inward/Outward template names or text templates
+
 ---
 
 ## 🛠️ Administration
@@ -212,6 +232,33 @@ bench --site <site-name> execute cold_storage.setup.client_portal_user_permissio
 
 bench --site <site-name> clear-cache
 ```
+
+---
+
+## 💬 WhatsApp Integration (Meta Cloud API)
+
+The app includes company-scoped WhatsApp notifications for `Cold Storage Inward` and `Cold Storage Outward`.
+
+### Setup Flow
+
+1. Open `Cold Storage Settings`.
+2. Enable `WhatsApp Integration`.
+3. Configure required credentials:
+   - `Phone Number ID`
+   - `Permanent Access Token`
+   - `Meta Graph API Version` (example: `v22.0`)
+4. Configure delivery behavior:
+   - Auto notify on submit (Inward/Outward)
+   - Template names (Meta approved) and body params JSON
+   - Or text templates as fallback
+5. Use **WhatsApp > Check Setup** in settings.
+6. Use **WhatsApp > Send WhatsApp Test** before going live.
+
+### Day-to-Day Operations
+
+- In submitted Inward/Outward documents:
+  - Use **WhatsApp > Send Notification** to manually resend a notification.
+- Integration is restricted to the `Cold Storage Settings.company` scope.
 
 ---
 
@@ -270,6 +317,8 @@ Re-run `sync_role_based_access` to restore the code-defined permission matrix.
 |----------|---------|
 | `ci.yml` | Installs app on a fresh bench and runs the full test suite |
 | `linter.yml` | Pre-commit hooks, Semgrep analysis, and dependency audit |
+
+For push/PR readiness, run the checklist in [`GITHUB_READY_CHECKLIST.md`](GITHUB_READY_CHECKLIST.md).
 
 ---
 

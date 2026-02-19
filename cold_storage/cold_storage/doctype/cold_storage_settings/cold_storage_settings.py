@@ -1,9 +1,27 @@
 # Copyright (c) 2026, Umaish Solutions and contributors
 # For license information, please see license.txt
 
+import json
+import re
+
 import frappe
 from frappe import _
 from frappe.model.document import Document
+from frappe.utils import cint
+from frappe.utils.jinja import validate_template
+
+DEFAULT_INWARD_TEMPLATE_BODY_PARAMS: tuple[str, ...] = (
+	"{{ voucher_no }}",
+	"{{ customer }}",
+	"{{ posting_date }}",
+	"{{ total_qty }}",
+)
+DEFAULT_OUTWARD_TEMPLATE_BODY_PARAMS: tuple[str, ...] = (
+	"{{ voucher_no }}",
+	"{{ customer }}",
+	"{{ posting_date }}",
+	"{{ total_qty }}",
+)
 
 
 class ColdStorageSettings(Document):
@@ -13,21 +31,33 @@ class ColdStorageSettings(Document):
 	from typing import TYPE_CHECKING
 
 	if TYPE_CHECKING:
+		from cold_storage.cold_storage.doctype.charge_configuration.charge_configuration import ChargeConfiguration
 		from frappe.types import DF
 
-		from cold_storage.cold_storage.doctype.charge_configuration.charge_configuration import (
-			ChargeConfiguration,
-		)
-
 		charge_configurations: DF.Table[ChargeConfiguration]
-		company: DF.Link | None
+		company: DF.Link
 		cost_center: DF.Link | None
-		default_income_account: DF.Link | None
-		default_uom: DF.Link | None
+		default_income_account: DF.Link
+		default_uom: DF.Link
 		gst_template: DF.Link | None
-		labour_account: DF.Link | None
-		labour_manager_account: DF.Link | None
-		transfer_expense_account: DF.Link | None
+		labour_account: DF.Link
+		labour_manager_account: DF.Link
+		portal_announcement: DF.SmallText | None
+		transfer_expense_account: DF.Link
+		whatsapp_access_token: DF.Password | None
+		whatsapp_api_version: DF.Data | None
+		whatsapp_default_country_code: DF.Data | None
+		whatsapp_enabled: DF.Check
+		whatsapp_inward_template_body_params: DF.Code | None
+		whatsapp_inward_template_name: DF.Data | None
+		whatsapp_inward_text_template: DF.Code | None
+		whatsapp_outward_template_body_params: DF.Code | None
+		whatsapp_outward_template_name: DF.Data | None
+		whatsapp_outward_text_template: DF.Code | None
+		whatsapp_phone_number_id: DF.Data | None
+		whatsapp_send_inward_on_submit: DF.Check
+		whatsapp_send_outward_on_submit: DF.Check
+		whatsapp_template_language: DF.Data | None
 	# end: auto-generated types
 
 	def validate(self) -> None:
@@ -35,6 +65,19 @@ class ColdStorageSettings(Document):
 		self._validate_accounts_belong_to_company()
 		self._validate_cost_center_belongs_to_company()
 		self._validate_gst_template_company()
+		self._set_default_whatsapp_template_body_params()
+		self._validate_whatsapp_configuration()
+
+	def _set_default_whatsapp_template_body_params(self) -> None:
+		"""Auto-fill template body params with Meta-compatible defaults when blank."""
+		if not (self.whatsapp_inward_template_body_params or "").strip():
+			self.whatsapp_inward_template_body_params = get_default_whatsapp_template_body_params_json(
+				"Cold Storage Inward"
+			)
+		if not (self.whatsapp_outward_template_body_params or "").strip():
+			self.whatsapp_outward_template_body_params = get_default_whatsapp_template_body_params_json(
+				"Cold Storage Outward"
+			)
 
 	def _ensure_default_uom(self) -> None:
 		"""Keep default_uom linked to an existing UOM record."""
@@ -92,6 +135,82 @@ class ColdStorageSettings(Document):
 				)
 			)
 
+	def _validate_whatsapp_configuration(self) -> None:
+		"""Validate Meta WhatsApp configuration when integration is enabled."""
+		if not cint(self.whatsapp_enabled):
+			return
+
+		missing: list[str] = []
+		if not (self.whatsapp_phone_number_id or "").strip():
+			missing.append(_("Phone Number ID"))
+		if not (self.whatsapp_api_version or "").strip():
+			missing.append(_("Meta Graph API Version"))
+		if not self.get_password("whatsapp_access_token", raise_exception=False):
+			missing.append(_("Permanent Access Token"))
+
+		if missing:
+			frappe.throw(
+				_("Please configure {0} before enabling WhatsApp integration").format(
+					", ".join(missing)
+				)
+			)
+
+		api_version = (self.whatsapp_api_version or "").strip()
+		if api_version and not re.fullmatch(r"v\d+\.\d+", api_version):
+			frappe.throw(_("Meta Graph API Version must be in format v<major>.<minor> (example: v22.0)"))
+		self.whatsapp_api_version = api_version
+
+		phone_number_id = (self.whatsapp_phone_number_id or "").strip()
+		if phone_number_id and not phone_number_id.isdigit():
+			frappe.throw(_("Phone Number ID must contain digits only"))
+		self.whatsapp_phone_number_id = phone_number_id
+
+		country_code = (self.whatsapp_default_country_code or "").strip()
+		if country_code:
+			normalized_country_code = "".join(ch for ch in country_code if ch.isdigit())
+			if not normalized_country_code:
+				frappe.throw(_("Default Country Code must contain digits only"))
+			self.whatsapp_default_country_code = normalized_country_code
+
+		if self.whatsapp_template_language:
+			self.whatsapp_template_language = self.whatsapp_template_language.strip()
+
+		self._validate_whatsapp_message_templates()
+
+	def _validate_whatsapp_message_templates(self) -> None:
+		"""Validate Jinja message templates and JSON body-parameter overrides."""
+		if self.whatsapp_inward_text_template:
+			validate_template(self.whatsapp_inward_text_template)
+		if self.whatsapp_outward_text_template:
+			validate_template(self.whatsapp_outward_text_template)
+
+		self._validate_template_body_params(
+			fieldname="whatsapp_inward_template_body_params",
+			label=_("Inward Template Body Params (JSON)"),
+		)
+		self._validate_template_body_params(
+			fieldname="whatsapp_outward_template_body_params",
+			label=_("Outward Template Body Params (JSON)"),
+		)
+
+	def _validate_template_body_params(self, *, fieldname: str, label: str) -> None:
+		value = (self.get(fieldname) or "").strip()
+		if not value:
+			return
+
+		try:
+			payload = json.loads(value)
+		except json.JSONDecodeError as exc:
+			frappe.throw(_("{0} must be valid JSON. {1}").format(label, exc.msg))
+
+		if not isinstance(payload, list):
+			frappe.throw(_("{0} must be a JSON array of strings").format(label))
+
+		for idx, entry in enumerate(payload, start=1):
+			if not isinstance(entry, str):
+				frappe.throw(_("{0}: row {1} must be a string").format(label, idx))
+			validate_template(entry)
+
 
 def get_settings() -> "ColdStorageSettings":
 	"""Return the singleton Cold Storage Settings document."""
@@ -132,6 +251,40 @@ def get_default_company() -> str:
 	if not company:
 		frappe.throw(_("Please set Default Company in Cold Storage Settings"))
 	return company
+
+
+def get_default_whatsapp_template_body_params_json(doctype: str) -> str:
+	"""Return default Meta template body params JSON for cold storage transactions."""
+	default_map = {
+		"Cold Storage Inward": DEFAULT_INWARD_TEMPLATE_BODY_PARAMS,
+		"Cold Storage Outward": DEFAULT_OUTWARD_TEMPLATE_BODY_PARAMS,
+	}
+	params = default_map.get(doctype, DEFAULT_INWARD_TEMPLATE_BODY_PARAMS)
+	return json.dumps(list(params), ensure_ascii=True)
+
+
+def get_whatsapp_settings() -> dict[str, str | int | None]:
+	"""Return WhatsApp (Meta Cloud API) settings scoped to the configured Cold Storage company."""
+	settings = get_settings()
+	return {
+		"enabled": cint(settings.whatsapp_enabled),
+		"company": settings.company,
+		"api_version": settings.whatsapp_api_version or "v22.0",
+		"phone_number_id": settings.whatsapp_phone_number_id or "",
+		"access_token": settings.get_password("whatsapp_access_token", raise_exception=False) or "",
+		"default_country_code": settings.whatsapp_default_country_code or "",
+		"template_language": settings.whatsapp_template_language or "en",
+		"inward_template_name": settings.whatsapp_inward_template_name or "",
+		"inward_template_body_params": settings.whatsapp_inward_template_body_params
+		or get_default_whatsapp_template_body_params_json("Cold Storage Inward"),
+		"inward_text_template": settings.whatsapp_inward_text_template or "",
+		"outward_template_name": settings.whatsapp_outward_template_name or "",
+		"outward_template_body_params": settings.whatsapp_outward_template_body_params
+		or get_default_whatsapp_template_body_params_json("Cold Storage Outward"),
+		"outward_text_template": settings.whatsapp_outward_text_template or "",
+		"send_inward_on_submit": cint(settings.whatsapp_send_inward_on_submit),
+		"send_outward_on_submit": cint(settings.whatsapp_send_outward_on_submit),
+	}
 
 
 def validate_warehouse_company(

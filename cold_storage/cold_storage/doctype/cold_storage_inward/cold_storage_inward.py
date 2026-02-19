@@ -62,6 +62,7 @@ class ColdStorageInward(Document):
 		self._create_stock_entry()
 		self._create_sales_invoice()
 		self._create_labour_journal_entry()
+		self._enqueue_whatsapp_notification()
 
 	def on_cancel(self) -> None:
 		self._cancel_linked_docs()
@@ -346,3 +347,17 @@ class ColdStorageInward(Document):
 				linked_doc.flags.ignore_permissions = True
 				linked_doc.cancel()
 				frappe.msgprint(_("{0} {1} cancelled").format(doctype, linked_name), alert=True)
+
+	def _enqueue_whatsapp_notification(self) -> None:
+		"""Queue WhatsApp notification after submit without blocking core transaction."""
+		try:
+			from cold_storage.cold_storage.integrations.whatsapp import (
+				enqueue_document_whatsapp_notification,
+			)
+
+			enqueue_document_whatsapp_notification(self.doctype, self.name)
+		except Exception:
+			frappe.log_error(
+				title=_("Cold Storage Inward WhatsApp Enqueue Failed"),
+				message=frappe.get_traceback(),
+			)

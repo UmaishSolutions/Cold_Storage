@@ -104,9 +104,41 @@ frappe.ui.form.on("Cold Storage Outward", {
             );
         }
 
+		add_whatsapp_notification_button(frm);
 		render_sidebar_qr_code(frm);
     },
 });
+
+function add_whatsapp_notification_button(frm) {
+	if (frm.is_new() || frm.doc.docstatus !== 1) {
+		return;
+	}
+
+	frm.add_custom_button(__("Send Notification"), () => {
+		frappe.call({
+			method: "cold_storage.cold_storage.integrations.whatsapp.send_whatsapp_for_document",
+			args: {
+				doctype: frm.doctype,
+				docname: frm.doc.name,
+			},
+			freeze: true,
+			freeze_message: __("Sending WhatsApp notification..."),
+			callback: (r) => {
+				const response = r.message || {};
+				const toNumber = frappe.utils.escape_html(response.to_number || "");
+				const messageId = frappe.utils.escape_html(response.message_id || __("N/A"));
+				frappe.msgprint({
+					title: __("WhatsApp Notification Sent"),
+					indicator: "green",
+					message: __(
+						"Delivered to <b>{0}</b><br>Message ID: <code>{1}</code>",
+						[toNumber, messageId]
+					),
+				});
+			},
+		});
+	}, __("WhatsApp"));
+}
 
 function set_company_prefixed_series(frm) {
 	if (!frm.is_new() || !frm.doc.company) {
