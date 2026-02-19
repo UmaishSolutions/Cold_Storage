@@ -42,6 +42,9 @@ ACTIVE_BATCHES_NUMBER_CARD_BLOCK_ID = "number-card-active-batches"
 LIVE_BATCH_STOCK_REPORT = "Cold Storage Live Batch Stock"
 LIVE_BATCH_STOCK_SHORTCUT_LABEL = "Live Batch Stock"
 LIVE_BATCH_STOCK_SHORTCUT_BLOCK_ID = "shortcut-cold-storage-live-batch-stock"
+LEGACY_AUDIT_TRAIL_REPORT = "Cold Storage Audit Trail & Compliance Pack"
+AUDIT_TRAIL_REPORT = "Cold Storage Audit Trail Compliance Pack"
+AUDIT_TRAIL_SHORTCUT_LABEL = "Audit Trail & Compliance Pack"
 REPORTS_SECTION_LABEL = "Reports"
 SETUP_SECTION_LABEL = "Setup"
 MASTERS_SECTION_LABEL = "Masters"
@@ -59,6 +62,7 @@ SIDEBAR_ICON_BY_LABEL = {
 	"Warehouse Occupancy Timeline": "🗓️",
 	"Yearly Inward Outward Trend": "📉",
 	LIVE_BATCH_STOCK_SHORTCUT_LABEL: "❄️",
+	AUDIT_TRAIL_SHORTCUT_LABEL: "🛡️",
 	SETUP_SECTION_LABEL: "⚙️",
 	"Cold Storage Settings": "🛠️",
 	MASTERS_SECTION_LABEL: "🗂️",
@@ -74,6 +78,18 @@ LIVE_BATCH_STOCK_REPORT_ROLES = (
 	"Cold Storage Inbound Operator",
 	"Cold Storage Inventory Controller",
 	"Cold Storage Billing Executive",
+	"Cold Storage Client Portal User",
+	"Stock Manager",
+	"Stock User",
+)
+AUDIT_TRAIL_REPORT_ROLES = (
+	"System Manager",
+	"Cold Storage Admin",
+	"Cold Storage Warehouse Manager",
+	"Cold Storage Inbound Operator",
+	"Cold Storage Inventory Controller",
+	"Cold Storage Billing Executive",
+	"Cold Storage Dispatch Operator",
 	"Cold Storage Client Portal User",
 	"Stock Manager",
 	"Stock User",
@@ -136,6 +152,17 @@ def _ensure_workspace_assets() -> None:
 
 	workspace = frappe.get_doc("Workspace", WORKSPACE_NAME)
 	updated = False
+
+	legacy_audit_links = [
+		link
+		for link in workspace.get("links", [])
+		if link.type == "Link"
+		and link.link_type == "Report"
+		and link.link_to == LEGACY_AUDIT_TRAIL_REPORT
+	]
+	for link in legacy_audit_links:
+		workspace.remove(link)
+		updated = True
 
 	if frappe.db.exists("Report", WAREHOUSE_OCCUPANCY_REPORT):
 		has_report_link = any(
@@ -235,6 +262,23 @@ def _ensure_workspace_assets() -> None:
 			workspace.content = frappe.as_json(content_blocks)
 			updated = True
 
+	if frappe.db.exists("Report", AUDIT_TRAIL_REPORT):
+		has_audit_trail_link = any(
+			link.type == "Link" and link.link_type == "Report" and link.link_to == AUDIT_TRAIL_REPORT
+			for link in workspace.get("links", [])
+		)
+		if not has_audit_trail_link:
+			workspace.append(
+				"links",
+				{
+					"type": "Link",
+					"label": AUDIT_TRAIL_SHORTCUT_LABEL,
+					"link_type": "Report",
+					"link_to": AUDIT_TRAIL_REPORT,
+				},
+			)
+			updated = True
+
 	if frappe.db.exists("Number Card", ACTIVE_BATCHES_NUMBER_CARD):
 		has_number_card = any(
 			card.number_card_name == ACTIVE_BATCHES_NUMBER_CARD for card in workspace.get("number_cards", [])
@@ -301,6 +345,15 @@ def _ensure_workspace_sidebar_assets() -> None:
 		if item.type == "Link" and item.link_type == "Report" and item.link_to == LIVE_BATCH_STOCK_REPORT
 	]
 	items_without_live = [item for item in items if item not in existing_live_items]
+	items_without_legacy_audit = [
+		item
+		for item in items_without_live
+		if not (
+			item.get("type") == "Link"
+			and (item.get("link_type") or "").strip() == "Report"
+			and (item.get("link_to") or "").strip() == LEGACY_AUDIT_TRAIL_REPORT
+		)
+	]
 
 	live_item = {
 		"type": "Link",
@@ -331,7 +384,7 @@ def _ensure_workspace_sidebar_assets() -> None:
 	reports_section_index = next(
 		(
 			idx
-			for idx, item in enumerate(items_without_live)
+			for idx, item in enumerate(items_without_legacy_audit)
 			if item.get("type") == "Section Break"
 			and (item.get("label") or "").strip() == REPORTS_SECTION_LABEL
 		),
@@ -340,29 +393,40 @@ def _ensure_workspace_sidebar_assets() -> None:
 	setup_section_index = next(
 		(
 			idx
-			for idx, item in enumerate(items_without_live)
+			for idx, item in enumerate(items_without_legacy_audit)
 			if item.get("type") == "Section Break"
 			and (item.get("label") or "").strip() == SETUP_SECTION_LABEL
 		),
 		None,
 	)
-	insert_at = len(items_without_live)
+	insert_at = len(items_without_legacy_audit)
 	if reports_section_index is not None:
 		next_section_after_reports = next(
 			(
 				idx
-				for idx in range(reports_section_index + 1, len(items_without_live))
-				if items_without_live[idx].get("type") == "Section Break"
+				for idx in range(reports_section_index + 1, len(items_without_legacy_audit))
+				if items_without_legacy_audit[idx].get("type") == "Section Break"
 			),
 			None,
 		)
-		insert_at = next_section_after_reports if next_section_after_reports is not None else len(items_without_live)
+		insert_at = (
+			next_section_after_reports
+			if next_section_after_reports is not None
+			else len(items_without_legacy_audit)
+		)
 	elif setup_section_index is not None:
 		insert_at = setup_section_index
 
-	items_without_live.insert(insert_at, live_item)
+	items_without_legacy_audit.insert(insert_at, live_item)
+	items_with_required_reports = _ensure_sidebar_link_under_section(
+		items_without_legacy_audit,
+		section_label=REPORTS_SECTION_LABEL,
+		link_type="Report",
+		link_to=AUDIT_TRAIL_REPORT,
+		label=AUDIT_TRAIL_SHORTCUT_LABEL,
+	)
 	items_with_required_masters = _ensure_sidebar_link_under_section(
-		items_without_live,
+		items_with_required_reports,
 		section_label=MASTERS_SECTION_LABEL,
 		link_type="DocType",
 		link_to="Item",
@@ -489,6 +553,63 @@ def _ensure_live_batch_stock_report_roles() -> None:
 	report.save(ignore_permissions=True)
 
 
+def _ensure_audit_trail_report_roles() -> None:
+	"""Ensure all expected roles can see and run the audit trail report."""
+	if not frappe.db.exists("Report", AUDIT_TRAIL_REPORT):
+		return
+
+	report = frappe.get_doc("Report", AUDIT_TRAIL_REPORT)
+	existing_roles = {row.role for row in report.get("roles", []) if row.role}
+	missing_roles = [
+		role
+		for role in AUDIT_TRAIL_REPORT_ROLES
+		if role not in existing_roles and frappe.db.exists("Role", role)
+	]
+	if not missing_roles:
+		return
+
+	for role in missing_roles:
+		report.append("roles", {"role": role})
+
+	report.save(ignore_permissions=True)
+
+
+def _rename_legacy_audit_trail_report() -> None:
+	"""Keep audit trail report name import-safe by removing '&' from report document name."""
+	if not frappe.db.exists("Report", LEGACY_AUDIT_TRAIL_REPORT):
+		return
+
+	if not frappe.db.exists("Report", AUDIT_TRAIL_REPORT):
+		frappe.rename_doc("Report", LEGACY_AUDIT_TRAIL_REPORT, AUDIT_TRAIL_REPORT, force=True)
+	else:
+		try:
+			frappe.delete_doc("Report", LEGACY_AUDIT_TRAIL_REPORT, force=1, ignore_permissions=True)
+		except Exception:
+			frappe.db.set_value(
+				"Report",
+				LEGACY_AUDIT_TRAIL_REPORT,
+				{"disabled": 1},
+				update_modified=False,
+			)
+
+	frappe.db.sql(
+		"""
+		update `tabWorkspace Link`
+		set link_to = %s
+		where link_type = 'Report' and link_to = %s
+		""",
+		(AUDIT_TRAIL_REPORT, LEGACY_AUDIT_TRAIL_REPORT),
+	)
+	frappe.db.sql(
+		"""
+		update `tabWorkspace Sidebar Item`
+		set link_to = %s
+		where link_type = 'Report' and link_to = %s
+		""",
+		(AUDIT_TRAIL_REPORT, LEGACY_AUDIT_TRAIL_REPORT),
+	)
+
+
 def _get_workspace_content_blocks(content: str | None) -> list[dict]:
 	if not content:
 		return []
@@ -529,7 +650,9 @@ def after_install() -> None:
 	_ensure_batch_customizations()
 	_ensure_dashboard_chart_types()
 	_ensure_top_customers_chart_source()
+	_rename_legacy_audit_trail_report()
 	_ensure_live_batch_stock_report_roles()
+	_ensure_audit_trail_report_roles()
 	_ensure_workspace_assets()
 	_ensure_workspace_sidebar_assets()
 	_sync_role_based_access()
@@ -540,7 +663,9 @@ def after_migrate() -> None:
 	_ensure_batch_customizations()
 	_ensure_dashboard_chart_types()
 	_ensure_top_customers_chart_source()
+	_rename_legacy_audit_trail_report()
 	_ensure_live_batch_stock_report_roles()
+	_ensure_audit_trail_report_roles()
 	_ensure_workspace_assets()
 	_ensure_workspace_sidebar_assets()
 	_sync_role_based_access()

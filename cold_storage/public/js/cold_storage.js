@@ -3,8 +3,25 @@
 	const STYLE_ID = "cs-top-customers-horizontal-style";
 	const CHART_NAME = "Top Customers";
 	const REPORT_NAME = "Cold Storage Customer Register";
+	const LEGACY_AUDIT_REPORT_NAME = "Cold Storage Audit Trail & Compliance Pack";
+	const AUDIT_REPORT_NAME = "Cold Storage Audit Trail Compliance Pack";
+	const LEGACY_AUDIT_REPORT_ROUTE = `query-report/${LEGACY_AUDIT_REPORT_NAME}`;
+	const AUDIT_REPORT_ROUTE = `query-report/${AUDIT_REPORT_NAME}`;
 
 	let hydrateInProgress = false;
+
+	const registerLegacyAuditRoute = () => {
+		if (typeof frappe === "undefined") return;
+		frappe.re_route = frappe.re_route || {};
+		frappe.re_route[LEGACY_AUDIT_REPORT_ROUTE] = AUDIT_REPORT_ROUTE;
+	};
+
+	const redirectLegacyAuditReportRoute = () => {
+		if (typeof frappe === "undefined" || !frappe.get_route) return;
+		const route = frappe.get_route() || [];
+		if (route[0] !== "query-report" || route[1] !== LEGACY_AUDIT_REPORT_NAME) return;
+		frappe.set_route("query-report", AUDIT_REPORT_NAME);
+	};
 
 	const safeFloat = (value) => {
 		const number = Number(value);
@@ -213,12 +230,21 @@
 	};
 
 	const bootstrap = () => {
+		registerLegacyAuditRoute();
+		redirectLegacyAuditReportRoute();
 		injectStyles();
 		ensurePatchedEventually();
 		setTimeout(hydrateCurrentPageWidget, 1200);
 
+		if (frappe.router?.on) {
+			frappe.router.on("change", () => {
+				redirectLegacyAuditReportRoute();
+			});
+		}
+
 		if (typeof $ !== "undefined") {
 			$(document).on("page-change", () => {
+				redirectLegacyAuditReportRoute();
 				setTimeout(() => {
 					ensurePatchedEventually();
 					hydrateCurrentPageWidget();

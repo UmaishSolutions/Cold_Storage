@@ -243,9 +243,20 @@
    "onboard": 0,
    "report_ref_doctype": "Batch",
    "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Audit Trail & Compliance Pack",
+   "link_count": 0,
+   "link_to": "Cold Storage Audit Trail Compliance Pack",
+   "link_type": "Report",
+   "onboard": 0,
+   "report_ref_doctype": "Batch",
+   "type": "Link"
   }
  ],
- "modified": "2026-02-19 20:41:07.788936",
+ "modified": "2026-02-19 21:48:41.003343",
  "modified_by": "Administrator",
  "module": "Cold Storage",
  "name": "Cold Storage",
