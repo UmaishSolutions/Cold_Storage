@@ -43,6 +43,7 @@ class ColdStorageSettings(Document):
 		labour_account: DF.Link
 		labour_manager_account: DF.Link
 		portal_announcement: DF.SmallText | None
+		storage_terms_and_conditions: DF.SmallText | None
 		transfer_expense_account: DF.Link
 		whatsapp_access_token: DF.Password | None
 		whatsapp_api_version: DF.Data | None

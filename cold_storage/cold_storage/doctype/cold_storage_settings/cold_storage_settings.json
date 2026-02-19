@@ -18,6 +18,7 @@
   "transfer_expense_account",
   "portal_section",
   "portal_announcement",
+  "storage_terms_and_conditions",
   "whatsapp_section",
   "whatsapp_enabled",
   "whatsapp_api_version",
@@ -126,6 +127,12 @@
    "fieldname": "portal_announcement",
    "fieldtype": "Small Text",
    "label": "Portal Announcement (Banner)"
+  },
+  {
+   "description": "Standard storage terms shown on Cold Storage print formats.",
+   "fieldname": "storage_terms_and_conditions",
+   "fieldtype": "Small Text",
+   "label": "Storage Terms and Conditions"
   },
   {
    "description": "Setup order: 1) Enable Integration 2) Add Phone Number ID + Access Token 3) Check Setup 4) Send WhatsApp Test.",
