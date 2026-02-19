@@ -24,7 +24,7 @@
    "icon": "receipt-text",
    "indent": 0,
    "keep_closed": 0,
-   "label": "Record Inward Bag Movement",
+   "label": "Inward Receipt",
    "link_to": "Cold Storage Inward",
    "link_type": "DocType",
    "show_arrow": 0,
@@ -36,7 +36,7 @@
    "icon": "truck",
    "indent": 0,
    "keep_closed": 0,
-   "label": "Record Outward Bag Movement",
+   "label": "Outward Dispatch",
    "link_to": "Cold Storage Outward",
    "link_type": "DocType",
    "show_arrow": 0,
@@ -150,6 +150,18 @@
    "type": "Link"
   },
   {
+   "child": 1,
+   "collapsible": 1,
+   "icon": "",
+   "indent": 0,
+   "keep_closed": 0,
+   "label": "Live Batch Stock",
+   "link_to": "Cold Storage Live Batch Stock",
+   "link_type": "Report",
+   "show_arrow": 0,
+   "type": "Link"
+  },
+  {
    "child": 0,
    "collapsible": 1,
    "icon": "settings",
@@ -208,7 +220,7 @@
    "type": "Link"
   }
  ],
- "modified": "2026-02-15 12:00:00.000000",
+ "modified": "2026-02-19 20:46:10.221860",
  "modified_by": "Administrator",
  "module": "Cold Storage",
  "name": "Cold Storage",

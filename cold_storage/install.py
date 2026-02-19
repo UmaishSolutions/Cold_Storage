@@ -39,6 +39,21 @@ WAREHOUSE_OCCUPANCY_CHART = "Warehouse Occupancy Timeline"
 WAREHOUSE_OCCUPANCY_CHART_BLOCK_ID = "chart-warehouse-occupancy-timeline"
 ACTIVE_BATCHES_NUMBER_CARD = "Active Batches"
 ACTIVE_BATCHES_NUMBER_CARD_BLOCK_ID = "number-card-active-batches"
+LIVE_BATCH_STOCK_REPORT = "Cold Storage Live Batch Stock"
+LIVE_BATCH_STOCK_SHORTCUT_LABEL = "Live Batch Stock"
+LIVE_BATCH_STOCK_SHORTCUT_BLOCK_ID = "shortcut-cold-storage-live-batch-stock"
+SETUP_SECTION_LABEL = "Setup"
+LIVE_BATCH_STOCK_REPORT_ROLES = (
+	"System Manager",
+	"Cold Storage Admin",
+	"Cold Storage Warehouse Manager",
+	"Cold Storage Inbound Operator",
+	"Cold Storage Inventory Controller",
+	"Cold Storage Billing Executive",
+	"Cold Storage Client Portal User",
+	"Stock Manager",
+	"Stock User",
+)
 
 
 def _ensure_batch_customizations() -> None:
@@ -146,6 +161,56 @@ def _ensure_workspace_assets() -> None:
 			workspace.content = frappe.as_json(content_blocks)
 			updated = True
 
+	if frappe.db.exists("Report", LIVE_BATCH_STOCK_REPORT):
+		has_live_batch_stock_link = any(
+			link.type == "Link" and link.link_type == "Report" and link.link_to == LIVE_BATCH_STOCK_REPORT
+			for link in workspace.get("links", [])
+		)
+		if not has_live_batch_stock_link:
+			workspace.append(
+				"links",
+				{
+					"type": "Link",
+					"label": LIVE_BATCH_STOCK_SHORTCUT_LABEL,
+					"link_type": "Report",
+					"link_to": LIVE_BATCH_STOCK_REPORT,
+				},
+			)
+			updated = True
+
+		has_live_batch_stock_shortcut = any(
+			shortcut.type == "Report" and shortcut.link_to == LIVE_BATCH_STOCK_REPORT
+			for shortcut in workspace.get("shortcuts", [])
+		)
+		if not has_live_batch_stock_shortcut:
+			workspace.append(
+				"shortcuts",
+				{
+					"type": "Report",
+					"label": LIVE_BATCH_STOCK_SHORTCUT_LABEL,
+					"link_to": LIVE_BATCH_STOCK_REPORT,
+					"color": "Orange",
+				},
+			)
+			updated = True
+
+		content_blocks = _get_workspace_content_blocks(workspace.content)
+		has_live_batch_stock_shortcut_block = any(
+			block.get("type") == "shortcut"
+			and (block.get("data") or {}).get("shortcut_name") == LIVE_BATCH_STOCK_SHORTCUT_LABEL
+			for block in content_blocks
+		)
+		if not has_live_batch_stock_shortcut_block:
+			content_blocks.append(
+				{
+					"id": LIVE_BATCH_STOCK_SHORTCUT_BLOCK_ID,
+					"type": "shortcut",
+					"data": {"shortcut_name": LIVE_BATCH_STOCK_SHORTCUT_LABEL, "col": 3},
+				}
+			)
+			workspace.content = frappe.as_json(content_blocks)
+			updated = True
+
 	if frappe.db.exists("Number Card", ACTIVE_BATCHES_NUMBER_CARD):
 		has_number_card = any(
 			card.number_card_name == ACTIVE_BATCHES_NUMBER_CARD for card in workspace.get("number_cards", [])
@@ -199,6 +264,74 @@ def _ensure_workspace_assets() -> None:
 		frappe.clear_cache(doctype="Workspace")
 
 
+def _ensure_workspace_sidebar_assets() -> None:
+	"""Ensure live batch stock report appears in the app sidebar navigation."""
+	if not frappe.db.exists("Workspace Sidebar", WORKSPACE_NAME):
+		return
+
+	sidebar = frappe.get_doc("Workspace Sidebar", WORKSPACE_NAME)
+	has_live_batch_stock_link = any(
+		item.type == "Link" and item.link_type == "Report" and item.link_to == LIVE_BATCH_STOCK_REPORT
+		for item in sidebar.get("items", [])
+	)
+	if has_live_batch_stock_link:
+		return
+
+	new_item = {
+		"type": "Link",
+		"label": LIVE_BATCH_STOCK_SHORTCUT_LABEL,
+		"link_type": "Report",
+		"link_to": LIVE_BATCH_STOCK_REPORT,
+		"child": 1,
+		"collapsible": 1,
+		"keep_closed": 0,
+		"indent": 0,
+		"show_arrow": 0,
+		"icon": "",
+	}
+
+	items = list(sidebar.get("items", []))
+	setup_section_index = next(
+		(
+			idx
+			for idx, item in enumerate(items)
+			if item.get("type") == "Section Break"
+			and (item.get("label") or "").strip() == SETUP_SECTION_LABEL
+		),
+		None,
+	)
+
+	if setup_section_index is None:
+		sidebar.append("items", new_item)
+	else:
+		items.insert(setup_section_index, new_item)
+		sidebar.set("items", items)
+
+	sidebar.save(ignore_permissions=True)
+	frappe.clear_cache(doctype="Workspace Sidebar")
+
+
+def _ensure_live_batch_stock_report_roles() -> None:
+	"""Ensure all expected roles can see and run the live batch stock report."""
+	if not frappe.db.exists("Report", LIVE_BATCH_STOCK_REPORT):
+		return
+
+	report = frappe.get_doc("Report", LIVE_BATCH_STOCK_REPORT)
+	existing_roles = {row.role for row in report.get("roles", []) if row.role}
+	missing_roles = [
+		role
+		for role in LIVE_BATCH_STOCK_REPORT_ROLES
+		if role not in existing_roles and frappe.db.exists("Role", role)
+	]
+	if not missing_roles:
+		return
+
+	for role in missing_roles:
+		report.append("roles", {"role": role})
+
+	report.save(ignore_permissions=True)
+
+
 def _get_workspace_content_blocks(content: str | None) -> list[dict]:
 	if not content:
 		return []
@@ -239,7 +372,9 @@ def after_install() -> None:
 	_ensure_batch_customizations()
 	_ensure_dashboard_chart_types()
 	_ensure_top_customers_chart_source()
+	_ensure_live_batch_stock_report_roles()
 	_ensure_workspace_assets()
+	_ensure_workspace_sidebar_assets()
 	_sync_role_based_access()
 
 
@@ -248,7 +383,9 @@ def after_migrate() -> None:
 	_ensure_batch_customizations()
 	_ensure_dashboard_chart_types()
 	_ensure_top_customers_chart_source()
+	_ensure_live_batch_stock_report_roles()
 	_ensure_workspace_assets()
+	_ensure_workspace_sidebar_assets()
 	_sync_role_based_access()
 
 
