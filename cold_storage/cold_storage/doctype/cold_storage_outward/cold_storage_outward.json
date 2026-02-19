@@ -4,7 +4,7 @@
     "amend_after_cancel": 1,
     "autoname": "naming_series:",
     "creation": "2026-02-13 07:00:00.000000",
-    "default_print_format": "Cold Storage Outward Dispatch QR",
+    "default_print_format": "Cold Storage Outward Half A4",
     "doctype": "DocType",
     "engine": "InnoDB",
     "field_order": [
@@ -22,7 +22,8 @@
         "references_section",
         "sales_invoice",
         "stock_entry",
-        "amended_from"
+        "amended_from",
+        "submitted_qr_code_data_uri"
     ],
     "fields": [
         {
@@ -124,6 +125,14 @@
             "no_copy": 1,
             "options": "Cold Storage Outward",
             "print_hide": 1,
+            "read_only": 1
+        },
+        {
+            "fieldname": "submitted_qr_code_data_uri",
+            "fieldtype": "Small Text",
+            "hidden": 1,
+            "label": "Submitted QR Code Data URI",
+            "no_copy": 1,
             "read_only": 1
         }
     ],

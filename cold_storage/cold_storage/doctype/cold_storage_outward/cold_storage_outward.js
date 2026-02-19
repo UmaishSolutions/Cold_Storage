@@ -176,8 +176,23 @@ function render_sidebar_qr_code(frm) {
 		</div>`
 	);
 
-	sidebar.find(".sidebar-meta-details").after(section);
+	const sidebarMetaDetails = sidebar.find(".sidebar-meta-details");
+	if (sidebarMetaDetails.length) {
+		sidebarMetaDetails.after(section);
+	} else {
+		sidebar.prepend(section);
+	}
 	const content = section.find(".cs-doc-qr-content");
+	const cachedQrDataUri = frm.doc.submitted_qr_code_data_uri;
+
+	if (cachedQrDataUri) {
+		content.html(
+			`<div class="text-center">
+				<img src="${cachedQrDataUri}" alt="Document QR" style="width: 100%; max-width: 170px; border: 1px solid var(--border-color); border-radius: 8px; padding: 6px; background: #fff;" />
+			</div>`
+		);
+		return;
+	}
 
 	const docname = frm.doc.name;
 	frappe.call({

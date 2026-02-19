@@ -1,6 +1,6 @@
 {
  "actions": [],
- "creation": "2026-02-13 07:00:00",
+ "creation": "2026-02-19 17:58:46.857664",
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
@@ -16,9 +16,8 @@
   "column_break_accounts",
   "labour_manager_account",
   "transfer_expense_account",
-  "portal_section",
-  "portal_announcement",
-  "storage_terms_and_conditions",
+  "charge_configuration_section",
+  "charge_configurations",
   "whatsapp_section",
   "whatsapp_enabled",
   "whatsapp_api_version",
@@ -36,8 +35,10 @@
   "whatsapp_outward_template_name",
   "whatsapp_outward_template_body_params",
   "whatsapp_outward_text_template",
-  "charge_configuration_section",
-  "charge_configurations"
+  "portal_section",
+  "portal_announcement",
+  "section_break_zvau",
+  "storage_terms_and_conditions"
  ],
  "fields": [
   {
@@ -263,11 +264,15 @@
    "label": "Charge Configurations",
    "options": "Charge Configuration",
    "reqd": 1
+  },
+  {
+   "fieldname": "section_break_zvau",
+   "fieldtype": "Section Break"
   }
  ],
  "issingle": 1,
  "links": [],
- "modified": "2026-02-19 13:35:36.532726",
+ "modified": "2026-02-19 20:08:22.989531",
  "modified_by": "Administrator",
  "module": "Cold Storage",
  "name": "Cold Storage Settings",
