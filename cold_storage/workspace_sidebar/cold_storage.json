@@ -9,7 +9,7 @@
   {
    "child": 0,
    "collapsible": 1,
-   "icon": "home",
+   "icon": "\ud83c\udfe0",
    "indent": 0,
    "keep_closed": 0,
    "label": "Home",
@@ -21,7 +21,7 @@
   {
    "child": 0,
    "collapsible": 1,
-   "icon": "receipt-text",
+   "icon": "\ud83d\udce5",
    "indent": 0,
    "keep_closed": 0,
    "label": "Inward Receipt",
@@ -33,7 +33,7 @@
   {
    "child": 0,
    "collapsible": 1,
-   "icon": "truck",
+   "icon": "\ud83d\udce4",
    "indent": 0,
    "keep_closed": 0,
    "label": "Outward Dispatch",
@@ -45,7 +45,7 @@
   {
    "child": 0,
    "collapsible": 1,
-   "icon": "arrow-right-left",
+   "icon": "\ud83d\udd04",
    "indent": 0,
    "keep_closed": 0,
    "label": "Transfer",
@@ -57,7 +57,7 @@
   {
    "child": 0,
    "collapsible": 1,
-   "icon": "chart-line",
+   "icon": "\ud83d\udcca",
    "indent": 1,
    "keep_closed": 1,
    "label": "Reports",
@@ -68,7 +68,7 @@
   {
    "child": 1,
    "collapsible": 1,
-   "icon": "",
+   "icon": "\ud83e\uddfe",
    "indent": 0,
    "keep_closed": 0,
    "label": "Inward Register",
@@ -80,7 +80,7 @@
   {
    "child": 1,
    "collapsible": 1,
-   "icon": "",
+   "icon": "\ud83d\ude9a",
    "indent": 0,
    "keep_closed": 0,
    "label": "Outward Register",
@@ -92,7 +92,7 @@
   {
    "child": 1,
    "collapsible": 1,
-   "icon": "",
+   "icon": "\ud83d\udd01",
    "indent": 0,
    "keep_closed": 0,
    "label": "Transfer Register",
@@ -104,7 +104,7 @@
   {
    "child": 1,
    "collapsible": 1,
-   "icon": "",
+   "icon": "\ud83d\udc65",
    "indent": 0,
    "keep_closed": 0,
    "label": "Customer Register",
@@ -116,7 +116,7 @@
   {
    "child": 1,
    "collapsible": 1,
-   "icon": "",
+   "icon": "\ud83d\udcc8",
    "indent": 0,
    "keep_closed": 0,
    "label": "Warehouse Utilization",
@@ -128,7 +128,7 @@
   {
    "child": 1,
    "collapsible": 1,
-   "icon": "",
+   "icon": "\ud83d\uddd3\ufe0f",
    "indent": 0,
    "keep_closed": 0,
    "label": "Warehouse Occupancy Timeline",
@@ -140,7 +140,7 @@
   {
    "child": 1,
    "collapsible": 1,
-   "icon": "",
+   "icon": "\ud83d\udcc9",
    "indent": 0,
    "keep_closed": 0,
    "label": "Yearly Inward Outward Trend",
@@ -152,7 +152,7 @@
   {
    "child": 1,
    "collapsible": 1,
-   "icon": "",
+   "icon": "\u2744\ufe0f",
    "indent": 0,
    "keep_closed": 0,
    "label": "Live Batch Stock",
@@ -164,7 +164,7 @@
   {
    "child": 0,
    "collapsible": 1,
-   "icon": "settings",
+   "icon": "\u2699\ufe0f",
    "indent": 1,
    "keep_closed": 1,
    "label": "Setup",
@@ -175,7 +175,7 @@
   {
    "child": 1,
    "collapsible": 1,
-   "icon": "",
+   "icon": "\ud83d\udee0\ufe0f",
    "indent": 0,
    "keep_closed": 0,
    "label": "Cold Storage Settings",
@@ -187,7 +187,7 @@
   {
    "child": 0,
    "collapsible": 1,
-   "icon": "database",
+   "icon": "\ud83d\uddc2\ufe0f",
    "indent": 1,
    "keep_closed": 1,
    "label": "Masters",
@@ -198,7 +198,7 @@
   {
    "child": 1,
    "collapsible": 1,
-   "icon": "",
+   "icon": "\ud83c\udfec",
    "indent": 0,
    "keep_closed": 0,
    "label": "Warehouse",
@@ -210,7 +210,7 @@
   {
    "child": 1,
    "collapsible": 1,
-   "icon": "",
+   "icon": "\ud83d\udce6",
    "indent": 0,
    "keep_closed": 0,
    "label": "Batch",
@@ -222,7 +222,7 @@
   {
    "child": 1,
    "collapsible": 1,
-   "icon": "",
+   "icon": "\ud83c\udff7\ufe0f",
    "indent": 0,
    "keep_closed": 0,
    "label": "Item",
@@ -234,7 +234,7 @@
   {
    "child": 1,
    "collapsible": 1,
-   "icon": "",
+   "icon": "\ud83e\udd1d",
    "indent": 0,
    "keep_closed": 0,
    "label": "Customer",
@@ -244,7 +244,7 @@
    "type": "Link"
   }
  ],
- "modified": "2026-02-19 21:21:40.175171",
+ "modified": "2026-02-19 21:27:20.377015",
  "modified_by": "Administrator",
  "module": "Cold Storage",
  "name": "Cold Storage",

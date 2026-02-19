@@ -45,6 +45,28 @@ LIVE_BATCH_STOCK_SHORTCUT_BLOCK_ID = "shortcut-cold-storage-live-batch-stock"
 REPORTS_SECTION_LABEL = "Reports"
 SETUP_SECTION_LABEL = "Setup"
 MASTERS_SECTION_LABEL = "Masters"
+SIDEBAR_ICON_BY_LABEL = {
+	"Home": "🏠",
+	"Inward Receipt": "📥",
+	"Outward Dispatch": "📤",
+	"Transfer": "🔄",
+	REPORTS_SECTION_LABEL: "📊",
+	"Inward Register": "🧾",
+	"Outward Register": "🚚",
+	"Transfer Register": "🔁",
+	"Customer Register": "👥",
+	"Warehouse Utilization": "📈",
+	"Warehouse Occupancy Timeline": "🗓️",
+	"Yearly Inward Outward Trend": "📉",
+	LIVE_BATCH_STOCK_SHORTCUT_LABEL: "❄️",
+	SETUP_SECTION_LABEL: "⚙️",
+	"Cold Storage Settings": "🛠️",
+	MASTERS_SECTION_LABEL: "🗂️",
+	"Warehouse": "🏬",
+	"Batch": "📦",
+	"Item": "🏷️",
+	"Customer": "🤝",
+}
 LIVE_BATCH_STOCK_REPORT_ROLES = (
 	"System Manager",
 	"Cold Storage Admin",
@@ -290,7 +312,7 @@ def _ensure_workspace_sidebar_assets() -> None:
 		"keep_closed": 0,
 		"indent": 0,
 		"show_arrow": 0,
-		"icon": "",
+		"icon": SIDEBAR_ICON_BY_LABEL.get(LIVE_BATCH_STOCK_SHORTCUT_LABEL, ""),
 	}
 	if existing_live_items:
 		source = existing_live_items[0]
@@ -353,6 +375,7 @@ def _ensure_workspace_sidebar_assets() -> None:
 		link_to="Customer",
 		label="Customer",
 	)
+	items_with_required_masters = _apply_sidebar_icons(items_with_required_masters)
 
 	sidebar.set("items", items_with_required_masters)
 	for idx, item in enumerate(sidebar.get("items", []), start=1):
@@ -388,7 +411,7 @@ def _ensure_sidebar_link_under_section(
 		"keep_closed": 0,
 		"indent": 0,
 		"show_arrow": 0,
-		"icon": "",
+		"icon": SIDEBAR_ICON_BY_LABEL.get(label, ""),
 	}
 	if captured_item:
 		link_item.update(
@@ -427,6 +450,22 @@ def _ensure_sidebar_link_under_section(
 	insert_at = next_section_index if next_section_index is not None else len(clean_items)
 	clean_items.insert(insert_at, link_item)
 	return clean_items
+
+
+def _apply_sidebar_icons(items: list) -> list:
+	"""Apply consistent sidebar icons for better visual hierarchy."""
+	for item in items:
+		label = (item.get("label") or "").strip()
+		desired_icon = SIDEBAR_ICON_BY_LABEL.get(label)
+		if not desired_icon:
+			continue
+
+		if isinstance(item, dict):
+			item["icon"] = desired_icon
+		else:
+			item.icon = desired_icon
+
+	return items
 
 
 def _ensure_live_batch_stock_report_roles() -> None:
