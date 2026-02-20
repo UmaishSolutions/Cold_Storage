@@ -425,6 +425,13 @@ REPORT_ROLES: Final[dict[str, list[str]]] = {
 		"Cold Storage Inventory Controller",
 		"Cold Storage Billing Executive",
 	],
+	"Cold Storage Net Movement Waterfall Monthly": [
+		"System Manager",
+		"Cold Storage Admin",
+		"Cold Storage Warehouse Manager",
+		"Cold Storage Inventory Controller",
+		"Cold Storage Billing Executive",
+	],
 }
 
 

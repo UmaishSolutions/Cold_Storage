@@ -37,6 +37,9 @@ WORKSPACE_NAME = "Cold Storage"
 WAREHOUSE_OCCUPANCY_REPORT = "Cold Storage Warehouse Occupancy Timeline"
 WAREHOUSE_OCCUPANCY_CHART = "Warehouse Occupancy Timeline"
 WAREHOUSE_OCCUPANCY_CHART_BLOCK_ID = "chart-warehouse-occupancy-timeline"
+NET_MOVEMENT_WATERFALL_REPORT = "Cold Storage Net Movement Waterfall Monthly"
+NET_MOVEMENT_WATERFALL_CHART = "Net Movement Waterfall (Monthly)"
+NET_MOVEMENT_WATERFALL_CHART_BLOCK_ID = "chart-net-movement-waterfall-monthly"
 ACTIVE_BATCHES_NUMBER_CARD = "Active Batches"
 ACTIVE_BATCHES_NUMBER_CARD_BLOCK_ID = "number-card-active-batches"
 LIVE_BATCH_STOCK_REPORT = "Cold Storage Live Batch Stock"
@@ -61,6 +64,7 @@ SIDEBAR_ICON_BY_LABEL = {
 	"Warehouse Utilization": "📈",
 	"Warehouse Occupancy Timeline": "🗓️",
 	"Yearly Inward Outward Trend": "📉",
+	NET_MOVEMENT_WATERFALL_CHART: "🌊",
 	LIVE_BATCH_STOCK_SHORTCUT_LABEL: "❄️",
 	AUDIT_TRAIL_SHORTCUT_LABEL: "🛡️",
 	SETUP_SECTION_LABEL: "⚙️",
@@ -113,16 +117,23 @@ def _ensure_dashboard_chart_types() -> None:
 		update `tabDashboard Chart`
 		set `type` = case
 			when name = 'Yearly Inward Outward Trend' then 'Line'
+			when name = 'Net Movement Waterfall (Monthly)' then 'Line'
 			when name in ('Inward Quantity Trend', 'Outward Quantity Trend') then 'Bar'
 			else `type`
 		end
-		where name in ('Inward Quantity Trend', 'Outward Quantity Trend', 'Yearly Inward Outward Trend')
+		where name in (
+			'Inward Quantity Trend',
+			'Outward Quantity Trend',
+			'Yearly Inward Outward Trend',
+			'Net Movement Waterfall (Monthly)'
+		)
 		"""
 	)
 	for chart_name in (
 		"Inward Quantity Trend",
 		"Outward Quantity Trend",
 		"Yearly Inward Outward Trend",
+		"Net Movement Waterfall (Monthly)",
 	):
 		frappe.cache.delete_key(f"chart-data:{chart_name}")
 
@@ -209,6 +220,49 @@ def _ensure_workspace_assets() -> None:
 					"data": {"chart_name": WAREHOUSE_OCCUPANCY_CHART, "col": 12},
 				}
 			)
+			workspace.content = frappe.as_json(content_blocks)
+			updated = True
+
+	if frappe.db.exists("Dashboard Chart", NET_MOVEMENT_WATERFALL_CHART):
+		has_net_chart = any(
+			chart.chart_name == NET_MOVEMENT_WATERFALL_CHART for chart in workspace.get("charts", [])
+		)
+		if not has_net_chart:
+			workspace.append(
+				"charts",
+				{
+					"label": NET_MOVEMENT_WATERFALL_CHART,
+					"chart_name": NET_MOVEMENT_WATERFALL_CHART,
+				},
+			)
+			updated = True
+
+		content_blocks = _get_workspace_content_blocks(workspace.content)
+		has_net_chart_block = any(
+			block.get("type") == "chart"
+			and (block.get("data") or {}).get("chart_name") == NET_MOVEMENT_WATERFALL_CHART
+			for block in content_blocks
+		)
+		if not has_net_chart_block:
+			net_chart_block = {
+				"id": NET_MOVEMENT_WATERFALL_CHART_BLOCK_ID,
+				"type": "chart",
+				"data": {"chart_name": NET_MOVEMENT_WATERFALL_CHART, "col": 12},
+			}
+			yearly_chart_index = next(
+				(
+					idx
+					for idx, block in enumerate(content_blocks)
+					if block.get("type") == "chart"
+					and (block.get("data") or {}).get("chart_name") == "Yearly Inward Outward Trend"
+				),
+				None,
+			)
+			if yearly_chart_index is None:
+				content_blocks.append(net_chart_block)
+			else:
+				content_blocks.insert(yearly_chart_index + 1, net_chart_block)
+
 			workspace.content = frappe.as_json(content_blocks)
 			updated = True
 
