@@ -58,6 +58,97 @@ def get_report_company(filters) -> str | None:
 		return filters.get("company")
 
 
+@frappe.whitelist()
+@frappe.validate_and_sanitize_search_inputs
+def get_items_for_customer(
+	doctype: str,
+	txt: str,
+	searchfield: str,
+	start: int,
+	page_len: int,
+	filters: dict | None = None,
+):
+	"""Return item options constrained to the selected customer (and company, if provided)."""
+	del doctype, searchfield
+
+	filters = frappe._dict(filters or {})
+	customer = filters.get("customer")
+	company = filters.get("company") or get_report_company(filters) or ""
+
+	params = {
+		"txt": f"%{(txt or '').strip()}%",
+		"start": max(cint(start or 0), 0),
+		"page_len": max(cint(page_len or 20), 1),
+		"company": company,
+	}
+
+	if not customer:
+		return frappe.db.sql(
+			"""
+			select i.name, i.item_name
+			from `tabItem` i
+			where ifnull(i.disabled, 0) = 0
+				and (
+					i.name like %(txt)s
+					or ifnull(i.item_name, '') like %(txt)s
+				)
+			order by i.name
+			limit %(start)s, %(page_len)s
+			""",
+			params,
+		)
+
+	params["customer"] = customer
+	return frappe.db.sql(
+		"""
+		select distinct i.name, i.item_name
+		from (
+			select child.item as item
+			from `tabCold Storage Inward Item` child
+			inner join `tabCold Storage Inward` parent
+				on parent.name = child.parent
+				and child.parenttype = 'Cold Storage Inward'
+			where parent.customer = %(customer)s
+				and (%(company)s = '' or parent.company = %(company)s)
+
+			union
+
+			select child.item as item
+			from `tabCold Storage Outward Item` child
+			inner join `tabCold Storage Outward` parent
+				on parent.name = child.parent
+				and child.parenttype = 'Cold Storage Outward'
+			where parent.customer = %(customer)s
+				and (%(company)s = '' or parent.company = %(company)s)
+
+			union
+
+			select child.item as item
+			from `tabCold Storage Transfer Item` child
+			inner join `tabCold Storage Transfer` parent
+				on parent.name = child.parent
+				and child.parenttype = 'Cold Storage Transfer'
+			where (
+					ifnull(parent.customer, '') = %(customer)s
+					or ifnull(parent.from_customer, '') = %(customer)s
+					or ifnull(parent.to_customer, '') = %(customer)s
+				)
+				and (%(company)s = '' or parent.company = %(company)s)
+		) movement_items
+		inner join `tabItem` i
+			on i.name = movement_items.item
+		where ifnull(i.disabled, 0) = 0
+			and (
+				i.name like %(txt)s
+				or ifnull(i.item_name, '') like %(txt)s
+			)
+		order by i.name
+		limit %(start)s, %(page_len)s
+		""",
+		params,
+	)
+
+
 def get_columns():
 	return [
 		{

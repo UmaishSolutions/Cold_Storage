@@ -145,27 +145,40 @@ def search_items_for_customer_stock(
 	page_len: int,
 	filters: dict | None = None,
 ) -> list[tuple]:
-	"""Search items that have positive stock for the selected customer."""
+	"""Search items for selected customer, with stock-first and movement fallback."""
 	del doctype, searchfield
 
 	filters = filters or {}
 	customer = filters.get("customer")
 	company = filters.get("company")
 	warehouse = filters.get("warehouse")
+	txt_like = f"%{txt or ''}%"
+	start = int(start or 0)
+	page_len = int(page_len or 20)
 
 	if not customer:
-		return []
+		return frappe.db.sql(
+			"""
+			select i.name, i.item_name
+			from `tabItem` i
+			where i.name like %(txt)s
+				or ifnull(i.item_name, '') like %(txt)s
+			order by i.name
+			limit %(start)s, %(page_len)s
+			""",
+			{"txt": txt_like, "start": start, "page_len": page_len},
+		)
 
 	params = {
 		"customer": customer,
 		"company": company or "",
 		"warehouse": warehouse or "",
-		"txt": f"%{txt or ''}%",
-		"start": int(start or 0),
-		"page_len": int(page_len or 20),
+		"txt": txt_like,
+		"start": start,
+		"page_len": page_len,
 	}
 
-	return frappe.db.sql(
+	stock_rows = frappe.db.sql(
 		"""
 		select sle.item_code, i.item_name
 		from `tabStock Ledger Entry` sle
@@ -183,6 +196,182 @@ def search_items_for_customer_stock(
 		group by sle.item_code, i.item_name
 		having sum(sle.actual_qty) > 0
 		order by sle.item_code
+		limit %(start)s, %(page_len)s
+		""",
+		params,
+	)
+	if stock_rows:
+		return stock_rows
+
+	movement_params = {
+		"customer": customer,
+		"txt": txt_like,
+		"start": start,
+		"page_len": page_len,
+	}
+	return frappe.db.sql(
+		"""
+		select distinct i.name, i.item_name
+		from (
+			select child.item as item_code
+			from `tabCold Storage Inward Item` child
+			inner join `tabCold Storage Inward` parent
+				on parent.name = child.parent
+				and child.parenttype = 'Cold Storage Inward'
+			where parent.customer = %(customer)s
+
+			union
+
+			select child.item as item_code
+			from `tabCold Storage Outward Item` child
+			inner join `tabCold Storage Outward` parent
+				on parent.name = child.parent
+				and child.parenttype = 'Cold Storage Outward'
+			where parent.customer = %(customer)s
+
+			union
+
+			select child.item as item_code
+			from `tabCold Storage Transfer Item` child
+			inner join `tabCold Storage Transfer` parent
+				on parent.name = child.parent
+				and child.parenttype = 'Cold Storage Transfer'
+			where (
+				ifnull(parent.customer, '') = %(customer)s
+				or ifnull(parent.from_customer, '') = %(customer)s
+				or ifnull(parent.to_customer, '') = %(customer)s
+			)
+		) movement_items
+		inner join `tabItem` i on i.name = movement_items.item_code
+		where i.name like %(txt)s
+			or ifnull(i.item_name, '') like %(txt)s
+		order by i.name
+		limit %(start)s, %(page_len)s
+		""",
+		movement_params,
+	)
+
+
+@frappe.whitelist()
+@frappe.validate_and_sanitize_search_inputs
+def search_items_for_customer_movement(
+	doctype: str,
+	txt: str,
+	searchfield: str,
+	start: int,
+	page_len: int,
+	filters: dict | None = None,
+) -> list[tuple]:
+	"""Search items from customer movement history (inward/outward/transfer)."""
+	del doctype, searchfield
+
+	filters = filters or {}
+	customer = filters.get("customer")
+	txt_like = f"%{txt or ''}%"
+	start = int(start or 0)
+	page_len = int(page_len or 20)
+
+	if not customer:
+		return frappe.db.sql(
+			"""
+			select i.name, i.item_name
+			from `tabItem` i
+			where i.name like %(txt)s
+				or ifnull(i.item_name, '') like %(txt)s
+			order by i.name
+			limit %(start)s, %(page_len)s
+			""",
+			{"txt": txt_like, "start": start, "page_len": page_len},
+		)
+
+	params = {
+		"customer": customer,
+		"txt": txt_like,
+		"start": start,
+		"page_len": page_len,
+	}
+
+	return frappe.db.sql(
+		"""
+		select distinct i.name, i.item_name
+		from (
+			select child.item as item_code
+			from `tabCold Storage Inward Item` child
+			inner join `tabCold Storage Inward` parent
+				on parent.name = child.parent
+				and child.parenttype = 'Cold Storage Inward'
+			where parent.customer = %(customer)s
+
+			union
+
+			select child.item as item_code
+			from `tabCold Storage Outward Item` child
+			inner join `tabCold Storage Outward` parent
+				on parent.name = child.parent
+				and child.parenttype = 'Cold Storage Outward'
+			where parent.customer = %(customer)s
+
+			union
+
+			select child.item as item_code
+			from `tabCold Storage Transfer Item` child
+			inner join `tabCold Storage Transfer` parent
+				on parent.name = child.parent
+				and child.parenttype = 'Cold Storage Transfer'
+			where (
+				ifnull(parent.customer, '') = %(customer)s
+				or ifnull(parent.from_customer, '') = %(customer)s
+				or ifnull(parent.to_customer, '') = %(customer)s
+			)
+		) movement_items
+		inner join `tabItem` i on i.name = movement_items.item_code
+		where i.name like %(txt)s
+			or ifnull(i.item_name, '') like %(txt)s
+		order by i.name
+		limit %(start)s, %(page_len)s
+		""",
+		params,
+	)
+
+
+@frappe.whitelist()
+@frappe.validate_and_sanitize_search_inputs
+def search_batches_for_customer_item(
+	doctype: str,
+	txt: str,
+	searchfield: str,
+	start: int,
+	page_len: int,
+	filters: dict | None = None,
+) -> list[tuple]:
+	"""Search batches constrained by selected customer and item."""
+	del doctype, searchfield
+
+	filters = filters or {}
+	customer = (filters.get("customer") or "").strip()
+	item = (filters.get("item") or "").strip()
+
+	params = {
+		"customer": customer,
+		"item": item,
+		"txt": f"%{txt or ''}%",
+		"start": int(start or 0),
+		"page_len": int(page_len or 20),
+	}
+
+	return frappe.db.sql(
+		"""
+		select b.name, b.item
+		from `tabBatch` b
+		where ifnull(b.disabled, 0) = 0
+			and (%(customer)s = '' or ifnull(b.custom_customer, '') = %(customer)s)
+			and (%(item)s = '' or ifnull(b.item, '') = %(item)s)
+			and (
+				b.name like %(txt)s
+				or ifnull(b.batch_id, '') like %(txt)s
+				or ifnull(b.item, '') like %(txt)s
+			)
+		order by b.name
 		limit %(start)s, %(page_len)s
 		""",
 		params,
