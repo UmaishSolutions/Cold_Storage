@@ -24,6 +24,7 @@
 	as_dict=1
 ) if doc.company else [] %}
 {% set company_address_line = company_address_row[0].one_line if company_address_row and company_address_row[0].one_line else "-" %}
+{% set company_phone = frappe.db.get_value("Company", doc.company, "phone_no") if doc.company else None %}
 {% set customer_territory = frappe.db.get_value("Customer", doc.customer, "territory") if doc.customer else None %}
 {% set storage_terms_and_conditions = frappe.db.get_single_value("Cold Storage Settings", "storage_terms_and_conditions") %}
 {% set item_rows = (doc.items or [])[:5] %}
@@ -195,6 +196,13 @@
 		white-space: nowrap;
 		overflow: hidden;
 		text-overflow: ellipsis;
+	}
+
+	.cs-company-number {
+		margin-top: 1px;
+		font-size: 8.5px;
+		font-weight: 600;
+		color: #bfdbfe;
 	}
 
 	.cs-title {
@@ -494,6 +502,7 @@
 		<div class="cs-head-main">
 			<div class="cs-company-name">{{ doc.company or "-" }}</div>
 			<div class="cs-company-address">{{ company_address_line }}</div>
+			<div class="cs-company-number">Phone: {{ company_phone or "-" }}</div>
 			<h2 class="cs-title">Inward Receipt</h2>
 			<div class="cs-subtitle-row">
 				<div class="cs-subtitle">Voucher: {{ doc.name }}</div>
