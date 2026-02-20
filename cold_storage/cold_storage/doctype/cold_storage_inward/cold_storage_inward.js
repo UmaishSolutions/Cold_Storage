@@ -3,6 +3,8 @@
 
 frappe.ui.form.on("Cold Storage Inward", {
 	setup(frm) {
+		enforce_settings_company(frm);
+
 	    frm.set_query("warehouse", "items", () => {
 	        const filters = {};
 	        if (frm.doc.company) {
@@ -35,6 +37,8 @@ frappe.ui.form.on("Cold Storage Inward", {
 	},
 
     onload(frm) {
+		enforce_settings_company(frm);
+
         if (frm.fields_dict.items && frm.fields_dict.items.grid) {
             frm.fields_dict.items.grid.meta.editable_grid = true;
             frm.fields_dict.items.grid.edit_row = function () { };
@@ -65,14 +69,7 @@ frappe.ui.form.on("Cold Storage Inward", {
             }
         }
 
-        // Fetch default Company from Cold Storage Settings if not set
-        if (frm.is_new() && !frm.doc.company) {
-            frappe.db.get_single_value("Cold Storage Settings", "company").then((company) => {
-                if (company) {
-                    frm.set_value("company", company);
-                }
-            });
-        }
+		enforce_settings_company(frm);
 		set_company_prefixed_series(frm);
 
 
@@ -102,6 +99,27 @@ frappe.ui.form.on("Cold Storage Inward", {
 		render_sidebar_qr_code(frm);
     },
 });
+
+async function enforce_settings_company(frm) {
+	frm.set_df_property("company", "read_only", 1);
+
+	try {
+		const configured_company = await frappe.db.get_single_value(
+			"Cold Storage Settings",
+			"company"
+		);
+		if (!configured_company) {
+			return;
+		}
+
+		const can_set_company = frm.is_new() || frm.doc.docstatus === 0 || !frm.doc.company;
+		if (can_set_company && frm.doc.company !== configured_company) {
+			await frm.set_value("company", configured_company);
+		}
+	} catch (error) {
+		console.warn("Unable to load Cold Storage Settings company", error);
+	}
+}
 
 function add_whatsapp_notification_button(frm) {
 	if (frm.is_new() || frm.doc.docstatus !== 1) {
