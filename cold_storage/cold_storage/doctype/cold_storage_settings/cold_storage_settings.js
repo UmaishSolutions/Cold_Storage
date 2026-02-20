@@ -26,6 +26,11 @@ frappe.ui.form.on("Cold Storage Settings", {
 	refresh(frm) {
 		render_whatsapp_intro(frm);
 		add_whatsapp_buttons(frm);
+		style_urdu_terms_input(frm);
+	},
+
+	onload_post_render(frm) {
+		style_urdu_terms_input(frm);
 	},
 
 	validate(frm) {
@@ -82,6 +87,30 @@ function render_whatsapp_intro(frm) {
 		),
 		"green"
 	);
+}
+
+function style_urdu_terms_input(frm) {
+	const field = frm.get_field("storage_terms_and_conditions");
+	if (!field || !field.$wrapper) {
+		return;
+	}
+
+	const $textarea = field.$wrapper.find("textarea");
+	if (!$textarea.length) {
+		return;
+	}
+
+	$textarea
+		.attr("dir", "rtl")
+		.attr("lang", "ur")
+		.attr("placeholder", "شرائط و ضوابط اردو میں درج کریں")
+		.css({
+			"text-align": "right",
+			"font-family":
+				'"Jameel Noori Nastaleeq", "Noori Nastaliq", "Noto Nastaliq Urdu", "Noto Naskh Arabic", serif',
+			"font-size": "16px",
+			"line-height": "1.6",
+		});
 }
 
 function fill_recommended_templates(frm) {

@@ -112,6 +112,7 @@
 	.cs-half-a4 {
 		font-family: "Manrope", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
 		color: var(--cs-headline);
+		line-height: 1.14;
 		width: 100%;
 		max-width: 201mm;
 		height: 139.86mm;
@@ -180,7 +181,7 @@
 	}
 
 	.cs-company-name {
-		margin-top: 2px;
+		margin-top: 8px;
 		font-family: "Sora", "Manrope", "Segoe UI", sans-serif;
 		font-size: 22px;
 		font-weight: 700;
@@ -189,7 +190,7 @@
 	}
 
 	.cs-company-address {
-		margin-top: 1px;
+		margin-top: 2px;
 		font-size: 8.5px;
 		font-weight: 600;
 		color: #bfdbfe;
@@ -199,7 +200,7 @@
 	}
 
 	.cs-company-number {
-		margin-top: 1px;
+		margin-top: 2px;
 		font-size: 8.5px;
 		font-weight: 600;
 		color: #bfdbfe;
@@ -208,7 +209,7 @@
 	.cs-title {
 		display: inline-block;
 		margin: 2px 0 0;
-		padding: 2px 10px;
+		padding: 1px 9px;
 		font-family: "Sora", "Manrope", "Segoe UI", sans-serif;
 		font-size: 15px;
 		font-weight: 600;
@@ -227,11 +228,11 @@
 	}
 
 	.cs-subtitle-row {
-		margin-top: 4px;
+		margin-top: 2px;
 		display: flex;
 		align-items: center;
 		justify-content: center;
-		gap: 7px;
+		gap: 5px;
 	}
 
 	.cs-copy-mark {
@@ -297,7 +298,7 @@
 	}
 
 	.cs-body {
-		padding: 9px 11px 7px;
+		padding: 8px 10px 6px;
 		position: relative;
 		background: linear-gradient(180deg, #ffffff 0%, var(--cs-bg-1) 76%, #effcf9 100%);
 		flex: 1;
@@ -324,8 +325,8 @@
 	.cs-grid {
 		display: grid;
 		grid-template-columns: 1fr 1fr;
-		gap: 7px 10px;
-		margin-bottom: 8px;
+		gap: 5px 8px;
+		margin-bottom: 6px;
 	}
 
 	.cs-meta-card {
@@ -334,7 +335,7 @@
 		background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
 		border: 1px solid #d9e4ec;
 		border-radius: 9px;
-		padding: 5px 8px;
+		padding: 4px 7px;
 		box-shadow: var(--cs-shadow-sm);
 	}
 
@@ -351,6 +352,7 @@
 	.cs-label {
 		display: block;
 		font-size: 8px;
+		line-height: 1.05;
 		text-transform: uppercase;
 		letter-spacing: 0.06em;
 		font-weight: 700;
@@ -359,8 +361,47 @@
 
 	.cs-value {
 		font-size: 11px;
+		line-height: 1.1;
 		font-weight: 700;
 		color: var(--cs-headline);
+	}
+
+	.cs-meta-card-inline {
+		grid-column: 1 / -1;
+	}
+
+	.cs-inline-meta-row {
+		display: flex;
+		align-items: center;
+		gap: 6px;
+		min-width: 0;
+	}
+
+	.cs-inline-meta-group {
+		display: flex;
+		align-items: baseline;
+		gap: 3px;
+		flex: 1 1 0;
+		min-width: 0;
+	}
+
+	.cs-inline-meta-group .cs-value {
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
+
+	.cs-inline-meta-group .cs-label,
+	.cs-inline-meta-group .cs-value {
+		display: inline;
+		margin: 0;
+	}
+
+	.cs-inline-separator {
+		width: 1px;
+		align-self: stretch;
+		background: #cbd5e1;
+		flex: 0 0 1px;
 	}
 
 	.cs-table {
@@ -380,14 +421,15 @@
 		font-weight: 700;
 		text-transform: uppercase;
 		letter-spacing: 0.05em;
-		padding: 5px 4px;
+		padding: 4px 4px;
 		border: 1px solid rgba(15, 118, 110, 0.7);
 		text-shadow: 0 1px 0 rgba(15, 23, 42, 0.25);
 	}
 
 	.cs-table td {
 		font-size: 10px;
-		padding: 4px;
+		line-height: 1.12;
+		padding: 3px 4px;
 		border: 1px solid #e2e8f0;
 		color: var(--cs-copy);
 		background: #ffffff;
@@ -412,11 +454,11 @@
 	}
 
 	.cs-foot {
-		margin-top: 7px;
+		margin-top: 5px;
 		display: flex;
 		justify-content: flex-end;
 		align-items: stretch;
-		gap: 8px;
+		gap: 6px;
 	}
 
 	.cs-totals {
@@ -425,7 +467,7 @@
 		border: 1px solid #7dd3fc;
 		background: linear-gradient(135deg, #ecfeff 0%, #ccfbf1 58%, #d1fae5 100%);
 		border-radius: 8px;
-		padding: 6px 9px;
+		padding: 5px 8px;
 		min-width: 44%;
 		font-size: 11px;
 		font-weight: 700;
@@ -445,13 +487,14 @@
 	}
 
 	.cs-note {
-		margin-top: 6px;
-		padding: 6px 8px;
+		margin-top: 4px;
+		padding: 5px 7px;
 		border: 1px solid #d9e4ec;
 		border-left: 4px solid var(--cs-accent);
 		border-radius: 8px;
 		background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
 		font-size: 10px;
+		line-height: 1.18;
 		color: var(--cs-copy);
 		box-shadow: var(--cs-shadow-sm);
 	}
@@ -460,30 +503,48 @@
 		color: var(--cs-accent-hover);
 	}
 
+	.cs-terms-label {
+		display: block;
+		direction: rtl;
+		text-align: right;
+		unicode-bidi: plaintext;
+		font-family: "Jameel Noori Nastaleeq", "Noori Nastaliq", "Noto Nastaliq Urdu", "Noto Naskh Arabic", serif;
+		font-size: 12px;
+		line-height: 1.45;
+		color: var(--cs-accent-hover);
+	}
+
 	.cs-terms-body {
-		margin-top: 2px;
+		margin-top: 1px;
 		white-space: pre-line;
+		direction: rtl;
+		text-align: right;
+		unicode-bidi: plaintext;
+		font-family: "Jameel Noori Nastaleeq", "Noori Nastaliq", "Noto Nastaliq Urdu", "Noto Naskh Arabic", serif;
+		font-size: 12px;
+		line-height: 1.55;
 	}
 
 	.cs-signatures {
 		display: grid;
 		grid-template-columns: 1fr 1fr;
-		gap: 10px;
+		gap: 8px;
 		width: 100%;
 		align-items: end;
 	}
 
 	.cs-signatures-bottom {
 		margin-top: auto;
-		padding-top: 8px;
+		padding-top: 6px;
 	}
 
 	.cs-sign {
 		font-size: 10px;
+		line-height: 1.14;
 		font-weight: 600;
 		color: var(--cs-copy);
 		border-top: 1.5px dashed #94a3b8;
-		padding-top: 3px;
+		padding-top: 2px;
 		text-align: center;
 		background: linear-gradient(180deg, transparent 0%, rgba(241, 245, 249, 0.8) 100%);
 		border-radius: 4px;
@@ -519,21 +580,31 @@
 
 	<div class="cs-body">
 		<div class="cs-grid">
-			<div class="cs-meta-card">
-				<span class="cs-label">Customer</span>
-				<div class="cs-value">{{ doc.customer or "-" }}</div>
+			<div class="cs-meta-card cs-meta-card-inline">
+				<div class="cs-inline-meta-row">
+					<div class="cs-inline-meta-group">
+						<span class="cs-label">Customer</span>
+						<span class="cs-value">{{ doc.customer or "-" }}</span>
+					</div>
+					<div class="cs-inline-separator"></div>
+					<div class="cs-inline-meta-group">
+						<span class="cs-label">Posting Date</span>
+						<span class="cs-value">{{ frappe.utils.format_date(doc.posting_date) if doc.posting_date else "-" }}</span>
+					</div>
+				</div>
 			</div>
-			<div class="cs-meta-card">
-				<span class="cs-label">Posting Date</span>
-				<div class="cs-value">{{ frappe.utils.format_date(doc.posting_date) if doc.posting_date else "-" }}</div>
-			</div>
-			<div class="cs-meta-card">
-				<span class="cs-label">Territory</span>
-				<div class="cs-value">{{ customer_territory or "-" }}</div>
-			</div>
-			<div class="cs-meta-card">
-				<span class="cs-label">Receipt Number</span>
-				<div class="cs-value">{{ doc.receipt_no or "-" }}</div>
+			<div class="cs-meta-card cs-meta-card-inline">
+				<div class="cs-inline-meta-row">
+					<div class="cs-inline-meta-group">
+						<span class="cs-label">Territory</span>
+						<span class="cs-value">{{ customer_territory or "-" }}</span>
+					</div>
+					<div class="cs-inline-separator"></div>
+					<div class="cs-inline-meta-group">
+						<span class="cs-label">Receipt</span>
+						<span class="cs-value">{{ doc.receipt_no or "-" }}</span>
+					</div>
+				</div>
 			</div>
 		</div>
 
@@ -574,8 +645,8 @@
 		<div class="cs-note"><strong>Remarks:</strong> {{ doc.remarks or "-" }}</div>
 
 		<div class="cs-note">
-			<strong>Terms and Conditions:</strong>
-			<div class="cs-terms-body">{{ storage_terms_and_conditions or "-" }}</div>
+			<strong class="cs-terms-label" lang="ur" dir="rtl">شرائط و ضوابط:</strong>
+			<div class="cs-terms-body" lang="ur" dir="rtl">{{ storage_terms_and_conditions or "-" }}</div>
 		</div>
 
 		<div class="cs-signatures cs-signatures-bottom">

@@ -69,6 +69,28 @@
 		font-size: 13px;
 		font-weight: 600;
 	}
+	.cs-meta-inline {
+		grid-column: 1 / -1;
+		display: flex;
+		align-items: baseline;
+		gap: 6px;
+		min-width: 0;
+	}
+	.cs-meta-inline .cs-label,
+	.cs-meta-inline .cs-value {
+		display: inline;
+		margin: 0;
+	}
+	.cs-inline-customer {
+		flex: 1 1 auto;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
+	.cs-meta-inline-sep {
+		color: #94a3b8;
+		font-weight: 700;
+	}
 	.cs-table {
 		width: 100%;
 		border-collapse: collapse;
@@ -131,17 +153,16 @@
 
 		<div class="cs-body">
 			<div class="cs-grid">
+				<div class="cs-meta-inline">
+					<span class="cs-label">Customer</span>
+					<span class="cs-value cs-inline-customer">{{ doc.customer or "-" }}</span>
+					<span class="cs-meta-inline-sep">|</span>
+					<span class="cs-label">Posting Date</span>
+					<span class="cs-value">{{ frappe.utils.format_date(doc.posting_date) if doc.posting_date else "-" }}</span>
+				</div>
 				<div>
 					<span class="cs-label">Company</span>
 					<div class="cs-value">{{ doc.company or "-" }}</div>
-				</div>
-				<div>
-					<span class="cs-label">Posting Date</span>
-					<div class="cs-value">{{ frappe.utils.format_date(doc.posting_date) }}</div>
-				</div>
-				<div>
-					<span class="cs-label">Customer</span>
-					<div class="cs-value">{{ doc.customer or "-" }}</div>
 				</div>
 				<div>
 					<span class="cs-label">Document Number</span>

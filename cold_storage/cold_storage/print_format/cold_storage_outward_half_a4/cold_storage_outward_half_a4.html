@@ -363,6 +363,47 @@
 		color: var(--cs-headline);
 	}
 
+	.cs-meta-card-inline {
+		grid-column: 1 / -1;
+	}
+
+	.cs-inline-meta-row {
+		display: flex;
+		align-items: center;
+		gap: 8px;
+		min-width: 0;
+	}
+
+	.cs-inline-meta-group {
+		display: flex;
+		align-items: baseline;
+		gap: 4px;
+		min-width: 0;
+	}
+
+	.cs-inline-meta-group.customer {
+		flex: 1 1 auto;
+	}
+
+	.cs-inline-meta-group.customer .cs-value {
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
+
+	.cs-inline-meta-group .cs-label,
+	.cs-inline-meta-group .cs-value {
+		display: inline;
+		margin: 0;
+	}
+
+	.cs-inline-separator {
+		width: 1px;
+		align-self: stretch;
+		background: #cbd5e1;
+		flex: 0 0 1px;
+	}
+
 	.cs-table {
 		width: 100%;
 		border-collapse: collapse;
@@ -460,9 +501,26 @@
 		color: var(--cs-accent-hover);
 	}
 
+	.cs-terms-label {
+		display: block;
+		direction: rtl;
+		text-align: right;
+		unicode-bidi: plaintext;
+		font-family: "Jameel Noori Nastaleeq", "Noori Nastaliq", "Noto Nastaliq Urdu", "Noto Naskh Arabic", serif;
+		font-size: 12px;
+		line-height: 1.45;
+		color: var(--cs-accent-hover);
+	}
+
 	.cs-terms-body {
 		margin-top: 2px;
 		white-space: pre-line;
+		direction: rtl;
+		text-align: right;
+		unicode-bidi: plaintext;
+		font-family: "Jameel Noori Nastaleeq", "Noori Nastaliq", "Noto Nastaliq Urdu", "Noto Naskh Arabic", serif;
+		font-size: 12px;
+		line-height: 1.55;
 	}
 
 	.cs-signatures {
@@ -519,13 +577,18 @@
 
 	<div class="cs-body">
 		<div class="cs-grid">
-			<div class="cs-meta-card">
-				<span class="cs-label">Customer</span>
-				<div class="cs-value">{{ doc.customer or "-" }}</div>
-			</div>
-			<div class="cs-meta-card">
-				<span class="cs-label">Posting Date</span>
-				<div class="cs-value">{{ frappe.utils.format_date(doc.posting_date) if doc.posting_date else "-" }}</div>
+			<div class="cs-meta-card cs-meta-card-inline">
+				<div class="cs-inline-meta-row">
+					<div class="cs-inline-meta-group customer">
+						<span class="cs-label">Customer</span>
+						<span class="cs-value">{{ doc.customer or "-" }}</span>
+					</div>
+					<div class="cs-inline-separator"></div>
+					<div class="cs-inline-meta-group">
+						<span class="cs-label">Posting Date</span>
+						<span class="cs-value">{{ frappe.utils.format_date(doc.posting_date) if doc.posting_date else "-" }}</span>
+					</div>
+				</div>
 			</div>
 			<div class="cs-meta-card">
 				<span class="cs-label">Territory</span>
@@ -577,8 +640,8 @@
 		<div class="cs-note"><strong>Remarks:</strong> {{ doc.remarks or "-" }}</div>
 
 		<div class="cs-note">
-			<strong>Terms and Conditions:</strong>
-			<div class="cs-terms-body">{{ storage_terms_and_conditions or "-" }}</div>
+			<strong class="cs-terms-label" lang="ur" dir="rtl">شرائط و ضوابط:</strong>
+			<div class="cs-terms-body" lang="ur" dir="rtl">{{ storage_terms_and_conditions or "-" }}</div>
 		</div>
 
 		<div class="cs-signatures cs-signatures-bottom">

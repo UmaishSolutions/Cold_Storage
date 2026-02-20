@@ -130,10 +130,11 @@
    "label": "Portal Announcement (Banner)"
   },
   {
-   "description": "Standard storage terms shown on Cold Storage print formats.",
+   "description": "Write these terms in Urdu. They are printed in Nastaliq style on Cold Storage print formats.",
    "fieldname": "storage_terms_and_conditions",
    "fieldtype": "Small Text",
-   "label": "Storage Terms and Conditions"
+   "label": "Storage Terms and Conditions",
+   "placeholder": "شرائط و ضوابط اردو میں درج کریں"
   },
   {
    "description": "Setup order: 1) Enable Integration 2) Add Phone Number ID + Access Token 3) Check Setup 4) Send WhatsApp Test.",
