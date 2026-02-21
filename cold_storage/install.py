@@ -34,6 +34,11 @@ APP_CUSTOM_FIELDS = {
 }
 
 WORKSPACE_NAME = "Cold Storage"
+DEFAULT_WEBPAGE_VIEWS_CHART = "Webpage Views"
+LEGACY_CUSTOMER_PORTAL_VIEWS_CHART = "Customer Portal Views"
+CLIENT_PORTAL_VIEWS_CHART = "Client Portal Views"
+CLIENT_PORTAL_VIEWS_CHART_BLOCK_ID = "chart-client-portal-views"
+CLIENT_PORTAL_VIEWS_FILTERS_JSON = '[["Web Page View","path","like","client-portal%",false]]'
 WAREHOUSE_OCCUPANCY_REPORT = "Cold Storage Warehouse Occupancy Timeline"
 WAREHOUSE_OCCUPANCY_CHART = "Warehouse Occupancy Timeline"
 WAREHOUSE_OCCUPANCY_CHART_BLOCK_ID = "chart-warehouse-occupancy-timeline"
@@ -156,6 +161,69 @@ def _ensure_top_customers_chart_source() -> None:
 	frappe.cache.delete_key("chart-data:Top Customers")
 
 
+def _ensure_website_view_tracking_enabled() -> None:
+	"""Enable website view tracking so Web Page View-based charts can populate."""
+	if not frappe.db.exists("DocType", "Website Settings"):
+		return
+
+	if frappe.db.get_single_value("Website Settings", "enable_view_tracking"):
+		return
+
+	frappe.db.set_single_value("Website Settings", "enable_view_tracking", 1)
+	frappe.clear_cache()
+
+
+def _ensure_client_portal_views_chart() -> None:
+	"""Ensure client portal views chart only tracks /client-portal traffic."""
+	chart_values = {
+		"based_on": "modified",
+		"chart_type": "Count",
+		"document_type": "Web Page View",
+		"dynamic_filters_json": "[]",
+		"filters_json": CLIENT_PORTAL_VIEWS_FILTERS_JSON,
+		"group_by_type": "Count",
+		"is_public": 0,
+		"is_standard": 1,
+		"module": "Cold Storage",
+		"time_interval": "Weekly",
+		"timeseries": 1,
+		"timespan": "Last Year",
+		"type": "Line",
+		"use_report_chart": 0,
+	}
+
+	if frappe.db.exists("Dashboard Chart", LEGACY_CUSTOMER_PORTAL_VIEWS_CHART) and not frappe.db.exists(
+		"Dashboard Chart", CLIENT_PORTAL_VIEWS_CHART
+	):
+		frappe.rename_doc(
+			"Dashboard Chart",
+			LEGACY_CUSTOMER_PORTAL_VIEWS_CHART,
+			CLIENT_PORTAL_VIEWS_CHART,
+			force=True,
+		)
+
+	if frappe.db.exists("Dashboard Chart", CLIENT_PORTAL_VIEWS_CHART):
+		frappe.db.set_value(
+			"Dashboard Chart",
+			CLIENT_PORTAL_VIEWS_CHART,
+			chart_values,
+			update_modified=False,
+		)
+	else:
+		chart_doc = frappe.get_doc(
+			{
+				"doctype": "Dashboard Chart",
+				"name": CLIENT_PORTAL_VIEWS_CHART,
+				"chart_name": CLIENT_PORTAL_VIEWS_CHART,
+				**chart_values,
+			}
+		)
+		chart_doc.insert(ignore_permissions=True)
+
+	frappe.cache.delete_key(f"chart-data:{LEGACY_CUSTOMER_PORTAL_VIEWS_CHART}")
+	frappe.cache.delete_key(f"chart-data:{CLIENT_PORTAL_VIEWS_CHART}")
+
+
 def _ensure_workspace_assets() -> None:
 	"""Ensure cold storage analytics are visible on the workspace dashboard."""
 	if not frappe.db.exists("Workspace", WORKSPACE_NAME):
@@ -174,6 +242,106 @@ def _ensure_workspace_assets() -> None:
 	for link in legacy_audit_links:
 		workspace.remove(link)
 		updated = True
+
+	if frappe.db.exists("Dashboard Chart", CLIENT_PORTAL_VIEWS_CHART):
+		has_client_portal_chart = False
+		for chart in list(workspace.get("charts", [])):
+			if chart.chart_name in (
+				DEFAULT_WEBPAGE_VIEWS_CHART,
+				LEGACY_CUSTOMER_PORTAL_VIEWS_CHART,
+			):
+				workspace.remove(chart)
+				updated = True
+				continue
+
+			if chart.chart_name != CLIENT_PORTAL_VIEWS_CHART:
+				continue
+
+			if has_client_portal_chart:
+				workspace.remove(chart)
+				updated = True
+				continue
+
+			has_client_portal_chart = True
+			if chart.label != CLIENT_PORTAL_VIEWS_CHART:
+				chart.label = CLIENT_PORTAL_VIEWS_CHART
+				updated = True
+
+		if not has_client_portal_chart:
+			workspace.append(
+				"charts",
+				{
+					"label": CLIENT_PORTAL_VIEWS_CHART,
+					"chart_name": CLIENT_PORTAL_VIEWS_CHART,
+				},
+			)
+			updated = True
+
+		content_blocks = _get_workspace_content_blocks(workspace.content)
+		normalized_blocks = []
+		has_client_portal_block = False
+		blocks_changed = False
+
+		for block in content_blocks:
+			if block.get("type") != "chart":
+				normalized_blocks.append(block)
+				continue
+
+			data = dict(block.get("data") or {})
+			chart_name = data.get("chart_name")
+			if chart_name in (
+				DEFAULT_WEBPAGE_VIEWS_CHART,
+				LEGACY_CUSTOMER_PORTAL_VIEWS_CHART,
+			):
+				data["chart_name"] = CLIENT_PORTAL_VIEWS_CHART
+				chart_name = CLIENT_PORTAL_VIEWS_CHART
+				block["data"] = data
+				blocks_changed = True
+
+			if chart_name != CLIENT_PORTAL_VIEWS_CHART:
+				normalized_blocks.append(block)
+				continue
+
+			if has_client_portal_block:
+				blocks_changed = True
+				continue
+
+			has_client_portal_block = True
+			if block.get("id") != CLIENT_PORTAL_VIEWS_CHART_BLOCK_ID:
+				block["id"] = CLIENT_PORTAL_VIEWS_CHART_BLOCK_ID
+				blocks_changed = True
+
+			if not data.get("col"):
+				data["col"] = 6
+				block["data"] = data
+				blocks_changed = True
+
+			normalized_blocks.append(block)
+
+		if not has_client_portal_block:
+			client_portal_block = {
+				"id": CLIENT_PORTAL_VIEWS_CHART_BLOCK_ID,
+				"type": "chart",
+				"data": {"chart_name": CLIENT_PORTAL_VIEWS_CHART, "col": 6},
+			}
+			login_chart_index = next(
+				(
+					idx
+					for idx, block in enumerate(normalized_blocks)
+					if block.get("type") == "chart"
+					and (block.get("data") or {}).get("chart_name") == "Login Activity"
+				),
+				None,
+			)
+			if login_chart_index is None:
+				normalized_blocks.append(client_portal_block)
+			else:
+				normalized_blocks.insert(login_chart_index + 1, client_portal_block)
+			blocks_changed = True
+
+		if blocks_changed:
+			workspace.content = frappe.as_json(normalized_blocks)
+			updated = True
 
 	if frappe.db.exists("Report", WAREHOUSE_OCCUPANCY_REPORT):
 		has_report_link = any(
@@ -701,9 +869,11 @@ def _ensure_default_uom_setting(*, create_uom_if_missing: bool) -> None:
 
 def after_install() -> None:
 	_ensure_default_uom_setting(create_uom_if_missing=True)
+	_ensure_website_view_tracking_enabled()
 	_ensure_batch_customizations()
 	_ensure_dashboard_chart_types()
 	_ensure_top_customers_chart_source()
+	_ensure_client_portal_views_chart()
 	_rename_legacy_audit_trail_report()
 	_ensure_live_batch_stock_report_roles()
 	_ensure_audit_trail_report_roles()
@@ -714,9 +884,11 @@ def after_install() -> None:
 
 def after_migrate() -> None:
 	_ensure_default_uom_setting(create_uom_if_missing=True)
+	_ensure_website_view_tracking_enabled()
 	_ensure_batch_customizations()
 	_ensure_dashboard_chart_types()
 	_ensure_top_customers_chart_source()
+	_ensure_client_portal_views_chart()
 	_rename_legacy_audit_trail_report()
 	_ensure_live_batch_stock_report_roles()
 	_ensure_audit_trail_report_roles()
