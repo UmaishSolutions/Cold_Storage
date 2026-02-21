@@ -39,6 +39,28 @@ ROLE_DEFINITIONS: Final[dict[str, dict[str, int]]] = {
 	"Cold Storage Maintenance Technician": {"desk_access": 1},
 }
 
+ACTIVITY_LOG_ACCESS_ROLES: Final[tuple[str, ...]] = (
+	"Cold Storage Admin",
+	"Cold Storage Warehouse Manager",
+	"Cold Storage Inbound Operator",
+	"Cold Storage Dispatch Operator",
+	"Cold Storage Inventory Controller",
+	"Cold Storage Billing Executive",
+	"Stock Manager",
+	"Stock User",
+)
+
+WEB_PAGE_VIEW_ACCESS_ROLES: Final[tuple[str, ...]] = (
+	"Cold Storage Admin",
+	"Cold Storage Warehouse Manager",
+	"Cold Storage Inbound Operator",
+	"Cold Storage Dispatch Operator",
+	"Cold Storage Inventory Controller",
+	"Cold Storage Billing Executive",
+	"Stock Manager",
+	"Stock User",
+)
+
 ROLE_PROFILES: Final[dict[str, list[str]]] = {
 	"Cold Storage Admin Profile": [
 		"System Manager",
@@ -137,6 +159,15 @@ DOCTYPE_PERMISSIONS: Final[dict[str, list[dict[str, int | str]]]] = {
 			"role": "Cold Storage Billing Executive",
 			"read": 1,
 		},
+	],
+	"Web Page View": [
+		{
+			"role": role,
+			"select": 1,
+			"read": 1,
+			"report": 1,
+		}
+		for role in WEB_PAGE_VIEW_ACCESS_ROLES
 	],
 	"Cold Storage Inward": [
 		{
@@ -462,6 +493,7 @@ def sync_role_based_access() -> None:
 	_ensure_roles()
 	_ensure_role_profiles()
 	_sync_doctype_permissions()
+	_ensure_activity_log_permissions()
 	_sync_report_roles()
 	frappe.clear_cache()
 
@@ -535,6 +567,50 @@ def _sync_doctype_permissions() -> None:
 
 		validate_permissions_for_doctype(doctype)
 		frappe.clear_cache(doctype=doctype)
+
+
+def _ensure_activity_log_permissions() -> None:
+	from frappe.core.doctype.doctype.doctype import validate_permissions_for_doctype
+
+	if not frappe.db.exists("DocType", "Activity Log"):
+		return
+
+	updated = False
+	for role in ACTIVITY_LOG_ACCESS_ROLES:
+		existing_name = frappe.db.get_value(
+			"Custom DocPerm",
+			{
+				"parent": "Activity Log",
+				"role": role,
+				"permlevel": 0,
+			},
+			"name",
+		)
+		permission_values = {"select": 1, "read": 1, "report": 1}
+
+		if existing_name:
+			current = frappe.db.get_value("Custom DocPerm", existing_name, list(permission_values), as_dict=True) or {}
+			if all(cint(current.get(field)) == value for field, value in permission_values.items()):
+				continue
+			for field, value in permission_values.items():
+				frappe.db.set_value("Custom DocPerm", existing_name, field, value, update_modified=False)
+			updated = True
+			continue
+
+		custom_perm = frappe.new_doc("Custom DocPerm")
+		custom_perm.parent = "Activity Log"
+		custom_perm.role = role
+		custom_perm.permlevel = 0
+		for fieldname in PERMISSION_FIELDS:
+			custom_perm.set(fieldname, 0)
+		for field, value in permission_values.items():
+			custom_perm.set(field, value)
+		custom_perm.insert(ignore_permissions=True)
+		updated = True
+
+	if updated:
+		validate_permissions_for_doctype("Activity Log")
+		frappe.clear_cache(doctype="Activity Log")
 
 
 def _sync_report_roles() -> None:

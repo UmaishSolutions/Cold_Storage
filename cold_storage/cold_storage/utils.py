@@ -157,17 +157,7 @@ def search_items_for_customer_stock(
 	page_len = int(page_len or 20)
 
 	if not customer:
-		return frappe.db.sql(
-			"""
-			select i.name, i.item_name
-			from `tabItem` i
-			where i.name like %(txt)s
-				or ifnull(i.item_name, '') like %(txt)s
-			order by i.name
-			limit %(start)s, %(page_len)s
-			""",
-			{"txt": txt_like, "start": start, "page_len": page_len},
-		)
+		return []
 
 	params = {
 		"customer": customer,

@@ -127,7 +127,17 @@ CLIENT_PORTAL_VIEWS_CHART_ROLES = (
 	"Cold Storage Inventory Controller",
 	"Cold Storage Billing Executive",
 	"Cold Storage Dispatch Operator",
-	"Cold Storage Client Portal User",
+	"Stock Manager",
+	"Stock User",
+)
+LOGIN_ACTIVITY_CHART_ROLES = (
+	"System Manager",
+	"Cold Storage Admin",
+	"Cold Storage Warehouse Manager",
+	"Cold Storage Inbound Operator",
+	"Cold Storage Inventory Controller",
+	"Cold Storage Billing Executive",
+	"Cold Storage Dispatch Operator",
 	"Stock Manager",
 	"Stock User",
 )
@@ -276,6 +286,48 @@ def _ensure_non_currency_dashboard_charts() -> None:
 			update_modified=False,
 		)
 		frappe.cache.delete_key(f"chart-data:{chart_name}")
+
+
+def _ensure_login_activity_chart_roles() -> None:
+	"""Ensure Login Activity chart is visible to internal cold-storage desk roles."""
+	if not frappe.db.exists("Dashboard Chart", LOGIN_ACTIVITY_CHART):
+		return
+
+	desired_roles = [role for role in LOGIN_ACTIVITY_CHART_ROLES if frappe.db.exists("Role", role)]
+	existing_roles = frappe.get_all(
+		"Has Role",
+		filters={
+			"parent": LOGIN_ACTIVITY_CHART,
+			"parenttype": "Dashboard Chart",
+			"parentfield": "roles",
+		},
+		pluck="role",
+		order_by="idx asc",
+	)
+	if existing_roles == desired_roles:
+		return
+
+	frappe.db.delete(
+		"Has Role",
+		{
+			"parent": LOGIN_ACTIVITY_CHART,
+			"parenttype": "Dashboard Chart",
+			"parentfield": "roles",
+		},
+	)
+	for idx, role in enumerate(desired_roles, start=1):
+		frappe.get_doc(
+			{
+				"doctype": "Has Role",
+				"parent": LOGIN_ACTIVITY_CHART,
+				"parenttype": "Dashboard Chart",
+				"parentfield": "roles",
+				"idx": idx,
+				"role": role,
+			}
+		).insert(ignore_permissions=True)
+	frappe.clear_cache(doctype="Dashboard Chart")
+	frappe.cache.delete_key(f"chart-data:{LOGIN_ACTIVITY_CHART}")
 
 
 def _ensure_workspace_report_link_and_shortcut(
@@ -1036,6 +1088,7 @@ def after_install() -> None:
 	_ensure_top_customers_chart_source()
 	_ensure_client_portal_views_chart()
 	_ensure_non_currency_dashboard_charts()
+	_ensure_login_activity_chart_roles()
 	_rename_legacy_audit_trail_report()
 	_ensure_live_batch_stock_report_roles()
 	_ensure_audit_trail_report_roles()
@@ -1052,6 +1105,7 @@ def after_migrate() -> None:
 	_ensure_top_customers_chart_source()
 	_ensure_client_portal_views_chart()
 	_ensure_non_currency_dashboard_charts()
+	_ensure_login_activity_chart_roles()
 	_rename_legacy_audit_trail_report()
 	_ensure_live_batch_stock_report_roles()
 	_ensure_audit_trail_report_roles()

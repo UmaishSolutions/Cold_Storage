@@ -10,11 +10,11 @@
  "dynamic_filters_json": "[]",
  "filters_json": "[[\"Web Page View\",\"path\",\"like\",\"%client-portal%\",false]]",
  "group_by_type": "Count",
- "idx": 0,
+ "idx": 1,
  "is_public": 0,
  "is_standard": 1,
- "last_synced_on": "2026-02-21 10:06:29.691260",
- "modified": "2026-02-21 10:11:09.336255",
+ "last_synced_on": "2026-02-21 10:53:53.414173",
+ "modified": "2026-02-21 13:39:12.505678",
  "modified_by": "Administrator",
  "module": "Cold Storage",
  "name": "Client Portal Views",
@@ -43,9 +43,6 @@
    "role": "Cold Storage Dispatch Operator"
   },
   {
-   "role": "Cold Storage Client Portal User"
-  },
-  {
    "role": "Stock Manager"
   },
   {
@@ -58,5 +55,6 @@
  "timespan": "Last Year",
  "type": "Line",
  "use_report_chart": 0,
+ "value_based_on": "",
  "y_axis": []
 }
