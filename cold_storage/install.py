@@ -40,6 +40,9 @@ DEFAULT_WEBPAGE_VIEWS_CHART = "Webpage Views"
 LEGACY_CUSTOMER_PORTAL_VIEWS_CHART = "Customer Portal Views"
 CLIENT_PORTAL_VIEWS_CHART = "Client Portal Views"
 LOGIN_ACTIVITY_CHART = "Login Activity"
+LOGIN_ACTIVITY_FILTERS_JSON = (
+	'[["Activity Log","status","=","Success",false],["Activity Log","operation","=","Login",false]]'
+)
 CLIENT_PORTAL_VIEWS_CHART_BLOCK_ID = "chart-client-portal-views"
 CLIENT_PORTAL_VIEWS_FILTERS_JSON = (
 	f'[["Web Page View","path","like","{CLIENT_PORTAL_VIEW_PATH_FILTER}",false]]'
@@ -55,6 +58,12 @@ ACTIVE_BATCHES_NUMBER_CARD_BLOCK_ID = "number-card-active-batches"
 LIVE_BATCH_STOCK_REPORT = "Cold Storage Live Batch Stock"
 LIVE_BATCH_STOCK_SHORTCUT_LABEL = "Live Batch Stock"
 LIVE_BATCH_STOCK_SHORTCUT_BLOCK_ID = "shortcut-cold-storage-live-batch-stock"
+LOGIN_ACTIVITY_LOG_REPORT = "Cold Storage Login Activity Log"
+LOGIN_ACTIVITY_LOG_SHORTCUT_LABEL = "Login Activity Log"
+LOGIN_ACTIVITY_LOG_SHORTCUT_BLOCK_ID = "shortcut-cold-storage-login-activity-log"
+CLIENT_PORTAL_ACCESS_LOG_REPORT = "Cold Storage Client Portal Access Log"
+CLIENT_PORTAL_ACCESS_LOG_SHORTCUT_LABEL = "Client Portal Access Log"
+CLIENT_PORTAL_ACCESS_LOG_SHORTCUT_BLOCK_ID = "shortcut-cold-storage-client-portal-access-log"
 LEGACY_AUDIT_TRAIL_REPORT = "Cold Storage Audit Trail & Compliance Pack"
 AUDIT_TRAIL_REPORT = "Cold Storage Audit Trail Compliance Pack"
 AUDIT_TRAIL_SHORTCUT_LABEL = "Audit Trail & Compliance Pack"
@@ -76,6 +85,8 @@ SIDEBAR_ICON_BY_LABEL = {
 	"Yearly Inward Outward Trend": "📉",
 	NET_MOVEMENT_WATERFALL_CHART: "🌊",
 	LIVE_BATCH_STOCK_SHORTCUT_LABEL: "❄️",
+	LOGIN_ACTIVITY_LOG_SHORTCUT_LABEL: "🔐",
+	CLIENT_PORTAL_ACCESS_LOG_SHORTCUT_LABEL: "🌐",
 	AUDIT_TRAIL_SHORTCUT_LABEL: "🛡️",
 	SETUP_SECTION_LABEL: "⚙️",
 	"Cold Storage Settings": "🛠️",
@@ -255,13 +266,92 @@ def _ensure_non_currency_dashboard_charts() -> None:
 	for chart_name in (CLIENT_PORTAL_VIEWS_CHART, LOGIN_ACTIVITY_CHART):
 		if not frappe.db.exists("Dashboard Chart", chart_name):
 			continue
+		values = {"currency": ""}
+		if chart_name == LOGIN_ACTIVITY_CHART:
+			values["filters_json"] = LOGIN_ACTIVITY_FILTERS_JSON
 		frappe.db.set_value(
 			"Dashboard Chart",
 			chart_name,
-			{"currency": ""},
+			values,
 			update_modified=False,
 		)
 		frappe.cache.delete_key(f"chart-data:{chart_name}")
+
+
+def _ensure_workspace_report_link_and_shortcut(
+	workspace,
+	*,
+	report_name: str,
+	label: str,
+	shortcut_block_id: str,
+	shortcut_color: str = "Blue",
+	insert_after_block_id: str | None = None,
+) -> bool:
+	"""Ensure a report link + shortcut exists and shortcut is rendered in workspace content."""
+	if not frappe.db.exists("Report", report_name):
+		return False
+
+	updated = False
+
+	has_report_link = any(
+		link.type == "Link" and link.link_type == "Report" and link.link_to == report_name
+		for link in workspace.get("links", [])
+	)
+	if not has_report_link:
+		workspace.append(
+			"links",
+			{
+				"type": "Link",
+				"label": label,
+				"link_type": "Report",
+				"link_to": report_name,
+			},
+		)
+		updated = True
+
+	has_report_shortcut = any(
+		shortcut.type == "Report" and shortcut.link_to == report_name
+		for shortcut in workspace.get("shortcuts", [])
+	)
+	if not has_report_shortcut:
+		workspace.append(
+			"shortcuts",
+			{
+				"type": "Report",
+				"label": label,
+				"link_to": report_name,
+				"color": shortcut_color,
+			},
+		)
+		updated = True
+
+	content_blocks = _get_workspace_content_blocks(workspace.content)
+	has_shortcut_block = any(
+		block.get("type") == "shortcut"
+		and (block.get("data") or {}).get("shortcut_name") == label
+		for block in content_blocks
+	)
+	if not has_shortcut_block:
+		insert_at = len(content_blocks)
+		if insert_after_block_id:
+			anchor_index = next(
+				(idx for idx, block in enumerate(content_blocks) if block.get("id") == insert_after_block_id),
+				None,
+			)
+			if anchor_index is not None:
+				insert_at = anchor_index + 1
+		content_blocks.insert(
+			insert_at,
+			{
+				"id": shortcut_block_id,
+				"type": "shortcut",
+				"data": {"shortcut_name": label, "col": 3},
+			},
+		)
+		workspace.content = frappe.as_json(content_blocks)
+		updated = True
+
+	return updated
 
 
 def _ensure_workspace_assets() -> None:
@@ -524,6 +614,23 @@ def _ensure_workspace_assets() -> None:
 			workspace.content = frappe.as_json(content_blocks)
 			updated = True
 
+	updated = _ensure_workspace_report_link_and_shortcut(
+		workspace,
+		report_name=LOGIN_ACTIVITY_LOG_REPORT,
+		label=LOGIN_ACTIVITY_LOG_SHORTCUT_LABEL,
+		shortcut_block_id=LOGIN_ACTIVITY_LOG_SHORTCUT_BLOCK_ID,
+		shortcut_color="Blue",
+		insert_after_block_id=CLIENT_PORTAL_VIEWS_CHART_BLOCK_ID,
+	) or updated
+	updated = _ensure_workspace_report_link_and_shortcut(
+		workspace,
+		report_name=CLIENT_PORTAL_ACCESS_LOG_REPORT,
+		label=CLIENT_PORTAL_ACCESS_LOG_SHORTCUT_LABEL,
+		shortcut_block_id=CLIENT_PORTAL_ACCESS_LOG_SHORTCUT_BLOCK_ID,
+		shortcut_color="Blue",
+		insert_after_block_id=LOGIN_ACTIVITY_LOG_SHORTCUT_BLOCK_ID,
+	) or updated
+
 	if frappe.db.exists("Report", AUDIT_TRAIL_REPORT):
 		has_audit_trail_link = any(
 			link.type == "Link" and link.link_type == "Report" and link.link_to == AUDIT_TRAIL_REPORT
@@ -686,6 +793,20 @@ def _ensure_workspace_sidebar_assets() -> None:
 		link_type="Report",
 		link_to=AUDIT_TRAIL_REPORT,
 		label=AUDIT_TRAIL_SHORTCUT_LABEL,
+	)
+	items_with_required_reports = _ensure_sidebar_link_under_section(
+		items_with_required_reports,
+		section_label=REPORTS_SECTION_LABEL,
+		link_type="Report",
+		link_to=LOGIN_ACTIVITY_LOG_REPORT,
+		label=LOGIN_ACTIVITY_LOG_SHORTCUT_LABEL,
+	)
+	items_with_required_reports = _ensure_sidebar_link_under_section(
+		items_with_required_reports,
+		section_label=REPORTS_SECTION_LABEL,
+		link_type="Report",
+		link_to=CLIENT_PORTAL_ACCESS_LOG_REPORT,
+		label=CLIENT_PORTAL_ACCESS_LOG_SHORTCUT_LABEL,
 	)
 	items_with_required_masters = _ensure_sidebar_link_under_section(
 		items_with_required_reports,

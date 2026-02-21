@@ -432,6 +432,28 @@ REPORT_ROLES: Final[dict[str, list[str]]] = {
 		"Cold Storage Inventory Controller",
 		"Cold Storage Billing Executive",
 	],
+	"Cold Storage Login Activity Log": [
+		"System Manager",
+		"Cold Storage Admin",
+		"Cold Storage Warehouse Manager",
+		"Cold Storage Inbound Operator",
+		"Cold Storage Inventory Controller",
+		"Cold Storage Billing Executive",
+		"Cold Storage Dispatch Operator",
+		"Stock Manager",
+		"Stock User",
+	],
+	"Cold Storage Client Portal Access Log": [
+		"System Manager",
+		"Cold Storage Admin",
+		"Cold Storage Warehouse Manager",
+		"Cold Storage Inbound Operator",
+		"Cold Storage Inventory Controller",
+		"Cold Storage Billing Executive",
+		"Cold Storage Dispatch Operator",
+		"Stock Manager",
+		"Stock User",
+	],
 }
 
 

@@ -18,10 +18,6 @@
    "label": "Outward Quantity Trend"
   },
   {
-   "chart_name": "Client Portal Views",
-   "label": "Client Portal Views"
-  },
-  {
    "chart_name": "Transfer Type Distribution",
    "label": "Transfer Type Distribution"
   },
@@ -40,9 +36,13 @@
   {
    "chart_name": "Net Movement Waterfall (Monthly)",
    "label": "Net Movement Waterfall (Monthly)"
+  },
+  {
+   "chart_name": "Client Portal Views",
+   "label": "Client Portal Views"
   }
  ],
- "content": "[\n {\n  \"data\": {\n   \"col\": 3,\n   \"number_card_name\": \"Active Customers\"\n  },\n  \"id\": \"0vPQxDvtPc\",\n  \"type\": \"number_card\"\n },\n {\n  \"data\": {\n   \"col\": 3,\n   \"number_card_name\": \"Total Active Items\"\n  },\n  \"id\": \"VvMhFdwWt2\",\n  \"type\": \"number_card\"\n },\n {\n  \"data\": {\n   \"col\": 3,\n   \"number_card_name\": \"Active Batches\"\n  },\n  \"id\": \"jXtpNEtdDN\",\n  \"type\": \"number_card\"\n },\n {\n  \"data\": {\n   \"col\": 3,\n   \"number_card_name\": \"Total Warehouses\"\n  },\n  \"id\": \"3J-SEispYi\",\n  \"type\": \"number_card\"\n },\n {\n  \"data\": {\n   \"col\": 3,\n   \"number_card_name\": \"Total Outgoing Bills\"\n  },\n  \"id\": \"onZ33cT3Co\",\n  \"type\": \"number_card\"\n },\n {\n  \"data\": {\n   \"col\": 3,\n   \"number_card_name\": \"Total Incoming Payment\"\n  },\n  \"id\": \"cZuE0d-P70\",\n  \"type\": \"number_card\"\n },\n {\n  \"data\": {\n   \"col\": 3,\n   \"number_card_name\": \"Total Outgoing Payment\"\n  },\n  \"id\": \"qRJCty92Rw\",\n  \"type\": \"number_card\"\n },\n {\n  \"data\": {\n   \"col\": 3,\n   \"number_card_name\": \"Total Outgoing Salary(Last month)\"\n  },\n  \"id\": \"7s8Y5hyl7H\",\n  \"type\": \"number_card\"\n },\n {\n  \"data\": {\n   \"chart_name\": \"Yearly Inward Outward Trend\",\n   \"col\": 12\n  },\n  \"id\": \"chart-yearly-inward-outward-trend\",\n  \"type\": \"chart\"\n },\n {\n  \"data\": {\n   \"chart_name\": \"Net Movement Waterfall (Monthly)\",\n   \"col\": 12\n  },\n  \"id\": \"chart-net-movement-waterfall-monthly\",\n  \"type\": \"chart\"\n },\n {\n  \"data\": {\n   \"chart_name\": \"Inward Quantity Trend\",\n   \"col\": 4\n  },\n  \"id\": \"chart-inward-qty\",\n  \"type\": \"chart\"\n },\n {\n  \"data\": {\n   \"chart_name\": \"Outward Quantity Trend\",\n   \"col\": 4\n  },\n  \"id\": \"chart-outward-qty\",\n  \"type\": \"chart\"\n },\n {\n  \"data\": {\n   \"chart_name\": \"Transfer Type Distribution\",\n   \"col\": 4\n  },\n  \"id\": \"chart-transfer-type\",\n  \"type\": \"chart\"\n },\n {\n  \"data\": {\n   \"chart_name\": \"Warehouse Occupancy Timeline\",\n   \"col\": 12\n  },\n  \"id\": \"chart-warehouse-occupancy-timeline\",\n  \"type\": \"chart\"\n },\n {\n  \"data\": {\n   \"chart_name\": \"Warehouse Utilization\",\n   \"col\": 6\n  },\n  \"id\": \"chart-warehouse-utilization\",\n  \"type\": \"chart\"\n },\n {\n  \"data\": {\n   \"chart_name\": \"Top Customers\",\n   \"col\": 6\n  },\n  \"id\": \"rwEdxJdZOn\",\n  \"type\": \"chart\"\n },\n {\n  \"data\": {\n   \"chart_name\": \"Login Activity\",\n   \"col\": 6\n  },\n  \"id\": \"0n-IF36MPU\",\n  \"type\": \"chart\"\n },\n {\n  \"data\": {\n   \"chart_name\": \"Client Portal Views\",\n   \"col\": 6\n  },\n  \"id\": \"chart-client-portal-views\",\n  \"type\": \"chart\"\n },\n {\n  \"data\": {\n   \"col\": 3,\n   \"shortcut_name\": \"Cold Storage Settings\"\n  },\n  \"id\": \"shortcut-cold-storage-settings\",\n  \"type\": \"shortcut\"\n },\n {\n  \"data\": {\n   \"col\": 3,\n   \"shortcut_name\": \"Inward Receipt\"\n  },\n  \"id\": \"shortcut-cold-storage-inward\",\n  \"type\": \"shortcut\"\n },\n {\n  \"data\": {\n   \"col\": 3,\n   \"shortcut_name\": \"Outward Dispatch\"\n  },\n  \"id\": \"shortcut-cold-storage-outward\",\n  \"type\": \"shortcut\"\n },\n {\n  \"data\": {\n   \"col\": 3,\n   \"shortcut_name\": \"Transfer\"\n  },\n  \"id\": \"shortcut-cold-storage-transfer\",\n  \"type\": \"shortcut\"\n },\n {\n  \"data\": {\n   \"col\": 3,\n   \"shortcut_name\": \"Live Batch Stock\"\n  },\n  \"id\": \"shortcut-cold-storage-live-batch-stock\",\n  \"type\": \"shortcut\"\n }\n]",
+ "content": "[{\"id\":\"0vPQxDvtPc\",\"type\":\"number_card\",\"data\":{\"number_card_name\":\"Active Customers\",\"col\":3}},{\"id\":\"VvMhFdwWt2\",\"type\":\"number_card\",\"data\":{\"number_card_name\":\"Total Active Items\",\"col\":3}},{\"id\":\"jXtpNEtdDN\",\"type\":\"number_card\",\"data\":{\"number_card_name\":\"Active Batches\",\"col\":3}},{\"id\":\"3J-SEispYi\",\"type\":\"number_card\",\"data\":{\"number_card_name\":\"Total Warehouses\",\"col\":3}},{\"id\":\"onZ33cT3Co\",\"type\":\"number_card\",\"data\":{\"number_card_name\":\"Total Outgoing Bills\",\"col\":3}},{\"id\":\"cZuE0d-P70\",\"type\":\"number_card\",\"data\":{\"number_card_name\":\"Total Incoming Payment\",\"col\":3}},{\"id\":\"qRJCty92Rw\",\"type\":\"number_card\",\"data\":{\"number_card_name\":\"Total Outgoing Payment\",\"col\":3}},{\"id\":\"7s8Y5hyl7H\",\"type\":\"number_card\",\"data\":{\"number_card_name\":\"Total Outgoing Salary(Last month)\",\"col\":3}},{\"id\":\"chart-yearly-inward-outward-trend\",\"type\":\"chart\",\"data\":{\"chart_name\":\"Yearly Inward Outward Trend\",\"col\":12}},{\"id\":\"chart-inward-qty\",\"type\":\"chart\",\"data\":{\"chart_name\":\"Inward Quantity Trend\",\"col\":4}},{\"id\":\"chart-outward-qty\",\"type\":\"chart\",\"data\":{\"chart_name\":\"Outward Quantity Trend\",\"col\":4}},{\"id\":\"chart-transfer-type\",\"type\":\"chart\",\"data\":{\"chart_name\":\"Transfer Type Distribution\",\"col\":4}},{\"id\":\"chart-net-movement-waterfall-monthly\",\"type\":\"chart\",\"data\":{\"chart_name\":\"Net Movement Waterfall (Monthly)\",\"col\":12}},{\"id\":\"chart-warehouse-occupancy-timeline\",\"type\":\"chart\",\"data\":{\"chart_name\":\"Warehouse Occupancy Timeline\",\"col\":12}},{\"id\":\"chart-warehouse-utilization\",\"type\":\"chart\",\"data\":{\"chart_name\":\"Warehouse Utilization\",\"col\":6}},{\"id\":\"rwEdxJdZOn\",\"type\":\"chart\",\"data\":{\"chart_name\":\"Top Customers\",\"col\":6}},{\"id\":\"0n-IF36MPU\",\"type\":\"chart\",\"data\":{\"chart_name\":\"Login Activity\",\"col\":6}},{\"id\":\"chart-client-portal-views\",\"type\":\"chart\",\"data\":{\"chart_name\":\"Client Portal Views\",\"col\":6}}]",
  "creation": "2026-02-14 15:57:24.771732",
  "custom_blocks": [],
  "docstatus": 0,
@@ -54,15 +54,6 @@
  "is_hidden": 0,
  "label": "Cold Storage",
  "links": [
-  {
-   "hidden": 0,
-   "icon": "workflow",
-   "is_query_report": 0,
-   "label": "Operations",
-   "link_count": 0,
-   "onboard": 0,
-   "type": "Card Break"
-  },
   {
    "hidden": 0,
    "is_query_report": 0,
@@ -92,15 +83,6 @@
    "link_type": "DocType",
    "onboard": 1,
    "type": "Link"
-  },
-  {
-   "hidden": 0,
-   "icon": "database",
-   "is_query_report": 0,
-   "label": "Masters",
-   "link_count": 0,
-   "onboard": 0,
-   "type": "Card Break"
   },
   {
    "hidden": 0,
@@ -134,15 +116,6 @@
   },
   {
    "hidden": 0,
-   "icon": "settings",
-   "is_query_report": 0,
-   "label": "Configuration",
-   "link_count": 0,
-   "onboard": 0,
-   "type": "Card Break"
-  },
-  {
-   "hidden": 0,
    "is_query_report": 0,
    "label": "Settings",
    "link_count": 0,
@@ -150,15 +123,6 @@
    "link_type": "DocType",
    "onboard": 1,
    "type": "Link"
-  },
-  {
-   "hidden": 0,
-   "icon": "chart",
-   "is_query_report": 0,
-   "label": "Reports & Analytics",
-   "link_count": 0,
-   "onboard": 0,
-   "type": "Card Break"
   },
   {
    "hidden": 0,
@@ -218,12 +182,34 @@
   {
    "hidden": 0,
    "is_query_report": 0,
+   "label": "Login Activity Log",
+   "link_count": 0,
+   "link_to": "Cold Storage Login Activity Log",
+   "link_type": "Report",
+   "onboard": 0,
+   "report_ref_doctype": "Activity Log",
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
    "label": "Warehouse Occupancy Timeline",
    "link_count": 0,
    "link_to": "Cold Storage Warehouse Occupancy Timeline",
    "link_type": "Report",
    "onboard": 0,
    "report_ref_doctype": "Warehouse",
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Client Portal Access Log",
+   "link_count": 0,
+   "link_to": "Cold Storage Client Portal Access Log",
+   "link_type": "Report",
+   "onboard": 0,
+   "report_ref_doctype": "Web Page View",
    "type": "Link"
   },
   {
@@ -260,7 +246,7 @@
    "type": "Link"
   }
  ],
- "modified": "2026-02-20 21:15:47.979788",
+ "modified": "2026-02-21 10:53:46.555828",
  "modified_by": "Administrator",
  "module": "Cold Storage",
  "name": "Cold Storage",
@@ -304,44 +290,7 @@
  "quick_lists": [],
  "roles": [],
  "sequence_id": 1.0,
- "shortcuts": [
-  {
-   "color": "Grey",
-   "doc_view": "",
-   "label": "Cold Storage Settings",
-   "link_to": "Cold Storage Settings",
-   "type": "DocType"
-  },
-  {
-   "color": "Green",
-   "doc_view": "List",
-   "label": "Inward Receipt",
-   "link_to": "Cold Storage Inward",
-   "type": "DocType"
-  },
-  {
-   "color": "Red",
-   "doc_view": "List",
-   "label": "Outward Dispatch",
-   "link_to": "Cold Storage Outward",
-   "type": "DocType"
-  },
-  {
-   "color": "Blue",
-   "doc_view": "List",
-   "label": "Transfer",
-   "link_to": "Cold Storage Transfer",
-   "type": "DocType"
-  },
-  {
-   "color": "Orange",
-   "doc_view": "",
-   "label": "Live Batch Stock",
-   "link_to": "Cold Storage Live Batch Stock",
-   "report_ref_doctype": "Batch",
-   "type": "Report"
-  }
- ],
+ "shortcuts": [],
  "title": "Cold Storage",
  "type": "Workspace"
 }
