@@ -7,6 +7,8 @@ import frappe
 from frappe.custom.doctype.custom_field.custom_field import create_custom_fields
 from frappe.custom.doctype.property_setter.property_setter import make_property_setter
 
+from cold_storage.client_portal_views import CLIENT_PORTAL_VIEW_PATH_FILTER
+
 APP_CUSTOM_FIELDS = {
 	"Batch": [
 		{
@@ -37,8 +39,11 @@ WORKSPACE_NAME = "Cold Storage"
 DEFAULT_WEBPAGE_VIEWS_CHART = "Webpage Views"
 LEGACY_CUSTOMER_PORTAL_VIEWS_CHART = "Customer Portal Views"
 CLIENT_PORTAL_VIEWS_CHART = "Client Portal Views"
+LOGIN_ACTIVITY_CHART = "Login Activity"
 CLIENT_PORTAL_VIEWS_CHART_BLOCK_ID = "chart-client-portal-views"
-CLIENT_PORTAL_VIEWS_FILTERS_JSON = '[["Web Page View","path","like","client-portal%",false]]'
+CLIENT_PORTAL_VIEWS_FILTERS_JSON = (
+	f'[["Web Page View","path","like","{CLIENT_PORTAL_VIEW_PATH_FILTER}",false]]'
+)
 WAREHOUSE_OCCUPANCY_REPORT = "Cold Storage Warehouse Occupancy Timeline"
 WAREHOUSE_OCCUPANCY_CHART = "Warehouse Occupancy Timeline"
 WAREHOUSE_OCCUPANCY_CHART_BLOCK_ID = "chart-warehouse-occupancy-timeline"
@@ -92,6 +97,18 @@ LIVE_BATCH_STOCK_REPORT_ROLES = (
 	"Stock User",
 )
 AUDIT_TRAIL_REPORT_ROLES = (
+	"System Manager",
+	"Cold Storage Admin",
+	"Cold Storage Warehouse Manager",
+	"Cold Storage Inbound Operator",
+	"Cold Storage Inventory Controller",
+	"Cold Storage Billing Executive",
+	"Cold Storage Dispatch Operator",
+	"Cold Storage Client Portal User",
+	"Stock Manager",
+	"Stock User",
+)
+CLIENT_PORTAL_VIEWS_CHART_ROLES = (
 	"System Manager",
 	"Cold Storage Admin",
 	"Cold Storage Warehouse Manager",
@@ -178,6 +195,7 @@ def _ensure_client_portal_views_chart() -> None:
 	chart_values = {
 		"based_on": "modified",
 		"chart_type": "Count",
+		"currency": "",
 		"document_type": "Web Page View",
 		"dynamic_filters_json": "[]",
 		"filters_json": CLIENT_PORTAL_VIEWS_FILTERS_JSON,
@@ -190,6 +208,7 @@ def _ensure_client_portal_views_chart() -> None:
 		"timespan": "Last Year",
 		"type": "Line",
 		"use_report_chart": 0,
+		"value_based_on": "",
 	}
 
 	if frappe.db.exists("Dashboard Chart", LEGACY_CUSTOMER_PORTAL_VIEWS_CHART) and not frappe.db.exists(
@@ -220,8 +239,29 @@ def _ensure_client_portal_views_chart() -> None:
 		)
 		chart_doc.insert(ignore_permissions=True)
 
+	chart_doc = frappe.get_doc("Dashboard Chart", CLIENT_PORTAL_VIEWS_CHART)
+	desired_roles = [role for role in CLIENT_PORTAL_VIEWS_CHART_ROLES if frappe.db.exists("Role", role)]
+	existing_roles = [row.role for row in chart_doc.get("roles", []) if row.role]
+	if existing_roles != desired_roles:
+		chart_doc.set("roles", [{"role": role} for role in desired_roles])
+		chart_doc.save(ignore_permissions=True)
+
 	frappe.cache.delete_key(f"chart-data:{LEGACY_CUSTOMER_PORTAL_VIEWS_CHART}")
 	frappe.cache.delete_key(f"chart-data:{CLIENT_PORTAL_VIEWS_CHART}")
+
+
+def _ensure_non_currency_dashboard_charts() -> None:
+	"""Keep count charts numeric without currency formatting."""
+	for chart_name in (CLIENT_PORTAL_VIEWS_CHART, LOGIN_ACTIVITY_CHART):
+		if not frappe.db.exists("Dashboard Chart", chart_name):
+			continue
+		frappe.db.set_value(
+			"Dashboard Chart",
+			chart_name,
+			{"currency": ""},
+			update_modified=False,
+		)
+		frappe.cache.delete_key(f"chart-data:{chart_name}")
 
 
 def _ensure_workspace_assets() -> None:
@@ -874,6 +914,7 @@ def after_install() -> None:
 	_ensure_dashboard_chart_types()
 	_ensure_top_customers_chart_source()
 	_ensure_client_portal_views_chart()
+	_ensure_non_currency_dashboard_charts()
 	_rename_legacy_audit_trail_report()
 	_ensure_live_batch_stock_report_roles()
 	_ensure_audit_trail_report_roles()
@@ -889,6 +930,7 @@ def after_migrate() -> None:
 	_ensure_dashboard_chart_types()
 	_ensure_top_customers_chart_source()
 	_ensure_client_portal_views_chart()
+	_ensure_non_currency_dashboard_charts()
 	_rename_legacy_audit_trail_report()
 	_ensure_live_batch_stock_report_roles()
 	_ensure_audit_trail_report_roles()

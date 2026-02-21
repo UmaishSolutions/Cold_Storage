@@ -16,6 +16,10 @@ from frappe.utils import add_days, cint, cstr, flt, getdate, now_datetime, nowda
 from frappe.utils.data import escape_html, format_datetime, formatdate
 from frappe.utils.pdf import get_pdf
 
+from cold_storage.client_portal_views import (
+	CLIENT_PORTAL_VIEW_SOURCE_API,
+	log_client_portal_view,
+)
 from cold_storage.setup.client_portal_user_permissions import (
 	CLIENT_PORTAL_ROLE,
 	get_customers_for_portal_user,
@@ -71,6 +75,7 @@ def get_snapshot(limit: int = DEFAULT_LIMIT, customer: str | None = None) -> dic
 	"""Return customer-filtered stock, movement, invoice and report data for the portal."""
 	row_limit = _sanitize_limit(limit)
 	_ensure_client_portal_access()
+	_track_client_portal_access()
 	customers, available_customers, selected_customer = _resolve_customer_scope(customer)
 
 	if not customers:
@@ -541,6 +546,17 @@ def _ensure_client_portal_access() -> None:
 		return
 	if CLIENT_PORTAL_ROLE not in roles and ADMIN_ROLE not in roles:
 		frappe.throw(_("You are not allowed to access the client portal"), frappe.PermissionError)
+
+
+def _track_client_portal_access() -> None:
+	"""Log a client-portal hit through the snapshot API fallback path."""
+	try:
+		log_client_portal_view(
+			source=CLIENT_PORTAL_VIEW_SOURCE_API,
+			path="client-portal",
+		)
+	except Exception:
+		frappe.log_error(frappe.get_traceback(), "Client Portal View Logging Failed")
 
 
 def _get_scoped_customers_for_session() -> list[str]:
