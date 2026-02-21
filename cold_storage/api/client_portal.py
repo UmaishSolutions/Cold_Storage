@@ -1263,7 +1263,7 @@ def _download_csv(filename: str, fieldnames: list[str], rows: list[dict]) -> Non
 
 
 @frappe.whitelist()
-def download_dashboard_report(customer: str | None = None, lang: str | None = None) -> None:
+def download_dashboard_report(customer: str | None = None) -> None:
 	"""Generate and download a comprehensive dashboard PDF report."""
 	_ensure_client_portal_access()
 	
@@ -1290,35 +1290,24 @@ def download_dashboard_report(customer: str | None = None, lang: str | None = No
 			
 	data["total_inward_30_days"] = total_inward
 
-	# Render Template (Urdu or English)
-	is_urdu = cstr(lang).strip().lower() == "ur"
-	template = "cold_storage/templates/pages/dashboard_report_ur.html" if is_urdu else "cold_storage/templates/pages/dashboard_report.html"
+	# Render Template
+	template = "cold_storage/templates/pages/dashboard_report.html"
 	html = frappe.render_template(template, data)
 
 	# Generate PDF
-	if is_urdu:
-		pdf_opts = {
-			"margin-top": "0mm",
-			"margin-right": "0mm",
-			"margin-bottom": "0mm",
-			"margin-left": "0mm",
-			"encoding": "UTF-8",
-			"no-outline": None,
-		}
-	else:
-		pdf_opts = {
-			"page-size": "A4",
-			"margin-top": "0mm",
-			"margin-right": "0mm",
-			"margin-bottom": "0mm",
-			"margin-left": "0mm",
-			"encoding": "UTF-8",
-			"no-outline": None,
-			"disable-smart-shrinking": "true",
-		}
+	pdf_opts = {
+		"page-size": "A4",
+		"margin-top": "0mm",
+		"margin-right": "0mm",
+		"margin-bottom": "0mm",
+		"margin-left": "0mm",
+		"encoding": "UTF-8",
+		"no-outline": None,
+		"disable-smart-shrinking": "true",
+	}
 	pdf_content = get_pdf(html, pdf_opts)
 
-	prefix = "ایگزیکٹو_رپورٹ" if is_urdu else "Executive_Report"
+	prefix = "Executive_Report"
 	frappe.response.filename = f"{prefix}_{data.get('selected_customer') or 'All'}_{nowdate()}.pdf"
 	frappe.response.filecontent = pdf_content
 	frappe.response.type = "pdf"

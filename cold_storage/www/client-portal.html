@@ -1336,17 +1336,6 @@
 				</svg>
 				Download Snapshot
 			</button>
-			<button class="cs-chip cs-chip-secondary" type="button" id="cs-snapshot-ur-btn"
-				onclick="downloadSnapshotUrdu()"
-				style="margin-left: 0.25rem; background: linear-gradient(135deg, #7c3aed, #6d28d9); color: white; border-color: #6d28d9; box-shadow: 0 2px 8px rgba(124,58,237,0.25);">
-				<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-					stroke-linecap="round" stroke-linejoin="round" style="margin-right: 4px;">
-					<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-					<polyline points="7 10 12 15 17 10"></polyline>
-					<line x1="12" y1="15" x2="12" y2="3"></line>
-				</svg>
-				اردو PDF
-			</button>
 		</nav>
 
 		<section class="cs-kpi-grid cs-animate" data-delay="2">
@@ -2926,18 +2915,6 @@
 			}
 			// Use window.open to trigger download in new tab/window without navigating away
 			window.open(url, '_blank');
-		};
-
-		// Urdu PDF Report Download
-		window.downloadSnapshotUrdu = () => {
-			showToast("اردو رپورٹ تیار ہو رہی ہے...", "info");
-			let url = "/api/method/cold_storage.api.client_portal.download_dashboard_report";
-			let params = new URLSearchParams();
-			params.set("lang", "ur");
-			if (selectedCustomer) {
-				params.set("customer", selectedCustomer);
-			}
-			window.open(`${url}?${params.toString()}`, '_blank');
 		};
 	})();
 </script>
