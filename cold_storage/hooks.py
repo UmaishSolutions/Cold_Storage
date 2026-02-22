@@ -8,7 +8,7 @@ app_logo_url = "/assets/cold_storage/images/cold-storage-logo.svg"
 app_home = "/app/cold-storage"
 
 # Apps
-required_apps = ["erpnext"]
+required_apps = ["erpnext", "hrms", "lending"]
 
 # Includes in <head>
 # app_include_css = "/assets/cold_storage/css/cold_storage.css"

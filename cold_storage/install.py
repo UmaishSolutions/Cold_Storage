@@ -70,6 +70,20 @@ AUDIT_TRAIL_SHORTCUT_LABEL = "Audit Trail & Compliance Pack"
 REPORTS_SECTION_LABEL = "Reports"
 SETUP_SECTION_LABEL = "Setup"
 MASTERS_SECTION_LABEL = "Masters"
+PEOPLE_OPS_SECTION_LABEL = "People Ops"
+PEOPLE_OPS_DOCTYPES = (
+	("Employee", "Employee"),
+	("Attendance", "Attendance"),
+	("Employee Checkin", "Employee Checkin"),
+	("Payroll Entry", "Payroll Entry"),
+	("Salary Slip", "Salary Slip"),
+	("Additional Salary", "Additional Salary"),
+	("Employee Advance", "Employee Advance"),
+	("Loan Application", "Loan Application"),
+	("Loan", "Loan"),
+	("Loan Disbursement", "Loan Disbursement"),
+	("Loan Repayment", "Loan Repayment"),
+)
 SIDEBAR_ICON_BY_LABEL = {
 	"Home": "🏠",
 	"Inward Receipt": "📥",
@@ -95,6 +109,18 @@ SIDEBAR_ICON_BY_LABEL = {
 	"Batch": "📦",
 	"Item": "🏷️",
 	"Customer": "🤝",
+	PEOPLE_OPS_SECTION_LABEL: "👥",
+	"Employee": "🧑‍🏭",
+	"Attendance": "🕒",
+	"Employee Checkin": "✅",
+	"Payroll Entry": "💳",
+	"Salary Slip": "💵",
+	"Additional Salary": "🎁",
+	"Employee Advance": "💸",
+	"Loan Application": "📝",
+	"Loan": "🏦",
+	"Loan Disbursement": "📤",
+	"Loan Repayment": "📥",
 }
 LIVE_BATCH_STOCK_REPORT_ROLES = (
 	"System Manager",
@@ -406,6 +432,30 @@ def _ensure_workspace_report_link_and_shortcut(
 	return updated
 
 
+def _ensure_workspace_doctype_link(workspace, *, doctype_name: str, label: str) -> bool:
+	"""Ensure an operational DocType link exists on the workspace."""
+	if not frappe.db.exists("DocType", doctype_name):
+		return False
+
+	has_doctype_link = any(
+		link.type == "Link" and link.link_type == "DocType" and link.link_to == doctype_name
+		for link in workspace.get("links", [])
+	)
+	if has_doctype_link:
+		return False
+
+	workspace.append(
+		"links",
+		{
+			"type": "Link",
+			"label": label,
+			"link_type": "DocType",
+			"link_to": doctype_name,
+		},
+	)
+	return True
+
+
 def _ensure_workspace_assets() -> None:
 	"""Ensure cold storage analytics are visible on the workspace dashboard."""
 	if not frappe.db.exists("Workspace", WORKSPACE_NAME):
@@ -682,6 +732,12 @@ def _ensure_workspace_assets() -> None:
 		shortcut_color="Blue",
 		insert_after_block_id=LOGIN_ACTIVITY_LOG_SHORTCUT_BLOCK_ID,
 	) or updated
+	for doctype_name, label in PEOPLE_OPS_DOCTYPES:
+		updated = _ensure_workspace_doctype_link(
+			workspace,
+			doctype_name=doctype_name,
+			label=label,
+		) or updated
 
 	if frappe.db.exists("Report", AUDIT_TRAIL_REPORT):
 		has_audit_trail_link = any(
@@ -874,9 +930,22 @@ def _ensure_workspace_sidebar_assets() -> None:
 		link_to="Customer",
 		label="Customer",
 	)
-	items_with_required_masters = _apply_sidebar_icons(items_with_required_masters)
+	items_with_people_ops = _ensure_sidebar_section(
+		items_with_required_masters, section_label=PEOPLE_OPS_SECTION_LABEL
+	)
+	for doctype_name, label in PEOPLE_OPS_DOCTYPES:
+		if not frappe.db.exists("DocType", doctype_name):
+			continue
+		items_with_people_ops = _ensure_sidebar_link_under_section(
+			items_with_people_ops,
+			section_label=PEOPLE_OPS_SECTION_LABEL,
+			link_type="DocType",
+			link_to=doctype_name,
+			label=label,
+		)
+	items_with_people_ops = _apply_sidebar_icons(items_with_people_ops)
 
-	sidebar.set("items", items_with_required_masters)
+	sidebar.set("items", items_with_people_ops)
 	for idx, item in enumerate(sidebar.get("items", []), start=1):
 		item.idx = idx
 	sidebar.save(ignore_permissions=True)
@@ -949,6 +1018,30 @@ def _ensure_sidebar_link_under_section(
 	insert_at = next_section_index if next_section_index is not None else len(clean_items)
 	clean_items.insert(insert_at, link_item)
 	return clean_items
+
+
+def _ensure_sidebar_section(items: list, *, section_label: str) -> list:
+	"""Ensure a sidebar section break exists."""
+	if any(
+		item.get("type") == "Section Break" and (item.get("label") or "").strip() == section_label
+		for item in items
+	):
+		return items
+
+	items.append(
+		{
+			"type": "Section Break",
+			"label": section_label,
+			"link_type": "DocType",
+			"child": 0,
+			"collapsible": 1,
+			"keep_closed": 1,
+			"indent": 1,
+			"show_arrow": 0,
+			"icon": SIDEBAR_ICON_BY_LABEL.get(section_label, ""),
+		}
+	)
+	return items
 
 
 def _apply_sidebar_icons(items: list) -> list:
