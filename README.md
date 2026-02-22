@@ -11,7 +11,7 @@
 
 ---
 
-*A complete Frappe/ERPNext application for managing cold storage warehouse operations — from goods receipt to dispatch — with automated billing, inventory tracking, and a modern self-service client portal.*
+*A complete Frappe/ERPNext application for managing cold storage warehouse operations — from goods receipt to dispatch — with automated billing, advanced inventory tracking, and a modern self-service client portal.*
 
 </div>
 
@@ -61,7 +61,7 @@ Sales Invoices and Journal Entries are auto-created on submit based on configura
 <td>
 
 ### 🌐 Self-Service Client Portal
-A modern, full-width dashboard at `/client-portal` with real-time KPIs, stock composition charts, movement trends, and PDF report downloads (English + Urdu).
+A modern, full-width dashboard at `/client-portal` with real-time KPIs, stock composition charts, movement trends, and Executive PDF report downloads.
 
 </td>
 <td>
@@ -94,8 +94,8 @@ Company-scoped WhatsApp notifications for Inward/Outward submit events, with tem
 </td>
 <td>
 
-### 🧰 Operations-Friendly UX
-One-click "Send Notification" on submitted vouchers, JSON formatting for template params, and guided setup checks to reduce configuration errors.
+### 🧰 Advanced Operations UX
+Smart field filtering (batches by customer, warehouse by stock), Live Available Quantities in child tables, one-click WhatsApp notifications, and guided setups.
 
 </td>
 </tr>
@@ -114,7 +114,7 @@ One-click "Send Notification" on submitted vouchers, JSON formatting for templat
 | **Cold Storage Outward** | Record goods dispatched to customers | Stock Entry + Sales Invoice |
 | **Cold Storage Transfer** | Ownership or location transfers | Stock Entry + Journal Entry |
 
-Each transaction DocType has a child table (`Inward Item`, `Outward Item`, `Transfer Item`) for line-item details including item, batch, quantity, and UOM.
+Each transaction DocType has a child table (`Inward Item`, `Outward Item`, `Transfer Item`) for line-item details including item, batch, quantity, and UOM. The child tables dynamically display the **Available Quantity** for selected batches to prevent over-dispatching.
 
 ### Custom Fields on Standard DocTypes
 
@@ -125,23 +125,24 @@ Each transaction DocType has a child table (`Inward Item`, `Outward Item`, `Tran
 
 ---
 
-## 📊 Reports
+## 📊 Reports & Exports
 
-| Report | Description |
-|--------|-------------|
+| Report & Export | Description |
+|-----------------|-------------|
 | 📥 **Inward Register** | All goods received with customer, item, batch, and date filters |
 | 📤 **Outward Register** | All dispatches with quantity and date tracking |
 | 🔄 **Transfer Register** | Ownership and location transfer history |
 | 👤 **Customer Register** | Customer-wise stock summary and activity |
 | 📈 **Warehouse Utilization** | Current capacity usage vs. `custom_storage_capacity` |
 | 📅 **Occupancy Timeline** | Historical warehouse occupancy over time |
-| 📉 **Yearly Inward/Outward Trend** | Annual movement patterns and seasonal analysis |
+| 📉 **Yearly Trend** | Annual inward/outward movement patterns and seasonal analysis |
+| 🏢 **Product Brochure** | Downloadable Marketing PDF covering app scope (`/api/method/cold_storage.api.client_portal.download_brochure`) |
 
 ---
 
 ## 🌐 Client Portal
 
-The self-service portal at `/client-portal` gives customers real-time visibility into their storage operations:
+The self-service portal at `/client-portal` gives customers real-time visibility into their storage operations. The layout features **Dynamic Aesthetic Design** optimized for high visual impact and analytical transparency.
 
 | Feature | Description |
 |---------|-------------|
@@ -149,7 +150,7 @@ The self-service portal at `/client-portal` gives customers real-time visibility
 | 🥧 **Stock Composition** | Visual breakdown of stored items by quantity |
 | 📈 **Movement Trends** | 30-day inward/outward bar chart |
 | 📋 **Stock Movements** | Filterable table of all transactions |
-| 📥 **PDF Reports** | Downloadable Executive Report in **English** and **اردو** |
+| 📥 **Snapshot PDF** | Downloadable Executive Summary Report in PDF format |
 | 🔍 **Smart Search** | Keyboard-shortcut (`/`) powered search across all data |
 | 👤 **Customer Scope** | Portal users see only their own data; admins can filter by customer |
 
@@ -211,11 +212,7 @@ bench --site <site-name> clear-cache
 
 4. **Portal Users** → Map customers through `Customer > portal_users` or the contact email
 
-5. **(Optional) WhatsApp Setup** → In `Cold Storage Settings`, enable WhatsApp and configure:
-   - Phone Number ID
-   - Permanent Access Token
-   - API Version + Template Language
-   - Inward/Outward template names or text templates
+5. **(Optional) WhatsApp Setup** → In `Cold Storage Settings`, enable WhatsApp and configure settings.
 
 ---
 
@@ -281,6 +278,7 @@ bench --site <site-name> run-tests --app cold_storage
 
 ### Code Quality
 
+- **Production-Ready**: Removed all debug statements and TODOs structure.
 - **Linting**: Ruff with `line-length = 110`, targeting Python 3.14
 - **Type Safety**: All whitelisted API methods require type annotations
 - **Pre-commit**: Automated formatting and lint checks
