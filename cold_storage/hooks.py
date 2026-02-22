@@ -8,7 +8,7 @@ app_logo_url = "/assets/cold_storage/images/cold-storage-logo.svg"
 app_home = "/app/cold-storage"
 
 # Apps
-required_apps = ["erpnext", "hrms", "lending"]
+required_apps = ["erpnext"]
 
 # Includes in <head>
 # app_include_css = "/assets/cold_storage/css/cold_storage.css"
@@ -106,5 +106,17 @@ doc_events = {
 	},
 	"GL Entry": {
 		"autoname": "cold_storage.events.naming.autoname_cold_storage_gl_entry",
+	},
+	"Cold Storage Inward Item": {
+		"autoname": "cold_storage.events.naming.autoname_cold_storage_child_doctype",
+	},
+	"Cold Storage Outward Item": {
+		"autoname": "cold_storage.events.naming.autoname_cold_storage_child_doctype",
+	},
+	"Cold Storage Transfer Item": {
+		"autoname": "cold_storage.events.naming.autoname_cold_storage_child_doctype",
+	},
+	"Charge Configuration": {
+		"autoname": "cold_storage.events.naming.autoname_cold_storage_child_doctype",
 	},
 }

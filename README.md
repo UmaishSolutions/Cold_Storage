@@ -6,8 +6,6 @@
 
 [![Frappe](https://img.shields.io/badge/Built_on-Frappe_v16-blue?style=for-the-badge&logo=data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0Ij48cGF0aCBmaWxsPSJ3aGl0ZSIgZD0iTTEyIDJDNi40OCAyIDIgNi40OCAyIDEyczQuNDggMTAgMTAgMTAgMTAtNC40OCAxMC0xMFMxNy41MiAyIDEyIDJ6Ii8+PC9zdmc+)](https://frappeframework.com)
 [![ERPNext](https://img.shields.io/badge/Requires-ERPNext-0089FF?style=for-the-badge)](https://erpnext.com)
-[![Frappe HRMS](https://img.shields.io/badge/Requires-Frappe_HRMS-0EA5E9?style=for-the-badge)](https://github.com/frappe/hrms)
-[![Frappe Lending](https://img.shields.io/badge/Requires-Frappe_Lending-22C55E?style=for-the-badge)](https://github.com/frappe/lending)
 [![Python](https://img.shields.io/badge/Python-3.14+-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://python.org)
 [![License](https://img.shields.io/badge/License-MIT-10B981?style=for-the-badge)](LICENSE)
 
@@ -176,16 +174,13 @@ Roles are managed in code and synced automatically on install/migrate:
 
 ---
 
-## 👥 HR & Lending Operations
+## 🏷️ Naming Convention
 
-Cold Storage now includes direct operational access to **Frappe HRMS** and **Frappe Lending** workflows focused on employee administration for warehouse teams:
+All operational Cold Storage DocTypes use a **company-abbreviation prefix** in naming.
 
-- **Attendance & Time**: `Attendance`, `Employee Checkin`
-- **Salary & Bonus Processing**: `Payroll Entry`, `Salary Slip`, `Additional Salary`
-- **Employee Advances**: `Employee Advance`
-- **Employee Loan Lifecycle**: `Loan Application`, `Loan`, `Loan Disbursement`, `Loan Repayment`
-
-These links are surfaced inside the Cold Storage workspace and sidebar under **People Ops** for faster day-to-day execution.
+- Transaction masters use series like: `ABBR-CS-IN-.YYYY.-`, `ABBR-CS-OUT-.YYYY.-`, `ABBR-CS-TR-.YYYY.-`
+- Cold-storage-generated accounting docs use prefixed series for Stock Entry / Sales Invoice / Journal Entry / GL Entry.
+- Child DocTypes in Cold Storage also receive company-prefixed names (for example item rows and charge rows).
 
 ---
 
@@ -195,8 +190,6 @@ These links are surfaced inside the Cold Storage workspace and sidebar under **P
 
 - [Frappe Bench](https://frappeframework.com/docs/user/en/installation) (v16+)
 - [ERPNext](https://erpnext.com) (required dependency)
-- [Frappe HRMS](https://github.com/frappe/hrms) (required dependency)
-- [Frappe Lending](https://github.com/frappe/lending) (required dependency)
 - Python **3.14+**
 
 ### Quick Start
@@ -208,13 +201,7 @@ cd $PATH_TO_YOUR_BENCH
 # Get the app
 bench get-app https://github.com/UmaishSolutions/Cold_Storage.git
 
-# Ensure required dependencies are present on bench
-bench get-app hrms
-bench get-app lending
-
 # Install on your site
-bench --site <site-name> install-app hrms
-bench --site <site-name> install-app lending
 bench --site <site-name> install-app cold_storage
 bench --site <site-name> migrate
 bench --site <site-name> clear-cache
