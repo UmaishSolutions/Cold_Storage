@@ -49,7 +49,7 @@ jinja = {
 portal_menu_items = [
 	{
 		"title": "Cold Storage Portal",
-		"route": "/client-portal",
+		"route": "/cs-portal",
 		"reference_doctype": "Cold Storage Inward",
 		"role": "Cold Storage Client Portal User",
 	},

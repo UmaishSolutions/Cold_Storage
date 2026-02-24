@@ -61,7 +61,7 @@ Sales Invoices and Journal Entries are auto-created on submit based on configura
 <td>
 
 ### 🌐 Self-Service Client Portal
-A modern, full-width dashboard at `/client-portal` with real-time KPIs, stock composition charts, movement trends, and Executive PDF report downloads.
+A modern, full-width dashboard at `/cs-portal` with real-time KPIs, stock composition charts, movement trends, and Executive PDF report downloads.
 
 </td>
 <td>
@@ -142,7 +142,7 @@ Each transaction DocType has a child table (`Inward Item`, `Outward Item`, `Tran
 
 ## 🌐 Client Portal
 
-The self-service portal at `/client-portal` gives customers real-time visibility into their storage operations. The layout features **Dynamic Aesthetic Design** optimized for high visual impact and analytical transparency.
+The self-service portal at `/cs-portal` gives customers real-time visibility into their storage operations. The layout features **Dynamic Aesthetic Design** optimized for high visual impact and analytical transparency.
 
 | Feature | Description |
 |---------|-------------|

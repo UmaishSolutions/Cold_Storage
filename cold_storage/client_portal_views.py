@@ -5,15 +5,15 @@ from __future__ import annotations
 
 import frappe
 
-CLIENT_PORTAL_VIEW_SOURCE_SERVER = "client-portal-server"
-CLIENT_PORTAL_VIEW_SOURCE_API = "client-portal-api"
-CLIENT_PORTAL_VIEW_PATH_DEFAULT = "client-portal"
-CLIENT_PORTAL_VIEW_PATH_FILTER = "%client-portal%"
+CLIENT_PORTAL_VIEW_SOURCE_SERVER = "cs-portal-server"
+CLIENT_PORTAL_VIEW_SOURCE_API = "cs-portal-api"
+CLIENT_PORTAL_VIEW_PATH_DEFAULT = "cs-portal"
+CLIENT_PORTAL_VIEW_PATH_FILTER = "%cs-portal%"
 CLIENT_PORTAL_VIEWS_CHART = "Client Portal Views"
 
 
 def log_client_portal_view(source: str, path: str | None = None) -> None:
-	"""Insert a client-portal access row in Web Page View when available."""
+	"""Insert a cs-portal access row in Web Page View when available."""
 	if not _can_track_views():
 		return
 

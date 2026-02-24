@@ -43,7 +43,7 @@ LOGIN_ACTIVITY_CHART = "Login Activity"
 LOGIN_ACTIVITY_FILTERS_JSON = (
 	'[["Activity Log","status","=","Success",false],["Activity Log","operation","=","Login",false]]'
 )
-CLIENT_PORTAL_VIEWS_CHART_BLOCK_ID = "chart-client-portal-views"
+CLIENT_PORTAL_VIEWS_CHART_BLOCK_ID = "chart-cs-portal-views"
 CLIENT_PORTAL_VIEWS_FILTERS_JSON = (
 	f'[["Web Page View","path","like","{CLIENT_PORTAL_VIEW_PATH_FILTER}",false]]'
 )
@@ -63,7 +63,7 @@ LOGIN_ACTIVITY_LOG_SHORTCUT_LABEL = "Login Activity Log"
 LOGIN_ACTIVITY_LOG_SHORTCUT_BLOCK_ID = "shortcut-cold-storage-login-activity-log"
 CLIENT_PORTAL_ACCESS_LOG_REPORT = "Cold Storage Client Portal Access Log"
 CLIENT_PORTAL_ACCESS_LOG_SHORTCUT_LABEL = "Client Portal Access Log"
-CLIENT_PORTAL_ACCESS_LOG_SHORTCUT_BLOCK_ID = "shortcut-cold-storage-client-portal-access-log"
+CLIENT_PORTAL_ACCESS_LOG_SHORTCUT_BLOCK_ID = "shortcut-cold-storage-cs-portal-access-log"
 LEGACY_AUDIT_TRAIL_REPORT = "Cold Storage Audit Trail & Compliance Pack"
 AUDIT_TRAIL_REPORT = "Cold Storage Audit Trail Compliance Pack"
 AUDIT_TRAIL_SHORTCUT_LABEL = "Audit Trail & Compliance Pack"
@@ -226,7 +226,7 @@ def _ensure_website_view_tracking_enabled() -> None:
 
 
 def _ensure_client_portal_views_chart() -> None:
-	"""Ensure client portal views chart only tracks /client-portal traffic."""
+	"""Ensure client portal views chart only tracks /cs-portal traffic."""
 	chart_values = {
 		"based_on": "modified",
 		"chart_type": "Count",

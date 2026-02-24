@@ -549,11 +549,11 @@ def _ensure_client_portal_access() -> None:
 
 
 def _track_client_portal_access() -> None:
-	"""Log a client-portal hit through the snapshot API fallback path."""
+	"""Log a cs-portal hit through the snapshot API fallback path."""
 	try:
 		log_client_portal_view(
 			source=CLIENT_PORTAL_VIEW_SOURCE_API,
-			path="client-portal",
+			path="cs-portal",
 		)
 	except Exception:
 		frappe.log_error(frappe.get_traceback(), "Client Portal View Logging Failed")

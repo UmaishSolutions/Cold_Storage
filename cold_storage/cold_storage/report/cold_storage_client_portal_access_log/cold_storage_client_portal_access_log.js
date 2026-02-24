@@ -22,7 +22,7 @@ frappe.query_reports["Cold Storage Client Portal Access Log"] = {
 			fieldname: "source",
 			label: __("Source"),
 			fieldtype: "Select",
-			options: "\nclient-portal-api\nclient-portal-server",
+			options: "\ncs-portal-api\ncs-portal-server",
 		},
 	],
 };

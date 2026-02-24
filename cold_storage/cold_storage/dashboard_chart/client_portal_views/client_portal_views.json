@@ -8,7 +8,7 @@
  "doctype": "Dashboard Chart",
  "document_type": "Web Page View",
  "dynamic_filters_json": "[]",
- "filters_json": "[[\"Web Page View\",\"path\",\"like\",\"%client-portal%\",false]]",
+ "filters_json": "[[\"Web Page View\",\"path\",\"like\",\"%cs-portal%\",false]]",
  "group_by_type": "Count",
  "idx": 1,
  "is_public": 0,

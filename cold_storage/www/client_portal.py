@@ -36,7 +36,7 @@ def get_context(context: dict) -> None:
 
 
 def _log_client_portal_access() -> None:
-	"""Write a deterministic view-log row for client-portal page loads."""
+	"""Write a deterministic view-log row for cs-portal page loads."""
 	try:
 		log_client_portal_view(source=CLIENT_PORTAL_VIEW_SOURCE_SERVER)
 	except Exception:
