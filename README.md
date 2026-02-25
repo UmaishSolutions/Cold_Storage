@@ -61,27 +61,27 @@ Sales Invoices and Journal Entries are auto-created on submit based on configura
 <td>
 
 ### 🌐 Self-Service Client Portal
-A modern, full-width dashboard at `/cs-portal` with real-time KPIs, stock composition charts, movement trends, and Executive PDF report downloads.
+A modern, full-width SPA dashboard at `/cs-portal` (160KB) with real-time KPIs, stock composition charts, movement trends, Executive PDF downloads, and product brochure access.
 
 </td>
 <td>
 
-### 📊 7 Built-In Reports
-Inward Register, Outward Register, Transfer Register, Customer Register, Warehouse Utilization, Occupancy Timeline, and Yearly Trend analysis.
+### 📊 11 Built-In Reports
+Inward Register, Outward Register, Transfer Register, Customer Register, Warehouse Utilization, Occupancy Timeline, Yearly Trend, Live Batch Stock, Net Movement Waterfall, Audit Trail & Compliance Pack, Client Portal Access Log, and Login Activity Log.
 
 </td>
 </tr>
 <tr>
 <td>
 
-### 🔐 9-Role Access Control
-Granular role-based permissions from Admin to Dispatch Operator, with automated Role Profile sync and customer-scoped portal access.
+### 🔐 9-Role Access Control + Permissions Dashboard
+Granular role-based permissions from Admin to Dispatch Operator, with automated Role Profile sync, customer-scoped portal access, and a centralized **Roles & Permissions** matrix page at `/app/cs-permissions`.
 
 </td>
 <td>
 
-### 📱 QR Code Print Formats
-Professional print formats for Inward Receipts, Outward Dispatches, and Transfers — each embedded with scannable QR codes.
+### 📱 4 QR Code Print Formats
+Professional print layouts with embedded scannable QR codes: Inward Half A4, Outward Dispatch QR, Outward Half A4, and Transfer QR.
 
 </td>
 </tr>
@@ -95,7 +95,7 @@ Company-scoped WhatsApp notifications for Inward/Outward submit events, with tem
 <td>
 
 ### 🧰 Advanced Operations UX
-Smart field filtering (batches by customer, warehouse by stock), Live Available Quantities in child tables, one-click WhatsApp notifications, and guided setups.
+Smart field filtering (batches by customer, warehouse by stock), live available quantities in child tables, one-click WhatsApp notifications, guided setups, and dashboard report PDF templates.
 
 </td>
 </tr>
@@ -109,7 +109,8 @@ Smart field filtering (batches by customer, warehouse by stock), Live Available 
 
 | DocType | Purpose | Auto-Creates |
 |---------|---------|-------------|
-| **Cold Storage Settings** | Global config: company, accounts, charge rates | — |
+| **Cold Storage Settings** | Global config: company, accounts, charge rates, WhatsApp, portal | — |
+| **Charge Configuration** | Per-Item-Group billing rates (child table of Settings) | — |
 | **Cold Storage Inward** | Record goods received from customers | Stock Entry + Sales Invoice |
 | **Cold Storage Outward** | Record goods dispatched to customers | Stock Entry + Sales Invoice |
 | **Cold Storage Transfer** | Ownership or location transfers | Stock Entry + Journal Entry |
@@ -123,26 +124,50 @@ Each transaction DocType has a child table (`Inward Item`, `Outward Item`, `Tran
 | **Batch** | `custom_customer` | Enforces strict batch → customer ownership |
 | **Warehouse** | `custom_storage_capacity` | Maximum storable quantity for utilization analytics |
 
+### Custom Pages
+
+| Page | Route | Purpose |
+|------|-------|---------|
+| **CS Roles & Permissions** | `/app/cs-permissions` | Centralized permission matrix for all CS doctypes and portal access |
+
 ---
 
 ## 📊 Reports & Exports
 
-| Report & Export | Description |
-|-----------------|-------------|
-| 📥 **Inward Register** | All goods received with customer, item, batch, and date filters |
-| 📤 **Outward Register** | All dispatches with quantity and date tracking |
-| 🔄 **Transfer Register** | Ownership and location transfer history |
-| 👤 **Customer Register** | Customer-wise stock summary and activity |
-| 📈 **Warehouse Utilization** | Current capacity usage vs. `custom_storage_capacity` |
-| 📅 **Occupancy Timeline** | Historical warehouse occupancy over time |
-| 📉 **Yearly Trend** | Annual inward/outward movement patterns and seasonal analysis |
-| 🏢 **Product Brochure** | Downloadable Marketing PDF covering app scope (`/api/method/cold_storage.api.client_portal.download_brochure`) |
+| # | Report | Description |
+|---|--------|-------------|
+| 1 | 📥 **Inward Register** | All goods received with customer, item, batch, and date filters |
+| 2 | 📤 **Outward Register** | All dispatches with quantity and date tracking |
+| 3 | 🔄 **Transfer Register** | Ownership and location transfer history |
+| 4 | 👤 **Customer Register** | Customer-wise stock summary and activity |
+| 5 | 📈 **Warehouse Utilization** | Current capacity usage vs. `custom_storage_capacity` |
+| 6 | 📅 **Occupancy Timeline** | Historical warehouse occupancy over time |
+| 7 | 📉 **Yearly Trend** | Annual inward/outward movement patterns and seasonal analysis |
+| 8 | 📦 **Live Batch Stock** | Real-time batch-wise stock position across warehouses |
+| 9 | 📊 **Net Movement Waterfall** | Monthly net movement (inward − outward) waterfall chart |
+| 10 | 🔍 **Audit Trail & Compliance Pack** | Document audit trails for regulatory compliance |
+| 11 | 🌐 **Client Portal Access Log** | Portal usage tracking — who accessed what and when |
+| 12 | 🔑 **Login Activity Log** | User login events and patterns |
+| — | 🏢 **Product Brochure** | Downloadable marketing PDF covering app scope |
+
+---
+
+## 🖨️ Print Formats
+
+| Print Format | DocType | Description |
+|-------------|---------|-------------|
+| **Inward Half A4** | Cold Storage Inward | Compact receipt with QR code for goods received |
+| **Outward Dispatch QR** | Cold Storage Outward | Dispatch document with embedded scannable QR |
+| **Outward Half A4** | Cold Storage Outward | Compact dispatch receipt format |
+| **Transfer QR** | Cold Storage Transfer | Transfer confirmation with QR code |
+
+All print formats include embedded QR codes for quick document lookup via mobile scanning, powered by the Jinja utilities `get_document_qr_code_data_uri` and `get_document_sidebar_qr_code_data_uri`.
 
 ---
 
 ## 🌐 Client Portal
 
-The self-service portal at `/cs-portal` gives customers real-time visibility into their storage operations. The layout features **Dynamic Aesthetic Design** optimized for high visual impact and analytical transparency.
+The self-service portal at `/cs-portal` gives customers real-time visibility into their storage operations. Built as a **160KB single-page application** with Frappe Charts integration, the portal features a modern full-width layout optimized for both desktop and mobile.
 
 | Feature | Description |
 |---------|-------------|
@@ -150,15 +175,30 @@ The self-service portal at `/cs-portal` gives customers real-time visibility int
 | 🥧 **Stock Composition** | Visual breakdown of stored items by quantity |
 | 📈 **Movement Trends** | 30-day inward/outward bar chart |
 | 📋 **Stock Movements** | Filterable table of all transactions |
-| 📥 **Snapshot PDF** | Downloadable Executive Summary Report in PDF format |
+| 📥 **Executive Snapshot PDF** | Downloadable Executive Summary Report in PDF format |
+| 🏢 **Product Brochure** | Marketing PDF download from within the portal |
 | 🔍 **Smart Search** | Keyboard-shortcut (`/`) powered search across all data |
 | 👤 **Customer Scope** | Portal users see only their own data; admins can filter by customer |
+| 📢 **Announcements** | Admin-configurable announcements displayed in the portal header |
+| 📦 **Batch Stock Details** | Detailed batch-wise stock with quantities and warehouse locations |
+| 💳 **Outstanding Invoices** | View unpaid invoices and payment history |
+
+### Portal API Endpoints
+
+| Endpoint | Purpose |
+|----------|---------|
+| `get_portal_dashboard` | Dashboard KPIs, composition, trends, announcements |
+| `get_batch_stock_details` | Batch-wise stock position |
+| `get_movement_history` | Inward/outward/transfer history |
+| `get_invoices` | Outstanding and paid invoice listing |
+| `download_portal_report_pdf` | Customer-scoped report PDF download |
+| `download_brochure` | Product brochure PDF download |
 
 ---
 
 ## 🔐 Roles & Permissions
 
-Roles are managed in code and synced automatically on install/migrate:
+Roles are managed in code and synced automatically on install/migrate. A centralized **Permissions Dashboard** is available at `/app/cs-permissions` for an at-a-glance matrix view.
 
 | Role | Scope |
 |------|-------|
@@ -171,6 +211,8 @@ Roles are managed in code and synced automatically on install/migrate:
 | 🌐 **Client Portal User** | Self-service portal access (customer-scoped) |
 | 🔍 **Quality Inspector** | Inspection and quality workflows |
 | 🔧 **Maintenance Technician** | Equipment and facility management |
+
+> **Permissions Dashboard** — Visit `/app/cs-permissions` to see all roles × doctypes × 12 permission types in one interactive matrix. System Managers can click to toggle permissions directly.
 
 ---
 
@@ -222,7 +264,7 @@ bench --site <site-name> clear-cache
 
 4. **Portal Users** → Map customers through `Customer > portal_users` or the contact email
 
-5. **(Optional) WhatsApp Setup** → In `Cold Storage Settings`, enable WhatsApp and configure settings.
+5. **(Optional) WhatsApp Setup** → In `Cold Storage Settings`, enable WhatsApp and configure Meta Cloud API credentials
 
 ---
 
@@ -239,6 +281,10 @@ bench --site <site-name> execute cold_storage.setup.client_portal_user_permissio
 
 bench --site <site-name> clear-cache
 ```
+
+### Patch History
+
+The app includes **19 migration patches** for schema upgrades, data migrations, and feature rollouts — all managed via `patches.txt` and applied automatically during `bench migrate`.
 
 ---
 
@@ -288,10 +334,51 @@ bench --site <site-name> run-tests --app cold_storage
 
 ### Code Quality
 
-- **Production-Ready**: Removed all debug statements and TODOs structure.
+- **Production-Ready**: No debug statements or TODOs in the codebase
 - **Linting**: Ruff with `line-length = 110`, targeting Python 3.14
-- **Type Safety**: All whitelisted API methods require type annotations
+- **Type Safety**: All whitelisted API methods require type annotations (`require_type_annotated_api_methods = True`)
 - **Pre-commit**: Automated formatting and lint checks
+- **Export Annotations**: Auto-generated Python controller type annotations (`export_python_type_annotations = True`)
+
+---
+
+## 📁 Project Structure
+
+```
+cold_storage/
+├── api/                          # Whitelisted server APIs
+│   └── client_portal.py          # Portal API (38KB, 15+ endpoints)
+├── cold_storage/                 # Module root
+│   ├── doctype/                  # 5 parent + 3 child DocTypes
+│   │   ├── cold_storage_settings/
+│   │   ├── charge_configuration/
+│   │   ├── cold_storage_inward/
+│   │   ├── cold_storage_outward/
+│   │   ├── cold_storage_transfer/
+│   │   ├── cold_storage_inward_item/
+│   │   ├── cold_storage_outward_item/
+│   │   └── cold_storage_transfer_item/
+│   ├── page/                     # Custom pages
+│   │   └── cs_permissions/       # Roles & Permissions dashboard
+│   ├── print_format/             # 4 QR-enabled print layouts
+│   │   ├── cold_storage_inward_half_a4/
+│   │   ├── cold_storage_outward_dispatch_qr/
+│   │   ├── cold_storage_outward_half_a4/
+│   │   └── cold_storage_transfer_qr/
+│   ├── report/                   # 12 script reports
+│   └── workspace_sidebar/        # Desk workspace config
+├── config/                       # Desktop and module config
+├── events/                       # Document event handlers
+├── fixtures/                     # Roles and Role Profiles
+├── patches/                      # 19 migration patches
+├── public/                       # Static assets (JS, CSS, images)
+├── setup/                        # RBAC and portal user sync
+├── templates/                    # Dashboard report HTML template
+└── www/                          # Client portal SPA
+    ├── cs-portal.html            # Portal frontend (160KB SPA)
+    ├── cs_portal.py              # Portal route handler
+    └── frappe_charts.js          # Bundled Frappe Charts library
+```
 
 ---
 
@@ -314,7 +401,16 @@ Run `bench --site <site-name> migrate` to apply post-install handlers. Ensure at
 <details>
 <summary><strong>❌ Permission matrix drift after manual edits</strong></summary>
 
-Re-run `sync_role_based_access` to restore the code-defined permission matrix.
+Re-run `sync_role_based_access` to restore the code-defined permission matrix. Or use the **Permissions Dashboard** at `/app/cs-permissions` to review and fix individual permission entries.
+</details>
+
+<details>
+<summary><strong>❌ WhatsApp notifications not sending</strong></summary>
+
+1. Use **WhatsApp > Check Setup** in Cold Storage Settings to verify credentials
+2. Ensure the customer has a valid mobile number with country code
+3. Check the Error Log for Meta API responses
+4. Test with **WhatsApp > Send WhatsApp Test** before going live
 </details>
 
 ---
