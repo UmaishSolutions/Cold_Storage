@@ -32,15 +32,15 @@
 <style>
 	@import url("https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Sora:wght@500;600;700&display=swap");
 
-	#page-client-portal .page-content-wrapper {
+	#page-cs-portal .page-content-wrapper {
 		margin: 0;
 	}
 
-	#page-client-portal .page-header-wrapper {
+	#page-cs-portal .page-header-wrapper {
 		display: none;
 	}
 
-	#page-client-portal .page_content {
+	#page-cs-portal .page_content {
 		min-height: 100vh;
 	}
 
@@ -156,7 +156,7 @@
 		--cs-radius-xl: 1.25rem;
 	}
 
-	.client-portal {
+	.cs-portal {
 		--cs-bg-1: #f8fafc;
 		--cs-bg-2: #f1f5f9;
 		--cs-bg-3: #e2e8f0;
@@ -201,8 +201,8 @@
 		min-height: 100vh;
 	}
 
-	.client-portal::before,
-	.client-portal::after {
+	.cs-portal::before,
+	.cs-portal::after {
 		display: none;
 	}
 
@@ -929,6 +929,15 @@
 		.cs-charts-grid {
 			padding: 0 1rem;
 		}
+
+		.cs-req-item-row {
+			grid-template-columns: 1fr;
+			gap: 0.42rem;
+		}
+
+		.cs-req-item-row .remove-row {
+			width: 100%;
+		}
 	}
 
 	@media (max-width: 520px) {
@@ -1078,7 +1087,7 @@
 
 	.cs-req-item-row {
 		display: grid;
-		grid-template-columns: 2fr 1.5fr 1fr auto;
+		grid-template-columns: 2fr 1.3fr 1.3fr 1fr auto;
 		gap: 0.5rem;
 		align-items: end;
 		margin-bottom: 0.5rem;
@@ -1254,7 +1263,7 @@
 	}
 </style>
 
-<section class="client-portal">
+<section class="cs-portal">
 	<div class="cs-shell" id="cs-shell">
 		<header class="cs-topbar cs-animate" data-delay="1">
 			<div class="cs-brand">
@@ -1326,17 +1335,6 @@
 					<line x1="12" y1="15" x2="12" y2="3"></line>
 				</svg>
 				Download Snapshot
-			</button>
-			<button class="cs-chip cs-chip-secondary" type="button" id="cs-snapshot-ur-btn"
-				onclick="downloadSnapshotUrdu()"
-				style="margin-left: 0.25rem; background: linear-gradient(135deg, #7c3aed, #6d28d9); color: white; border-color: #6d28d9; box-shadow: 0 2px 8px rgba(124,58,237,0.25);">
-				<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-					stroke-linecap="round" stroke-linejoin="round" style="margin-right: 4px;">
-					<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-					<polyline points="7 10 12 15 17 10"></polyline>
-					<line x1="12" y1="15" x2="12" y2="3"></line>
-				</svg>
-				اردو PDF
 			</button>
 		</nav>
 
@@ -2475,6 +2473,83 @@
 
 		let availableItems = []; // Cache for current available items
 
+		const setSelectOptions = (selectEl, options, placeholder, selectedValue = "") => {
+			if (!selectEl) return;
+			selectEl.innerHTML = "";
+			const prompt = document.createElement("option");
+			prompt.value = "";
+			prompt.textContent = placeholder;
+			selectEl.appendChild(prompt);
+
+			(options || []).forEach((option) => {
+				const opt = document.createElement("option");
+				opt.value = option.value;
+				opt.textContent = option.label;
+				selectEl.appendChild(opt);
+			});
+
+			if (selectedValue && (options || []).some((option) => option.value === selectedValue)) {
+				selectEl.value = selectedValue;
+			} else {
+				selectEl.value = "";
+			}
+
+			selectEl.disabled = !(options || []).length;
+		};
+
+		const collectWarehouseOptions = ({ customer = "", itemCode = "", batchNo = "", movementType = "Inward" } = {}) => {
+			const rows = state.stock || [];
+			const aggregateByWarehouse = (pool) => {
+				const totals = new Map();
+				pool.forEach((row) => {
+					const warehouse = String(row.warehouse || "").trim();
+					if (!warehouse) return;
+					const qty = Number(row.qty || 0);
+					const safeQty = Number.isFinite(qty) ? qty : 0;
+					totals.set(warehouse, (totals.get(warehouse) || 0) + safeQty);
+				});
+
+				return Array.from(totals.entries())
+					.map(([warehouse, qty]) => ({ warehouse, qty }))
+					.sort((a, b) => a.warehouse.localeCompare(b.warehouse));
+			};
+
+			const baseFilter = (row) => {
+				if (customer && row.customer !== customer) return false;
+				if (itemCode && row.item_code !== itemCode) return false;
+				if (batchNo && row.batch_no !== batchNo) return false;
+				if (movementType === "Outward" && Number(row.qty || 0) <= 0) return false;
+				return true;
+			};
+
+			let matches = rows.filter(baseFilter);
+			if (!matches.length && customer) {
+				matches = rows.filter((row) => row.customer === customer);
+			}
+			if (!matches.length) {
+				matches = rows;
+			}
+			return aggregateByWarehouse(matches);
+		};
+
+		const renderWarehouseSelect = (selectEl, customer, itemCode, batchNo, movementType) => {
+			if (!selectEl) return;
+			const previous = selectEl.value;
+			const warehouses = collectWarehouseOptions({
+				customer,
+				itemCode,
+				batchNo,
+				movementType
+			});
+			const options = warehouses.map((row) => ({
+				value: row.warehouse,
+				label: movementType === "Outward"
+					? `${row.warehouse} (Avail: ${formatNumber(row.qty)})`
+					: row.warehouse
+			}));
+			setSelectOptions(selectEl, options, "-- Select Warehouse --", previous);
+		};
+
 		const getModalCustomer = () => {
 			// Use modal customer dropdown first, then selectedCustomer, then first available
 			return (reqCustomerInput && reqCustomerInput.value)
@@ -2596,6 +2671,11 @@
 					</select>
 				</div>
 				<div class="cs-field">
+					<select class="cs-select item-warehouse-select">
+						<option value="">-- Select Warehouse --</option>
+					</select>
+				</div>
+				<div class="cs-field">
 					<input class="cs-input item-qty" type="number" placeholder="Qty" step="0.01">
 				</div>
 				<button class="cs-btn cs-btn-sm remove-row" type="button">&times;</button>
@@ -2608,6 +2688,18 @@
 			// When item changes, fetch batches for that item
 			const itemSelect = row.querySelector(".item-code-select");
 			const batchSelect = row.querySelector(".item-batch-select");
+			const warehouseSelect = row.querySelector(".item-warehouse-select");
+
+			const refreshRowWarehouses = () => {
+				renderWarehouseSelect(
+					warehouseSelect,
+					getModalCustomer(),
+					itemSelect.value,
+					batchSelect.value,
+					reqTypeInput.value
+				);
+			};
+
 			itemSelect.addEventListener("change", async () => {
 				const itemCode = itemSelect.value;
 				const customer = getModalCustomer();
@@ -2616,6 +2708,7 @@
 
 				if (!itemCode || !customer) {
 					batchSelect.innerHTML = '<option value="">-- Select Batch --</option>';
+					refreshRowWarehouses();
 					return;
 				}
 
@@ -2634,7 +2727,12 @@
 					console.error("Failed to load batches:", err);
 					batchSelect.innerHTML = '<option value="">-- No Batches --</option>';
 				}
+
+				refreshRowWarehouses();
 			});
+
+			batchSelect.addEventListener("change", refreshRowWarehouses);
+			refreshRowWarehouses();
 
 			reqItemsContainer.appendChild(row);
 		};
@@ -2670,19 +2768,29 @@
 			const type = reqTypeInput.value;
 			const date = reqDateInput.value;
 			const items = [];
+			const invalidRows = [];
 
-			document.querySelectorAll(".cs-req-item-row").forEach(row => {
+			document.querySelectorAll(".cs-req-item-row").forEach((row, idx) => {
 				const codeEl = row.querySelector(".item-code-select") || row.querySelector(".item-code");
 				const code = codeEl ? codeEl.value : "";
 				const batchEl = row.querySelector(".item-batch-select");
 				const batch_no = batchEl ? batchEl.value : "";
-				const qty = row.querySelector(".item-qty").value;
-				if (code && qty > 0) {
-					const item = { item_code: code, qty: qty };
-					if (batch_no) item.batch_no = batch_no;
-					items.push(item);
+				const warehouseEl = row.querySelector(".item-warehouse-select");
+				const warehouse = warehouseEl ? warehouseEl.value : "";
+				const qty = Number(row.querySelector(".item-qty").value || 0);
+				const hasAnyValue = Boolean(code || batch_no || warehouse || qty > 0);
+				if (!hasAnyValue) return;
+				if (!code || !batch_no || !warehouse || qty <= 0) {
+					invalidRows.push(idx + 1);
+					return;
 				}
+				items.push({ item_code: code, batch_no, warehouse, qty });
 			});
+
+			if (invalidRows.length) {
+				showToast(`Complete item, batch, warehouse and quantity for row(s): ${invalidRows.join(", ")}`, "error");
+				return;
+			}
 
 			if (!items.length) {
 				showToast("Please add at least one item.", "error");
@@ -2807,18 +2915,6 @@
 			}
 			// Use window.open to trigger download in new tab/window without navigating away
 			window.open(url, '_blank');
-		};
-
-		// Urdu PDF Report Download
-		window.downloadSnapshotUrdu = () => {
-			showToast("اردو رپورٹ تیار ہو رہی ہے...", "info");
-			let url = "/api/method/cold_storage.api.client_portal.download_dashboard_report";
-			let params = new URLSearchParams();
-			params.set("lang", "ur");
-			if (selectedCustomer) {
-				params.set("customer", selectedCustomer);
-			}
-			window.open(`${url}?${params.toString()}`, '_blank');
 		};
 	})();
 </script>

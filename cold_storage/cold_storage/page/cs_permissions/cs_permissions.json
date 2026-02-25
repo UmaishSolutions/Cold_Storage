@@ -1,0 +1,23 @@
+{
+    "actions": [],
+    "creation": "2026-02-25 09:35:00.000000",
+    "doctype": "Page",
+    "icon": "lock",
+    "modified": "2026-02-25 09:35:00.000000",
+    "modified_by": "Administrator",
+    "module": "Cold Storage",
+    "name": "cs-permissions",
+    "owner": "Administrator",
+    "page_name": "cs-permissions",
+    "roles": [
+        {
+            "role": "System Manager"
+        },
+        {
+            "role": "Cold Storage Admin"
+        }
+    ],
+    "standard": "Yes",
+    "system_page": 0,
+    "title": "CS Roles & Permissions"
+}

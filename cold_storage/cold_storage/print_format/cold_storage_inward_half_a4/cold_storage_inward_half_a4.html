@@ -1,0 +1,664 @@
+{% set qr_data_uri = doc.get("submitted_qr_code_data_uri") %}
+{% set company_logo = frappe.db.get_value("Company", doc.company, "company_logo") if doc.company else None %}
+{% set header_logo = company_logo or "/assets/cold_storage/images/cold-storage-logo.svg" %}
+{% set company_address_row = frappe.db.sql(
+	"""
+		SELECT CONCAT_WS(
+			', ',
+			NULLIF(TRIM(a.address_line1), ''),
+			NULLIF(TRIM(a.address_line2), ''),
+			NULLIF(TRIM(a.city), ''),
+			NULLIF(TRIM(a.state), ''),
+			NULLIF(TRIM(a.pincode), '')
+		) AS one_line
+		FROM `tabAddress` a
+		INNER JOIN `tabDynamic Link` dl
+			ON dl.parent = a.name
+			AND dl.parenttype = 'Address'
+		WHERE dl.link_doctype = 'Company'
+			AND dl.link_name = %s
+		ORDER BY a.is_primary_address DESC, a.modified DESC
+		LIMIT 1
+	""",
+	(doc.company,),
+	as_dict=1
+) if doc.company else [] %}
+{% set company_address_line = company_address_row[0].one_line if company_address_row and company_address_row[0].one_line else "-" %}
+{% set company_phone = frappe.db.get_value("Company", doc.company, "phone_no") if doc.company else None %}
+{% set customer_territory = frappe.db.get_value("Customer", doc.customer, "territory") if doc.customer else None %}
+{% set storage_terms_and_conditions = frappe.db.get_single_value("Cold Storage Settings", "storage_terms_and_conditions") %}
+{% set item_rows = (doc.items or [])[:5] %}
+{% set hidden_rows = ((doc.items or [])|length) - 5 %}
+
+<style>
+	@page {
+		size: A4 portrait;
+		margin: 0.17in;
+	}
+
+	:root {
+		--cs-bg-1: #f8fafc;
+		--cs-bg-2: #f1f5f9;
+		--cs-bg-3: #e2e8f0;
+		--cs-surface: #ffffff;
+		--cs-surface-glass: rgba(255, 255, 255, 0.88);
+		--cs-border: #e2e8f0;
+		--cs-border-hover: #cbd5e1;
+		--cs-headline: #0f172a;
+		--cs-copy: #334155;
+		--cs-muted: #64748b;
+		--cs-accent: #0d9488;
+		--cs-accent-hover: #0f766e;
+		--cs-accent-subtle: #ccfbf1;
+		--cs-accent-strong: #065f46;
+		--cs-success: #10b981;
+		--cs-dark: #0f172a;
+		--cs-dark-2: #1e293b;
+		--cs-dark-3: #334155;
+		--cs-shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.06);
+		--cs-shadow-md: 0 8px 20px rgba(15, 23, 42, 0.08), 0 2px 6px rgba(15, 23, 42, 0.05);
+		--cs-shadow-lg: 0 14px 26px rgba(15, 23, 42, 0.1), 0 4px 10px rgba(15, 23, 42, 0.06);
+		--cs-radius-sm: 0.5rem;
+		--cs-radius-md: 0.75rem;
+		--cs-radius-lg: 1rem;
+	}
+
+	.cs-half-a4,
+	.cs-half-a4 * {
+		-webkit-print-color-adjust: exact;
+		print-color-adjust: exact;
+	}
+
+	.cs-sheet {
+		width: 100%;
+		max-width: 201mm;
+		margin: 0 auto;
+		display: flex;
+		flex-direction: column;
+		gap: 0;
+	}
+
+	.cs-copy-divider {
+		position: relative;
+		height: 0.34in;
+		min-height: 0.34in;
+		display: flex;
+		align-items: center;
+	}
+
+	.cs-copy-divider::before {
+		content: "";
+		width: 100%;
+		border-top: 1.6px dotted #64748b;
+	}
+
+	.cs-copy-divider::after {
+		content: "Cut Here";
+		position: absolute;
+		left: 50%;
+		top: 50%;
+		transform: translate(-50%, -50%);
+		font-size: 8px;
+		font-weight: 700;
+		letter-spacing: 0.14em;
+		text-transform: uppercase;
+		color: var(--cs-muted);
+		background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+		padding: 1px 7px;
+		border: 1px solid #e2e8f0;
+		border-radius: 999px;
+	}
+
+	.cs-half-a4 {
+		font-family: "Manrope", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+		color: var(--cs-headline);
+		line-height: 1.14;
+		width: 100%;
+		max-width: 201mm;
+		height: 139.86mm;
+		min-height: 139.86mm;
+		position: relative;
+		background: linear-gradient(180deg, #ffffff 0%, var(--cs-bg-1) 70%, #effcf9 100%);
+		border: 1px solid #d7e1e8;
+		border-radius: 14px;
+		box-sizing: border-box;
+		overflow: hidden;
+		page-break-inside: avoid;
+		display: flex;
+		flex-direction: column;
+		box-shadow: var(--cs-shadow-lg);
+	}
+
+	.cs-half-a4::before {
+		content: "";
+		position: absolute;
+		left: 0;
+		top: 0;
+		right: 0;
+		height: 3px;
+		z-index: 1;
+		background: linear-gradient(90deg, var(--cs-accent) 0%, var(--cs-success) 48%, #38bdf8 100%);
+	}
+
+	.cs-head {
+		position: relative;
+		z-index: 2;
+		overflow: hidden;
+		background: linear-gradient(135deg, var(--cs-dark) 0%, var(--cs-dark-2) 60%, #0f3a33 100%);
+		color: #f8fafc;
+		padding: 8px 10px;
+		min-height: 130px;
+		border-bottom: 1px solid rgba(186, 230, 253, 0.3);
+		box-shadow: inset 0 -1px 0 rgba(255, 255, 255, 0.08);
+	}
+
+	.cs-head::before {
+		content: "";
+		position: absolute;
+		top: -40%;
+		right: -8%;
+		width: 240px;
+		height: 240px;
+		background: radial-gradient(circle, rgba(13, 148, 136, 0.2) 0%, transparent 72%);
+	}
+
+	.cs-head::after {
+		content: "";
+		position: absolute;
+		bottom: -50%;
+		left: 15%;
+		width: 180px;
+		height: 180px;
+		background: radial-gradient(circle, rgba(16, 185, 129, 0.14) 0%, transparent 74%);
+	}
+
+	.cs-head-main {
+		position: relative;
+		z-index: 2;
+		padding: 0 165px;
+		text-align: center;
+		text-shadow: 0 1px 1px rgba(15, 23, 42, 0.35);
+	}
+
+	.cs-company-name {
+		margin-top: 8px;
+		font-family: "Sora", "Manrope", "Segoe UI", sans-serif;
+		font-size: 22px;
+		font-weight: 700;
+		letter-spacing: -0.01em;
+		color: #ecfeff;
+	}
+
+	.cs-company-address {
+		margin-top: 2px;
+		font-size: 8.5px;
+		font-weight: 600;
+		color: #bfdbfe;
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
+	}
+
+	.cs-company-number {
+		margin-top: 2px;
+		font-size: 8.5px;
+		font-weight: 600;
+		color: #bfdbfe;
+	}
+
+	.cs-title {
+		display: inline-block;
+		margin: 2px 0 0;
+		padding: 1px 9px;
+		font-family: "Sora", "Manrope", "Segoe UI", sans-serif;
+		font-size: 15px;
+		font-weight: 600;
+		color: #f8fafc;
+		border: 1px solid rgba(191, 219, 254, 0.35);
+		border-radius: 999px;
+		background: linear-gradient(180deg, rgba(51, 65, 85, 0.48) 0%, rgba(15, 23, 42, 0.3) 100%);
+	}
+
+	.cs-subtitle {
+		margin-top: 2px;
+		font-size: 10px;
+		font-weight: 600;
+		letter-spacing: 0.02em;
+		color: #bae6fd;
+	}
+
+	.cs-subtitle-row {
+		margin-top: 2px;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		gap: 5px;
+	}
+
+	.cs-copy-mark {
+		font-size: 8.5px;
+		font-weight: 700;
+		text-transform: uppercase;
+		letter-spacing: 0.08em;
+		color: #dcfce7;
+		border: 1px solid rgba(94, 234, 212, 0.68);
+		background: linear-gradient(180deg, rgba(13, 148, 136, 0.26) 0%, rgba(13, 148, 136, 0.12) 100%);
+		padding: 1px 8px;
+		border-radius: 999px;
+	}
+
+	.cs-logo {
+		position: absolute;
+		z-index: 3;
+		top: 0px;
+		left: 10px;
+		width: 151.2px;
+		height: 130px;
+		background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+		border: 1px solid #cbd5e1;
+		border-radius: 12px;
+		padding: 6px;
+		box-sizing: border-box;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		box-shadow: 0 6px 14px rgba(15, 23, 42, 0.16), 0 1px 2px rgba(15, 23, 42, 0.08);
+	}
+
+	.cs-logo img {
+		max-width: 100%;
+		max-height: 100%;
+		object-fit: contain;
+		display: block;
+	}
+
+	.cs-qr {
+		position: absolute;
+		z-index: 3;
+		top: 0px;
+		right: 10px;
+		background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+		border: 1px solid #cbd5e1;
+		border-radius: 12px;
+		width: 132.25px;
+		height: 130px;
+		box-sizing: border-box;
+		overflow: hidden;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		box-shadow: 0 6px 14px rgba(15, 23, 42, 0.16), 0 1px 2px rgba(15, 23, 42, 0.08);
+	}
+
+	.cs-qr img {
+		width: 100%;
+		height: 100%;
+		object-fit: contain;
+		display: block;
+	}
+
+	.cs-body {
+		padding: 8px 10px 6px;
+		position: relative;
+		background: linear-gradient(180deg, #ffffff 0%, var(--cs-bg-1) 76%, #effcf9 100%);
+		flex: 1;
+		display: flex;
+		flex-direction: column;
+	}
+
+	.cs-body::before {
+		content: "";
+		position: absolute;
+		top: -55px;
+		left: -60px;
+		width: 190px;
+		height: 190px;
+		background: radial-gradient(circle, rgba(13, 148, 136, 0.09) 0%, transparent 72%);
+		pointer-events: none;
+	}
+
+	.cs-body > * {
+		position: relative;
+		z-index: 1;
+	}
+
+	.cs-grid {
+		display: grid;
+		grid-template-columns: 1fr 1fr;
+		gap: 5px 8px;
+		margin-bottom: 6px;
+	}
+
+	.cs-meta-card {
+		position: relative;
+		overflow: hidden;
+		background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+		border: 1px solid #d9e4ec;
+		border-radius: 9px;
+		padding: 4px 7px;
+		box-shadow: var(--cs-shadow-sm);
+	}
+
+	.cs-meta-card::before {
+		content: "";
+		position: absolute;
+		left: 0;
+		top: 0;
+		width: 40px;
+		height: 2px;
+		background: linear-gradient(90deg, var(--cs-accent) 0%, #2dd4bf 100%);
+	}
+
+	.cs-label {
+		display: block;
+		font-size: 8px;
+		line-height: 1.05;
+		text-transform: uppercase;
+		letter-spacing: 0.06em;
+		font-weight: 700;
+		color: var(--cs-muted);
+	}
+
+	.cs-value {
+		font-size: 11px;
+		line-height: 1.1;
+		font-weight: 700;
+		color: var(--cs-headline);
+	}
+
+	.cs-meta-card-inline {
+		grid-column: 1 / -1;
+	}
+
+	.cs-inline-meta-row {
+		display: flex;
+		align-items: center;
+		gap: 6px;
+		min-width: 0;
+	}
+
+	.cs-inline-meta-group {
+		display: flex;
+		align-items: baseline;
+		gap: 3px;
+		flex: 1 1 0;
+		min-width: 0;
+	}
+
+	.cs-inline-meta-group .cs-value {
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
+
+	.cs-inline-meta-group .cs-label,
+	.cs-inline-meta-group .cs-value {
+		display: inline;
+		margin: 0;
+	}
+
+	.cs-inline-separator {
+		width: 1px;
+		align-self: stretch;
+		background: #cbd5e1;
+		flex: 0 0 1px;
+	}
+
+	.cs-table {
+		width: 100%;
+		border-collapse: collapse;
+		border-radius: 8px;
+		overflow: hidden;
+		background: #ffffff;
+		border: 1px solid #d9e4ec;
+		box-shadow: var(--cs-shadow-sm);
+	}
+
+	.cs-table th {
+		background: linear-gradient(180deg, #14b8a6 0%, var(--cs-accent-hover) 100%);
+		color: #ecfeff;
+		font-size: 8.5px;
+		font-weight: 700;
+		text-transform: uppercase;
+		letter-spacing: 0.05em;
+		padding: 4px 4px;
+		border: 1px solid rgba(15, 118, 110, 0.7);
+		text-shadow: 0 1px 0 rgba(15, 23, 42, 0.25);
+	}
+
+	.cs-table td {
+		font-size: 10px;
+		line-height: 1.12;
+		padding: 3px 4px;
+		border: 1px solid #e2e8f0;
+		color: var(--cs-copy);
+		background: #ffffff;
+	}
+
+	.cs-table tbody tr:nth-child(even) td {
+		background: #f8fbfd;
+	}
+
+	.cs-right {
+		text-align: right;
+	}
+
+	.cs-center {
+		text-align: center;
+	}
+
+	.cs-muted-row td {
+		color: var(--cs-muted);
+		font-style: italic;
+		background: #eff4f8;
+	}
+
+	.cs-foot {
+		margin-top: 5px;
+		display: flex;
+		justify-content: flex-end;
+		align-items: stretch;
+		gap: 6px;
+	}
+
+	.cs-totals {
+		position: relative;
+		overflow: hidden;
+		border: 1px solid #7dd3fc;
+		background: linear-gradient(135deg, #ecfeff 0%, #ccfbf1 58%, #d1fae5 100%);
+		border-radius: 8px;
+		padding: 5px 8px;
+		min-width: 44%;
+		font-size: 11px;
+		font-weight: 700;
+		color: #0f766e;
+		box-shadow: var(--cs-shadow-sm);
+	}
+
+	.cs-totals::after {
+		content: "";
+		position: absolute;
+		right: -14px;
+		top: -14px;
+		width: 46px;
+		height: 46px;
+		border-radius: 50%;
+		background: rgba(13, 148, 136, 0.12);
+	}
+
+	.cs-note {
+		margin-top: 4px;
+		padding: 5px 7px;
+		border: 1px solid #d9e4ec;
+		border-left: 4px solid var(--cs-accent);
+		border-radius: 8px;
+		background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+		font-size: 10px;
+		line-height: 1.18;
+		color: var(--cs-copy);
+		box-shadow: var(--cs-shadow-sm);
+	}
+
+	.cs-note strong {
+		color: var(--cs-accent-hover);
+	}
+
+	.cs-terms-label {
+		display: block;
+		direction: rtl;
+		text-align: right;
+		unicode-bidi: plaintext;
+		font-family: "Jameel Noori Nastaleeq", "Noori Nastaliq", "Noto Nastaliq Urdu", "Noto Naskh Arabic", serif;
+		font-size: 12px;
+		line-height: 1.45;
+		color: var(--cs-accent-hover);
+	}
+
+	.cs-terms-body {
+		margin-top: 1px;
+		white-space: pre-line;
+		direction: rtl;
+		text-align: right;
+		unicode-bidi: plaintext;
+		font-family: "Jameel Noori Nastaleeq", "Noori Nastaliq", "Noto Nastaliq Urdu", "Noto Naskh Arabic", serif;
+		font-size: 12px;
+		line-height: 1.55;
+	}
+
+	.cs-signatures {
+		display: grid;
+		grid-template-columns: 1fr 1fr;
+		gap: 8px;
+		width: 100%;
+		align-items: end;
+	}
+
+	.cs-signatures-bottom {
+		margin-top: auto;
+		padding-top: 6px;
+	}
+
+	.cs-sign {
+		font-size: 10px;
+		line-height: 1.14;
+		font-weight: 600;
+		color: var(--cs-copy);
+		border-top: 1.5px dashed #94a3b8;
+		padding-top: 2px;
+		text-align: center;
+		background: linear-gradient(180deg, transparent 0%, rgba(241, 245, 249, 0.8) 100%);
+		border-radius: 4px;
+	}
+</style>
+
+{% macro render_inward_copy(copy_type) %}
+<div class="cs-half-a4">
+	<div class="cs-head">
+		{% if header_logo %}
+		<div class="cs-logo">
+			<img src="{{ header_logo }}" alt="{{ doc.company or 'Company' }} Logo" />
+		</div>
+		{% endif %}
+
+		<div class="cs-head-main">
+			<div class="cs-company-name">{{ doc.company or "-" }}</div>
+			<div class="cs-company-address">{{ company_address_line }}</div>
+			<div class="cs-company-number">Phone: {{ company_phone or "-" }}</div>
+			<h2 class="cs-title">Inward Receipt</h2>
+			<div class="cs-subtitle-row">
+				<div class="cs-subtitle">Voucher: {{ doc.name }}</div>
+				<div class="cs-copy-mark">{{ copy_type }}</div>
+			</div>
+		</div>
+
+		<div class="cs-qr">
+			{% if qr_data_uri %}
+			<img src="{{ qr_data_uri }}" alt="Document QR Code" />
+			{% endif %}
+		</div>
+	</div>
+
+	<div class="cs-body">
+		<div class="cs-grid">
+			<div class="cs-meta-card cs-meta-card-inline">
+				<div class="cs-inline-meta-row">
+					<div class="cs-inline-meta-group">
+						<span class="cs-label">Customer</span>
+						<span class="cs-value">{{ doc.customer or "-" }}</span>
+					</div>
+					<div class="cs-inline-separator"></div>
+					<div class="cs-inline-meta-group">
+						<span class="cs-label">Posting Date</span>
+						<span class="cs-value">{{ frappe.utils.format_date(doc.posting_date) if doc.posting_date else "-" }}</span>
+					</div>
+				</div>
+			</div>
+			<div class="cs-meta-card cs-meta-card-inline">
+				<div class="cs-inline-meta-row">
+					<div class="cs-inline-meta-group">
+						<span class="cs-label">Territory</span>
+						<span class="cs-value">{{ customer_territory or "-" }}</span>
+					</div>
+					<div class="cs-inline-separator"></div>
+					<div class="cs-inline-meta-group">
+						<span class="cs-label">Receipt</span>
+						<span class="cs-value">{{ doc.receipt_no or "-" }}</span>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<table class="cs-table">
+			<thead>
+				<tr>
+					<th style="width: 6%;">#</th>
+					<th style="width: 34%;">Item</th>
+					<th style="width: 22%;" class="cs-center">Item Group</th>
+					<th style="width: 26%;" class="cs-center">Batch</th>
+					<th style="width: 12%;" class="cs-right">Qty</th>
+				</tr>
+			</thead>
+			<tbody>
+				{% for row in item_rows %}
+				<tr>
+					<td>{{ row.idx }}</td>
+					<td>{{ row.item_name or row.item or "-" }}</td>
+					<td class="cs-center">{{ row.item_group or "-" }}</td>
+					<td class="cs-center">{{ row.batch_no or "-" }}</td>
+					<td class="cs-right">{{ "{:,.0f}".format(frappe.utils.flt(row.qty)) }}</td>
+				</tr>
+				{% endfor %}
+				{% if hidden_rows > 0 %}
+				<tr class="cs-muted-row">
+					<td colspan="5">+ {{ hidden_rows }} more item row(s) on the document.</td>
+				</tr>
+				{% endif %}
+			</tbody>
+		</table>
+
+		<div class="cs-foot">
+			<div class="cs-totals">
+				<div>Total Qty: {{ "{:,.0f}".format(frappe.utils.flt(doc.total_qty)) }}</div>
+			</div>
+		</div>
+
+		<div class="cs-note"><strong>Remarks:</strong> {{ doc.remarks or "-" }}</div>
+
+		<div class="cs-note">
+			<strong class="cs-terms-label" lang="ur" dir="rtl">شرائط و ضوابط:</strong>
+			<div class="cs-terms-body" lang="ur" dir="rtl">{{ storage_terms_and_conditions or "-" }}</div>
+		</div>
+
+		<div class="cs-signatures cs-signatures-bottom">
+			<div class="cs-sign">Customer Signature</div>
+			<div class="cs-sign">Prepared By</div>
+		</div>
+	</div>
+</div>
+{% endmacro %}
+
+<div class="cs-sheet">
+	{{ render_inward_copy("Original") }}
+	<div class="cs-copy-divider"></div>
+	{{ render_inward_copy("Duplicate") }}
+</div>

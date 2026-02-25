@@ -42,13 +42,14 @@ fixtures = [
 jinja = {
 	"methods": [
 		"cold_storage.cold_storage.utils.get_document_qr_code_data_uri",
+		"cold_storage.cold_storage.utils.get_document_sidebar_qr_code_data_uri",
 	],
 }
 
 portal_menu_items = [
 	{
 		"title": "Cold Storage Portal",
-		"route": "/client-portal",
+		"route": "/cs-portal",
 		"reference_doctype": "Cold Storage Inward",
 		"role": "Cold Storage Client Portal User",
 	},
@@ -105,5 +106,17 @@ doc_events = {
 	},
 	"GL Entry": {
 		"autoname": "cold_storage.events.naming.autoname_cold_storage_gl_entry",
+	},
+	"Cold Storage Inward Item": {
+		"autoname": "cold_storage.events.naming.autoname_cold_storage_child_doctype",
+	},
+	"Cold Storage Outward Item": {
+		"autoname": "cold_storage.events.naming.autoname_cold_storage_child_doctype",
+	},
+	"Cold Storage Transfer Item": {
+		"autoname": "cold_storage.events.naming.autoname_cold_storage_child_doctype",
+	},
+	"Charge Configuration": {
+		"autoname": "cold_storage.events.naming.autoname_cold_storage_child_doctype",
 	},
 }

@@ -16,6 +16,10 @@ from frappe.utils import add_days, cint, cstr, flt, getdate, now_datetime, nowda
 from frappe.utils.data import escape_html, format_datetime, formatdate
 from frappe.utils.pdf import get_pdf
 
+from cold_storage.client_portal_views import (
+	CLIENT_PORTAL_VIEW_SOURCE_API,
+	log_client_portal_view,
+)
 from cold_storage.setup.client_portal_user_permissions import (
 	CLIENT_PORTAL_ROLE,
 	get_customers_for_portal_user,
@@ -71,6 +75,7 @@ def get_snapshot(limit: int = DEFAULT_LIMIT, customer: str | None = None) -> dic
 	"""Return customer-filtered stock, movement, invoice and report data for the portal."""
 	row_limit = _sanitize_limit(limit)
 	_ensure_client_portal_access()
+	_track_client_portal_access()
 	customers, available_customers, selected_customer = _resolve_customer_scope(customer)
 
 	if not customers:
@@ -150,7 +155,7 @@ def get_snapshot(limit: int = DEFAULT_LIMIT, customer: str | None = None) -> dic
 def create_service_request(request_type: str, customer: str, items: list[dict], required_date: str) -> dict:
 	"""Create a Draft Inward or Outward document."""
 	_ensure_client_portal_access()
-	
+
 	if request_type not in ("Inward", "Outward"):
 		frappe.throw(_("Invalid request type"), frappe.ValidationError)
 
@@ -158,29 +163,45 @@ def create_service_request(request_type: str, customer: str, items: list[dict], 
 		frappe.throw(_("At least one item is required"), frappe.ValidationError)
 
 	# Validate customer access
-	_customers, _available_customers, _selected_customer = _resolve_customer_scope(customer)
+	allowed_customers, _available_customers, _selected_customer = _resolve_customer_scope(customer)
+	if not allowed_customers:
+		frappe.throw(_("Invalid customer"), frappe.PermissionError)
 
 	doctype = "Cold Storage Inward" if request_type == "Inward" else "Cold Storage Outward"
-	
+
 	doc = frappe.new_doc(doctype)
 	doc.customer = customer
 	doc.posting_date = getdate(required_date) if required_date else now_datetime().date()
-	
+
 	# Set Naming Series based on type
 	if request_type == "Inward":
 		doc.naming_series = "CS-IN-.YYYY.-"
 	else:
 		doc.naming_series = "CS-OUT-.YYYY.-"
 
-	for item in items:
+	for idx, item in enumerate(items, start=1):
+		item_code = cstr(item.get("item_code")).strip()
+		batch_no = cstr(item.get("batch_no")).strip()
+		warehouse = cstr(item.get("warehouse")).strip()
+		qty = flt(item.get("qty"))
+
+		if not item_code:
+			frappe.throw(_("Row {0}: Item is required").format(idx), frappe.ValidationError)
+		if qty <= 0:
+			frappe.throw(_("Row {0}: Quantity must be greater than zero").format(idx), frappe.ValidationError)
+		if not batch_no:
+			frappe.throw(_("Row {0}: Batch No is required").format(idx), frappe.ValidationError)
+		if not warehouse:
+			frappe.throw(_("Row {0}: Warehouse is required").format(idx), frappe.ValidationError)
+
 		row = doc.append("items", {})
-		row.item_code = item.get("item_code")
-		row.qty = flt(item.get("qty"))
-		if item.get("batch_no"):
-			row.batch_no = item.get("batch_no")
+		row.item = item_code
+		row.qty = qty
+		row.batch_no = batch_no
+		row.warehouse = warehouse
 
 	doc.insert(ignore_permissions=True)
-	
+
 	return {
 		"name": doc.name,
 		"message": _("Request created successfully")
@@ -525,6 +546,17 @@ def _ensure_client_portal_access() -> None:
 		return
 	if CLIENT_PORTAL_ROLE not in roles and ADMIN_ROLE not in roles:
 		frappe.throw(_("You are not allowed to access the client portal"), frappe.PermissionError)
+
+
+def _track_client_portal_access() -> None:
+	"""Log a cs-portal hit through the snapshot API fallback path."""
+	try:
+		log_client_portal_view(
+			source=CLIENT_PORTAL_VIEW_SOURCE_API,
+			path="cs-portal",
+		)
+	except Exception:
+		frappe.log_error(frappe.get_traceback(), "Client Portal View Logging Failed")
 
 
 def _get_scoped_customers_for_session() -> list[str]:
@@ -1231,7 +1263,7 @@ def _download_csv(filename: str, fieldnames: list[str], rows: list[dict]) -> Non
 
 
 @frappe.whitelist()
-def download_dashboard_report(customer: str | None = None, lang: str | None = None) -> None:
+def download_dashboard_report(customer: str | None = None) -> None:
 	"""Generate and download a comprehensive dashboard PDF report."""
 	_ensure_client_portal_access()
 	
@@ -1258,35 +1290,24 @@ def download_dashboard_report(customer: str | None = None, lang: str | None = No
 			
 	data["total_inward_30_days"] = total_inward
 
-	# Render Template (Urdu or English)
-	is_urdu = cstr(lang).strip().lower() == "ur"
-	template = "cold_storage/templates/pages/dashboard_report_ur.html" if is_urdu else "cold_storage/templates/pages/dashboard_report.html"
+	# Render Template
+	template = "cold_storage/templates/pages/dashboard_report.html"
 	html = frappe.render_template(template, data)
 
 	# Generate PDF
-	if is_urdu:
-		pdf_opts = {
-			"margin-top": "0mm",
-			"margin-right": "0mm",
-			"margin-bottom": "0mm",
-			"margin-left": "0mm",
-			"encoding": "UTF-8",
-			"no-outline": None,
-		}
-	else:
-		pdf_opts = {
-			"page-size": "A4",
-			"margin-top": "0mm",
-			"margin-right": "0mm",
-			"margin-bottom": "0mm",
-			"margin-left": "0mm",
-			"encoding": "UTF-8",
-			"no-outline": None,
-			"disable-smart-shrinking": "true",
-		}
+	pdf_opts = {
+		"page-size": "A4",
+		"margin-top": "0mm",
+		"margin-right": "0mm",
+		"margin-bottom": "0mm",
+		"margin-left": "0mm",
+		"encoding": "UTF-8",
+		"no-outline": None,
+		"disable-smart-shrinking": "true",
+	}
 	pdf_content = get_pdf(html, pdf_opts)
 
-	prefix = "ایگزیکٹو_رپورٹ" if is_urdu else "Executive_Report"
+	prefix = "Executive_Report"
 	frappe.response.filename = f"{prefix}_{data.get('selected_customer') or 'All'}_{nowdate()}.pdf"
 	frappe.response.filecontent = pdf_content
 	frappe.response.type = "pdf"

@@ -26,6 +26,7 @@ class ColdStorageInward(Document):
 		posting_date: DF.Date | None
 		sales_invoice: DF.Link | None
 		stock_entry: DF.Link | None
+		submitted_qr_code_data_uri: DF.SmallText | None
 		total_qty: DF.Float
 		total_unloading_charges: DF.Currency
 	# end: auto-generated types
@@ -59,9 +60,11 @@ class ColdStorageInward(Document):
 		self.company = default_company
 
 	def on_submit(self) -> None:
+		self._store_submitted_qr_code_data_uri()
 		self._create_stock_entry()
 		self._create_sales_invoice()
 		self._create_labour_journal_entry()
+		self._enqueue_whatsapp_notification()
 
 	def on_cancel(self) -> None:
 		self._cancel_linked_docs()
@@ -346,3 +349,34 @@ class ColdStorageInward(Document):
 				linked_doc.flags.ignore_permissions = True
 				linked_doc.cancel()
 				frappe.msgprint(_("{0} {1} cancelled").format(doctype, linked_name), alert=True)
+
+	def _enqueue_whatsapp_notification(self) -> None:
+		"""Queue WhatsApp notification after submit without blocking core transaction."""
+		try:
+			from cold_storage.cold_storage.integrations.whatsapp import (
+				enqueue_document_whatsapp_notification,
+			)
+
+			enqueue_document_whatsapp_notification(self.doctype, self.name)
+		except Exception:
+			frappe.log_error(
+				title=_("Cold Storage Inward WhatsApp Enqueue Failed"),
+				message=frappe.get_traceback(),
+			)
+
+	def _store_submitted_qr_code_data_uri(self) -> None:
+		"""Persist a QR image at submit time so print formats never regenerate it."""
+		try:
+			from cold_storage.cold_storage.utils import get_document_sidebar_qr_code_data_uri
+
+			qr_data_uri = get_document_sidebar_qr_code_data_uri(self.doctype, self.name, scale=3)
+			if not qr_data_uri:
+				return
+
+			self.submitted_qr_code_data_uri = qr_data_uri
+			self.db_set("submitted_qr_code_data_uri", qr_data_uri, update_modified=False)
+		except Exception:
+			frappe.log_error(
+				title=_("Cold Storage Inward QR Cache Failed"),
+				message=frappe.get_traceback(),
+			)

@@ -1,313 +1,296 @@
 {
-    "app": "cold_storage",
-    "charts": [
-        {
-            "chart_name": "Top Customers",
-            "label": "Top Customers"
-        },
-        {
-            "chart_name": "Inward Quantity Trend",
-            "label": "Inward Quantity Trend"
-        },
-        {
-            "chart_name": "Login Activity",
-            "label": "Login Activity"
-        },
-        {
-            "chart_name": "Outward Quantity Trend",
-            "label": "Outward Quantity Trend"
-        },
-        {
-            "chart_name": "Webpage Views",
-            "label": "Webpage Views"
-        },
-        {
-            "chart_name": "Transfer Type Distribution",
-            "label": "Transfer Type Distribution"
-        },
-        {
-            "chart_name": "Warehouse Utilization",
-            "label": "Warehouse Utilization"
-        },
-        {
-            "chart_name": "Yearly Inward Outward Trend",
-            "label": "Yearly Inward Outward Trend"
-        },
-        {
-            "chart_name": "Warehouse Occupancy Timeline",
-            "label": "Warehouse Occupancy Timeline"
-        }
-    ],
-    "content": "[{\"id\":\"0vPQxDvtPc\",\"type\":\"number_card\",\"data\":{\"number_card_name\":\"Active Customers\",\"col\":3}},{\"id\":\"VvMhFdwWt2\",\"type\":\"number_card\",\"data\":{\"number_card_name\":\"Total Active Items\",\"col\":3}},{\"id\":\"jXtpNEtdDN\",\"type\":\"number_card\",\"data\":{\"number_card_name\":\"Active Batches\",\"col\":3}},{\"id\":\"3J-SEispYi\",\"type\":\"number_card\",\"data\":{\"number_card_name\":\"Total Warehouses\",\"col\":3}},{\"id\":\"onZ33cT3Co\",\"type\":\"number_card\",\"data\":{\"number_card_name\":\"Total Outgoing Bills\",\"col\":3}},{\"id\":\"cZuE0d-P70\",\"type\":\"number_card\",\"data\":{\"number_card_name\":\"Total Incoming Payment\",\"col\":3}},{\"id\":\"qRJCty92Rw\",\"type\":\"number_card\",\"data\":{\"number_card_name\":\"Total Outgoing Payment\",\"col\":3}},{\"id\":\"7s8Y5hyl7H\",\"type\":\"number_card\",\"data\":{\"number_card_name\":\"Total Outgoing Salary(Last month)\",\"col\":3}},{\"id\":\"chart-yearly-inward-outward-trend\",\"type\":\"chart\",\"data\":{\"chart_name\":\"Yearly Inward Outward Trend\",\"col\":12}},{\"id\":\"chart-inward-qty\",\"type\":\"chart\",\"data\":{\"chart_name\":\"Inward Quantity Trend\",\"col\":4}},{\"id\":\"chart-outward-qty\",\"type\":\"chart\",\"data\":{\"chart_name\":\"Outward Quantity Trend\",\"col\":4}},{\"id\":\"chart-transfer-type\",\"type\":\"chart\",\"data\":{\"chart_name\":\"Transfer Type Distribution\",\"col\":4}},{\"id\":\"chart-warehouse-occupancy-timeline\",\"type\":\"chart\",\"data\":{\"chart_name\":\"Warehouse Occupancy Timeline\",\"col\":12}},{\"id\":\"chart-warehouse-utilization\",\"type\":\"chart\",\"data\":{\"chart_name\":\"Warehouse Utilization\",\"col\":6}},{\"id\":\"rwEdxJdZOn\",\"type\":\"chart\",\"data\":{\"chart_name\":\"Top Customers\",\"col\":6}},{\"id\":\"0n-IF36MPU\",\"type\":\"chart\",\"data\":{\"chart_name\":\"Login Activity\",\"col\":6}},{\"id\":\"JC7DhWbfjx\",\"type\":\"chart\",\"data\":{\"chart_name\":\"Webpage Views\",\"col\":6}},{\"id\":\"shortcut-cold-storage-settings\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Cold Storage Settings\",\"col\":3}},{\"id\":\"shortcut-cold-storage-inward\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Inward Receipt\",\"col\":3}},{\"id\":\"shortcut-cold-storage-outward\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Outward Dispatch\",\"col\":3}},{\"id\":\"shortcut-cold-storage-transfer\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Transfer\",\"col\":3}}]",
-    "creation": "2026-02-14 15:57:24.771732",
-    "custom_blocks": [],
-    "docstatus": 0,
-    "doctype": "Workspace",
-    "for_user": "",
-    "hide_custom": 0,
-    "icon": "warehouse",
-    "idx": 0,
-    "is_hidden": 0,
-    "label": "Cold Storage",
-    "links": [
-        {
-            "hidden": 0,
-            "icon": "workflow",
-            "is_query_report": 0,
-            "label": "Operations",
-            "link_count": 0,
-            "onboard": 0,
-            "type": "Card Break"
-        },
-        {
-            "hidden": 0,
-            "is_query_report": 0,
-            "label": "Inward Receipt",
-            "link_count": 0,
-            "link_to": "Cold Storage Inward",
-            "link_type": "DocType",
-            "onboard": 1,
-            "type": "Link"
-        },
-        {
-            "hidden": 0,
-            "is_query_report": 0,
-            "label": "Outward Dispatch",
-            "link_count": 0,
-            "link_to": "Cold Storage Outward",
-            "link_type": "DocType",
-            "onboard": 1,
-            "type": "Link"
-        },
-        {
-            "hidden": 0,
-            "is_query_report": 0,
-            "label": "Transfer",
-            "link_count": 0,
-            "link_to": "Cold Storage Transfer",
-            "link_type": "DocType",
-            "onboard": 1,
-            "type": "Link"
-        },
-        {
-            "hidden": 0,
-            "icon": "database",
-            "is_query_report": 0,
-            "label": "Masters",
-            "link_count": 0,
-            "onboard": 0,
-            "type": "Card Break"
-        },
-        {
-            "hidden": 0,
-            "is_query_report": 0,
-            "label": "Warehouse",
-            "link_count": 0,
-            "link_to": "Warehouse",
-            "link_type": "DocType",
-            "onboard": 0,
-            "type": "Link"
-        },
-        {
-            "hidden": 0,
-            "is_query_report": 0,
-            "label": "Batch",
-            "link_count": 0,
-            "link_to": "Batch",
-            "link_type": "DocType",
-            "onboard": 0,
-            "type": "Link"
-        },
-        {
-            "hidden": 0,
-            "is_query_report": 0,
-            "label": "Charge Settings",
-            "link_count": 0,
-            "link_to": "Cold Storage Settings",
-            "link_type": "DocType",
-            "onboard": 0,
-            "type": "Link"
-        },
-        {
-            "hidden": 0,
-            "icon": "settings",
-            "is_query_report": 0,
-            "label": "Configuration",
-            "link_count": 0,
-            "onboard": 0,
-            "type": "Card Break"
-        },
-        {
-            "hidden": 0,
-            "is_query_report": 0,
-            "label": "Settings",
-            "link_count": 0,
-            "link_to": "Cold Storage Settings",
-            "link_type": "DocType",
-            "onboard": 1,
-            "type": "Link"
-        },
-        {
-            "hidden": 0,
-            "icon": "chart",
-            "is_query_report": 0,
-            "label": "Reports & Analytics",
-            "link_count": 0,
-            "onboard": 0,
-            "type": "Card Break"
-        },
-        {
-            "hidden": 0,
-            "is_query_report": 0,
-            "label": "Inward Register",
-            "link_count": 0,
-            "link_to": "Cold Storage Inward Register",
-            "link_type": "Report",
-            "onboard": 0,
-            "report_ref_doctype": "Cold Storage Inward",
-            "type": "Link"
-        },
-        {
-            "hidden": 0,
-            "is_query_report": 0,
-            "label": "Outward Register",
-            "link_count": 0,
-            "link_to": "Cold Storage Outward Register",
-            "link_type": "Report",
-            "onboard": 0,
-            "report_ref_doctype": "Cold Storage Outward",
-            "type": "Link"
-        },
-        {
-            "hidden": 0,
-            "is_query_report": 0,
-            "label": "Transfer Register",
-            "link_count": 0,
-            "link_to": "Cold Storage Transfer Register",
-            "link_type": "Report",
-            "onboard": 0,
-            "report_ref_doctype": "Cold Storage Transfer",
-            "type": "Link"
-        },
-        {
-            "hidden": 0,
-            "is_query_report": 0,
-            "label": "Customer Register",
-            "link_count": 0,
-            "link_to": "Cold Storage Customer Register",
-            "link_type": "Report",
-            "onboard": 0,
-            "report_ref_doctype": "Customer",
-            "type": "Link"
-        },
-        {
-            "hidden": 0,
-            "is_query_report": 0,
-            "label": "Warehouse Utilization",
-            "link_count": 0,
-            "link_to": "Cold Storage Warehouse Utilization",
-            "link_type": "Report",
-            "onboard": 0,
-            "report_ref_doctype": "Warehouse",
-            "type": "Link"
-        },
-        {
-            "hidden": 0,
-            "is_query_report": 0,
-            "label": "Warehouse Occupancy Timeline",
-            "link_count": 0,
-            "link_to": "Cold Storage Warehouse Occupancy Timeline",
-            "link_type": "Report",
-            "onboard": 0,
-            "report_ref_doctype": "Warehouse",
-            "type": "Link"
-        },
-        {
-            "hidden": 0,
-            "is_query_report": 0,
-            "label": "Yearly Inward Outward Trend",
-            "link_count": 0,
-            "link_to": "Cold Storage Yearly Inward Outward Trend",
-            "link_type": "Report",
-            "onboard": 0,
-            "report_ref_doctype": "Cold Storage Inward",
-            "type": "Link"
-        }
-    ],
-    "modified": "2026-02-15 12:00:00.000000",
-    "modified_by": "Administrator",
-    "module": "Cold Storage",
-    "name": "Cold Storage",
-    "number_cards": [
-        {
-            "label": "Active Customers",
-            "number_card_name": "Active Customers"
-        },
-        {
-            "label": "Total Warehouses",
-            "number_card_name": "Total Warehouses"
-        },
-        {
-            "label": "Total Active Items",
-            "number_card_name": "Total Active Items"
-        },
-        {
-            "label": "Active Batches",
-            "number_card_name": "Active Batches"
-        },
-        {
-            "label": "Total Outgoing Bills",
-            "number_card_name": "Total Outgoing Bills"
-        },
-        {
-            "label": "Total Outgoing Payment",
-            "number_card_name": "Total Outgoing Payment"
-        },
-        {
-            "label": "Total Incoming Payment",
-            "number_card_name": "Total Incoming Payment"
-        },
-        {
-            "label": "Total Outgoing Salary(Last month)",
-            "number_card_name": "Total Outgoing Salary(Last month)"
-        }
-    ],
-    "owner": "Administrator",
-    "parent_page": "",
-    "public": 1,
-    "quick_lists": [],
-    "roles": [],
-    "sequence_id": 1.0,
-    "shortcuts": [
-        {
-            "color": "Grey",
-            "doc_view": "",
-            "label": "Cold Storage Settings",
-            "link_to": "Cold Storage Settings",
-            "type": "DocType"
-        },
-        {
-            "color": "Green",
-            "doc_view": "List",
-            "label": "Inward Receipt",
-            "link_to": "Cold Storage Inward",
-            "type": "DocType"
-        },
-        {
-            "color": "Red",
-            "doc_view": "List",
-            "label": "Outward Dispatch",
-            "link_to": "Cold Storage Outward",
-            "type": "DocType"
-        },
-        {
-            "color": "Blue",
-            "doc_view": "List",
-            "label": "Transfer",
-            "link_to": "Cold Storage Transfer",
-            "type": "DocType"
-        }
-    ],
-    "title": "Cold Storage",
-    "type": "Workspace"
+ "app": "cold_storage",
+ "charts": [
+  {
+   "chart_name": "Top Customers",
+   "label": "Top Customers"
+  },
+  {
+   "chart_name": "Inward Quantity Trend",
+   "label": "Inward Quantity Trend"
+  },
+  {
+   "chart_name": "Login Activity",
+   "label": "Login Activity"
+  },
+  {
+   "chart_name": "Outward Quantity Trend",
+   "label": "Outward Quantity Trend"
+  },
+  {
+   "chart_name": "Transfer Type Distribution",
+   "label": "Transfer Type Distribution"
+  },
+  {
+   "chart_name": "Warehouse Utilization",
+   "label": "Warehouse Utilization"
+  },
+  {
+   "chart_name": "Yearly Inward Outward Trend",
+   "label": "Yearly Inward Outward Trend"
+  },
+  {
+   "chart_name": "Warehouse Occupancy Timeline",
+   "label": "Warehouse Occupancy Timeline"
+  },
+  {
+   "chart_name": "Net Movement Waterfall (Monthly)",
+   "label": "Net Movement Waterfall (Monthly)"
+  },
+  {
+   "chart_name": "Client Portal Views",
+   "label": "Client Portal Views"
+  }
+ ],
+ "content": "[{\"id\":\"0vPQxDvtPc\",\"type\":\"number_card\",\"data\":{\"number_card_name\":\"Active Customers\",\"col\":3}},{\"id\":\"VvMhFdwWt2\",\"type\":\"number_card\",\"data\":{\"number_card_name\":\"Total Active Items\",\"col\":3}},{\"id\":\"jXtpNEtdDN\",\"type\":\"number_card\",\"data\":{\"number_card_name\":\"Active Batches\",\"col\":3}},{\"id\":\"3J-SEispYi\",\"type\":\"number_card\",\"data\":{\"number_card_name\":\"Total Warehouses\",\"col\":3}},{\"id\":\"onZ33cT3Co\",\"type\":\"number_card\",\"data\":{\"number_card_name\":\"Total Outgoing Bills\",\"col\":3}},{\"id\":\"cZuE0d-P70\",\"type\":\"number_card\",\"data\":{\"number_card_name\":\"Total Incoming Payment\",\"col\":3}},{\"id\":\"qRJCty92Rw\",\"type\":\"number_card\",\"data\":{\"number_card_name\":\"Total Outgoing Payment\",\"col\":3}},{\"id\":\"7s8Y5hyl7H\",\"type\":\"number_card\",\"data\":{\"number_card_name\":\"Total Outgoing Salary(Last month)\",\"col\":3}},{\"id\":\"chart-yearly-inward-outward-trend\",\"type\":\"chart\",\"data\":{\"chart_name\":\"Yearly Inward Outward Trend\",\"col\":12}},{\"id\":\"chart-inward-qty\",\"type\":\"chart\",\"data\":{\"chart_name\":\"Inward Quantity Trend\",\"col\":4}},{\"id\":\"chart-outward-qty\",\"type\":\"chart\",\"data\":{\"chart_name\":\"Outward Quantity Trend\",\"col\":4}},{\"id\":\"chart-transfer-type\",\"type\":\"chart\",\"data\":{\"chart_name\":\"Transfer Type Distribution\",\"col\":4}},{\"id\":\"chart-net-movement-waterfall-monthly\",\"type\":\"chart\",\"data\":{\"chart_name\":\"Net Movement Waterfall (Monthly)\",\"col\":12}},{\"id\":\"chart-warehouse-occupancy-timeline\",\"type\":\"chart\",\"data\":{\"chart_name\":\"Warehouse Occupancy Timeline\",\"col\":12}},{\"id\":\"chart-warehouse-utilization\",\"type\":\"chart\",\"data\":{\"chart_name\":\"Warehouse Utilization\",\"col\":6}},{\"id\":\"rwEdxJdZOn\",\"type\":\"chart\",\"data\":{\"chart_name\":\"Top Customers\",\"col\":6}},{\"id\":\"0n-IF36MPU\",\"type\":\"chart\",\"data\":{\"chart_name\":\"Login Activity\",\"col\":6}},{\"id\":\"chart-cs-portal-views\",\"type\":\"chart\",\"data\":{\"chart_name\":\"Client Portal Views\",\"col\":6}}]",
+ "creation": "2026-02-14 15:57:24.771732",
+ "custom_blocks": [],
+ "docstatus": 0,
+ "doctype": "Workspace",
+ "for_user": "",
+ "hide_custom": 0,
+ "icon": "warehouse",
+ "idx": 0,
+ "is_hidden": 0,
+ "label": "Cold Storage",
+ "links": [
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Inward Receipt",
+   "link_count": 0,
+   "link_to": "Cold Storage Inward",
+   "link_type": "DocType",
+   "onboard": 1,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Outward Dispatch",
+   "link_count": 0,
+   "link_to": "Cold Storage Outward",
+   "link_type": "DocType",
+   "onboard": 1,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Transfer",
+   "link_count": 0,
+   "link_to": "Cold Storage Transfer",
+   "link_type": "DocType",
+   "onboard": 1,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Warehouse",
+   "link_count": 0,
+   "link_to": "Warehouse",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Batch",
+   "link_count": 0,
+   "link_to": "Batch",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Charge Settings",
+   "link_count": 0,
+   "link_to": "Cold Storage Settings",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Settings",
+   "link_count": 0,
+   "link_to": "Cold Storage Settings",
+   "link_type": "DocType",
+   "onboard": 1,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Inward Register",
+   "link_count": 0,
+   "link_to": "Cold Storage Inward Register",
+   "link_type": "Report",
+   "onboard": 0,
+   "report_ref_doctype": "Cold Storage Inward",
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Outward Register",
+   "link_count": 0,
+   "link_to": "Cold Storage Outward Register",
+   "link_type": "Report",
+   "onboard": 0,
+   "report_ref_doctype": "Cold Storage Outward",
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Transfer Register",
+   "link_count": 0,
+   "link_to": "Cold Storage Transfer Register",
+   "link_type": "Report",
+   "onboard": 0,
+   "report_ref_doctype": "Cold Storage Transfer",
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Customer Register",
+   "link_count": 0,
+   "link_to": "Cold Storage Customer Register",
+   "link_type": "Report",
+   "onboard": 0,
+   "report_ref_doctype": "Customer",
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Warehouse Utilization",
+   "link_count": 0,
+   "link_to": "Cold Storage Warehouse Utilization",
+   "link_type": "Report",
+   "onboard": 0,
+   "report_ref_doctype": "Warehouse",
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Login Activity Log",
+   "link_count": 0,
+   "link_to": "Cold Storage Login Activity Log",
+   "link_type": "Report",
+   "onboard": 0,
+   "report_ref_doctype": "Activity Log",
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Warehouse Occupancy Timeline",
+   "link_count": 0,
+   "link_to": "Cold Storage Warehouse Occupancy Timeline",
+   "link_type": "Report",
+   "onboard": 0,
+   "report_ref_doctype": "Warehouse",
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Client Portal Access Log",
+   "link_count": 0,
+   "link_to": "Cold Storage Client Portal Access Log",
+   "link_type": "Report",
+   "onboard": 0,
+   "report_ref_doctype": "Web Page View",
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Yearly Inward Outward Trend",
+   "link_count": 0,
+   "link_to": "Cold Storage Yearly Inward Outward Trend",
+   "link_type": "Report",
+   "onboard": 0,
+   "report_ref_doctype": "Cold Storage Inward",
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Live Batch Stock",
+   "link_count": 0,
+   "link_to": "Cold Storage Live Batch Stock",
+   "link_type": "Report",
+   "onboard": 0,
+   "report_ref_doctype": "Batch",
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Audit Trail & Compliance Pack",
+   "link_count": 0,
+   "link_to": "Cold Storage Audit Trail Compliance Pack",
+   "link_type": "Report",
+   "onboard": 0,
+   "report_ref_doctype": "Batch",
+   "type": "Link"
+  }
+ ],
+ "modified": "2026-02-21 10:53:46.555828",
+ "modified_by": "Administrator",
+ "module": "Cold Storage",
+ "name": "Cold Storage",
+ "number_cards": [
+  {
+   "label": "Active Customers",
+   "number_card_name": "Active Customers"
+  },
+  {
+   "label": "Total Warehouses",
+   "number_card_name": "Total Warehouses"
+  },
+  {
+   "label": "Total Active Items",
+   "number_card_name": "Total Active Items"
+  },
+  {
+   "label": "Total Outgoing Bills",
+   "number_card_name": "Total Outgoing Bills"
+  },
+  {
+   "label": "Total Outgoing Payment",
+   "number_card_name": "Total Outgoing Payment"
+  },
+  {
+   "label": "Total Incoming Payment",
+   "number_card_name": "Total Incoming Payment"
+  },
+  {
+   "label": "Total Outgoing Salary(Last month)",
+   "number_card_name": "Total Outgoing Salary(Last month)"
+  },
+  {
+   "label": "Active Batches",
+   "number_card_name": "Active Batches"
+  }
+ ],
+ "owner": "Administrator",
+ "parent_page": "",
+ "public": 1,
+ "quick_lists": [],
+ "roles": [],
+ "sequence_id": 1.0,
+ "shortcuts": [],
+ "title": "Cold Storage",
+ "type": "Workspace"
 }

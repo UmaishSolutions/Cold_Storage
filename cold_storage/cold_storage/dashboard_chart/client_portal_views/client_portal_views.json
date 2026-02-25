@@ -1,0 +1,60 @@
+{
+ "based_on": "modified",
+ "chart_name": "Client Portal Views",
+ "chart_type": "Count",
+ "creation": "2026-02-20 22:37:26.295694",
+ "currency": "",
+ "docstatus": 0,
+ "doctype": "Dashboard Chart",
+ "document_type": "Web Page View",
+ "dynamic_filters_json": "[]",
+ "filters_json": "[[\"Web Page View\",\"path\",\"like\",\"%cs-portal%\",false]]",
+ "group_by_type": "Count",
+ "idx": 1,
+ "is_public": 0,
+ "is_standard": 1,
+ "last_synced_on": "2026-02-21 10:53:53.414173",
+ "modified": "2026-02-21 13:39:12.505678",
+ "modified_by": "Administrator",
+ "module": "Cold Storage",
+ "name": "Client Portal Views",
+ "number_of_groups": 0,
+ "owner": "Administrator",
+ "roles": [
+  {
+   "role": "System Manager"
+  },
+  {
+   "role": "Cold Storage Admin"
+  },
+  {
+   "role": "Cold Storage Warehouse Manager"
+  },
+  {
+   "role": "Cold Storage Inbound Operator"
+  },
+  {
+   "role": "Cold Storage Inventory Controller"
+  },
+  {
+   "role": "Cold Storage Billing Executive"
+  },
+  {
+   "role": "Cold Storage Dispatch Operator"
+  },
+  {
+   "role": "Stock Manager"
+  },
+  {
+   "role": "Stock User"
+  }
+ ],
+ "show_values_over_chart": 0,
+ "time_interval": "Weekly",
+ "timeseries": 1,
+ "timespan": "Last Year",
+ "type": "Line",
+ "use_report_chart": 0,
+ "value_based_on": "",
+ "y_axis": []
+}

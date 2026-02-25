@@ -1,0 +1,37 @@
+{
+ "chart_name": "Net Movement Waterfall (Monthly)",
+ "chart_type": "Report",
+ "creation": "2026-02-20 00:00:00.000000",
+ "custom_options": "",
+ "docstatus": 0,
+ "doctype": "Dashboard Chart",
+ "dynamic_filters_json": "{}",
+ "filters_json": "{}",
+ "idx": 0,
+ "is_public": 1,
+ "is_standard": 1,
+ "last_synced_on": "2026-02-20 00:00:00.000000",
+ "modified": "2026-02-20 00:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Cold Storage",
+ "name": "Net Movement Waterfall (Monthly)",
+ "number_of_groups": 0,
+ "owner": "Administrator",
+ "roles": [
+  {
+   "role": "System Manager"
+  },
+  {
+   "role": "Stock Manager"
+  },
+  {
+   "role": "Stock User"
+  }
+ ],
+ "show_values_over_chart": 0,
+ "report_name": "Cold Storage Net Movement Waterfall Monthly",
+ "timeseries": 0,
+ "type": "Line",
+ "use_report_chart": 1,
+ "y_axis": []
+}

@@ -1,6 +1,7 @@
 # Copyright (c) 2026, Umaish Solutions and contributors
 # For license information, please see license.txt
 
+import json
 from types import SimpleNamespace
 from unittest import TestCase
 from unittest.mock import patch
@@ -9,8 +10,10 @@ import frappe
 
 from cold_storage.cold_storage.doctype.cold_storage_settings.cold_storage_settings import (
 	get_default_company,
+	get_default_whatsapp_template_body_params_json,
 	get_item_group_rates,
 	get_transfer_rate,
+	get_whatsapp_settings,
 	resolve_default_uom,
 	validate_warehouse_company,
 )
@@ -145,3 +148,77 @@ class TestColdStorageSettingsHelpers(TestCase):
 			self.assertEqual(resolve_default_uom(create_if_missing=True), "Nos")
 			get_doc.assert_called_once()
 			insert.assert_called_once_with(ignore_permissions=True)
+
+	def test_get_whatsapp_settings_returns_company_scoped_config(self):
+		settings = SimpleNamespace(
+			whatsapp_enabled=1,
+			company="Default Co",
+			whatsapp_api_version="v22.0",
+			whatsapp_phone_number_id="123456",
+			whatsapp_default_country_code="92",
+			whatsapp_template_language="en",
+			whatsapp_inward_template_name="cs_inward_notice",
+			whatsapp_inward_template_body_params='["{{ doc.name }}"]',
+			whatsapp_inward_text_template="Inward {{ doc.name }}",
+			whatsapp_outward_template_name="cs_outward_notice",
+			whatsapp_outward_template_body_params='["{{ doc.customer }}"]',
+			whatsapp_outward_text_template="Outward {{ doc.name }}",
+			whatsapp_send_inward_on_submit=1,
+			whatsapp_send_outward_on_submit=0,
+			get_password=lambda _fieldname, **_kwargs: "token-xyz",
+		)
+
+		with patch(
+			"cold_storage.cold_storage.doctype.cold_storage_settings.cold_storage_settings.get_settings",
+			return_value=settings,
+		):
+			data = get_whatsapp_settings()
+
+		self.assertEqual(data["enabled"], 1)
+		self.assertEqual(data["company"], "Default Co")
+		self.assertEqual(data["phone_number_id"], "123456")
+		self.assertEqual(data["access_token"], "token-xyz")
+		self.assertIn("{{ doc.name }}", data["inward_template_body_params"])
+		self.assertIn("Outward", data["outward_text_template"])
+		self.assertEqual(data["send_outward_on_submit"], 0)
+
+	def test_get_default_whatsapp_template_body_params_json_returns_meta_default(self):
+		inward = json.loads(get_default_whatsapp_template_body_params_json("Cold Storage Inward"))
+		outward = json.loads(get_default_whatsapp_template_body_params_json("Cold Storage Outward"))
+
+		self.assertEqual(inward, ["{{ voucher_no }}", "{{ customer }}", "{{ posting_date }}", "{{ total_qty }}"])
+		self.assertEqual(outward, ["{{ voucher_no }}", "{{ customer }}", "{{ posting_date }}", "{{ total_qty }}"])
+
+	def test_get_whatsapp_settings_falls_back_to_default_body_params_when_blank(self):
+		settings = SimpleNamespace(
+			whatsapp_enabled=1,
+			company="Default Co",
+			whatsapp_api_version="v22.0",
+			whatsapp_phone_number_id="123456",
+			whatsapp_default_country_code="92",
+			whatsapp_template_language="en",
+			whatsapp_inward_template_name="cs_inward_notice",
+			whatsapp_inward_template_body_params="",
+			whatsapp_inward_text_template="",
+			whatsapp_outward_template_name="cs_outward_notice",
+			whatsapp_outward_template_body_params="",
+			whatsapp_outward_text_template="",
+			whatsapp_send_inward_on_submit=1,
+			whatsapp_send_outward_on_submit=1,
+			get_password=lambda _fieldname, **_kwargs: "token-xyz",
+		)
+
+		with patch(
+			"cold_storage.cold_storage.doctype.cold_storage_settings.cold_storage_settings.get_settings",
+			return_value=settings,
+		):
+			data = get_whatsapp_settings()
+
+		self.assertEqual(
+			json.loads(data["inward_template_body_params"]),
+			["{{ voucher_no }}", "{{ customer }}", "{{ posting_date }}", "{{ total_qty }}"],
+		)
+		self.assertEqual(
+			json.loads(data["outward_template_body_params"]),
+			["{{ voucher_no }}", "{{ customer }}", "{{ posting_date }}", "{{ total_qty }}"],
+		)

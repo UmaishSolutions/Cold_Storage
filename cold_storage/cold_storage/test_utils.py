@@ -323,6 +323,60 @@ class TestUtils(TestCase):
 		self.assertTrue(data_uri.startswith("data:image/svg+xml;base64,"))
 		self.assertGreater(len(data_uri), len("data:image/svg+xml;base64,"))
 
+	def test_get_document_qr_code_data_uri_prefers_submitted_payload_when_enabled(self):
+		with (
+			patch("cold_storage.cold_storage.utils.frappe.db.exists", return_value=True),
+			patch("cold_storage.cold_storage.utils.frappe.db.get_value", return_value=1),
+			patch(
+				"cold_storage.cold_storage.utils.get_document_sidebar_qr_code_payload",
+				return_value="submitted-payload",
+			),
+			patch(
+				"cold_storage.cold_storage.utils.get_document_qr_code_payload",
+				return_value="default-payload",
+			),
+			patch(
+				"cold_storage.cold_storage.utils._get_qr_code_data_uri",
+				return_value="data:image/svg+xml;base64,submitted",
+			) as get_qr_data_uri,
+		):
+			data_uri = get_document_qr_code_data_uri(
+				"Cold Storage Inward",
+				"CS-IN-00001",
+				scale=3,
+				prefer_submitted_payload=1,
+			)
+
+		self.assertEqual(data_uri, "data:image/svg+xml;base64,submitted")
+		get_qr_data_uri.assert_called_once_with("submitted-payload", scale=3)
+
+	def test_get_document_qr_code_data_uri_falls_back_when_not_submitted(self):
+		with (
+			patch("cold_storage.cold_storage.utils.frappe.db.exists", return_value=True),
+			patch("cold_storage.cold_storage.utils.frappe.db.get_value", return_value=0),
+			patch(
+				"cold_storage.cold_storage.utils.get_document_sidebar_qr_code_payload",
+				return_value="submitted-payload",
+			),
+			patch(
+				"cold_storage.cold_storage.utils.get_document_qr_code_payload",
+				return_value="default-payload",
+			),
+			patch(
+				"cold_storage.cold_storage.utils._get_qr_code_data_uri",
+				return_value="data:image/svg+xml;base64,default",
+			) as get_qr_data_uri,
+		):
+			data_uri = get_document_qr_code_data_uri(
+				"Cold Storage Inward",
+				"CS-IN-00001",
+				scale=3,
+				prefer_submitted_payload=1,
+			)
+
+		self.assertEqual(data_uri, "data:image/svg+xml;base64,default")
+		get_qr_data_uri.assert_called_once_with("default-payload", scale=3)
+
 	def test_get_document_sidebar_qr_code_payload_contains_required_fields(self):
 		with (
 			patch("cold_storage.cold_storage.utils.frappe.db.exists", return_value=True),
