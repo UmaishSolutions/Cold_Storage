@@ -73,8 +73,7 @@
         },
         {
             "fieldname": "column_break_main",
-            "fieldtype": "Column Break",
-            "description": "Layout break to start a new column."
+            "fieldtype": "Column Break"
         },
         {
             "fieldname": "total_qty",
@@ -143,8 +142,7 @@
         },
         {
             "fieldname": "column_break_refs",
-            "fieldtype": "Column Break",
-            "description": "Layout break to start a new column."
+            "fieldtype": "Column Break"
         },
         {
             "fieldname": "journal_entry",

@@ -49,8 +49,7 @@
         },
         {
             "fieldname": "column_break_rates",
-            "fieldtype": "Column Break",
-            "description": "Layout break to start a new column."
+            "fieldtype": "Column Break"
         },
         {
             "default": "0",

@@ -63,8 +63,7 @@
         },
         {
             "fieldname": "column_break_item",
-            "fieldtype": "Column Break",
-            "description": "Layout break to start a new column."
+            "fieldtype": "Column Break"
         },
         {
             "fieldname": "available_qty",

@@ -68,8 +68,7 @@
         },
         {
             "fieldname": "column_break_company",
-            "fieldtype": "Column Break",
-            "description": "Layout break to start a new column."
+            "fieldtype": "Column Break"
         },
         {
             "fieldname": "cost_center",
@@ -111,8 +110,7 @@
         },
         {
             "fieldname": "column_break_accounts",
-            "fieldtype": "Column Break",
-            "description": "Layout break to start a new column."
+            "fieldtype": "Column Break"
         },
         {
             "fieldname": "labour_manager_account",
@@ -179,8 +177,7 @@
         },
         {
             "fieldname": "column_break_whatsapp",
-            "fieldtype": "Column Break",
-            "description": "Layout break to start a new column."
+            "fieldtype": "Column Break"
         },
         {
             "depends_on": "eval:doc.whatsapp_enabled",
@@ -236,8 +233,7 @@
         },
         {
             "fieldname": "column_break_whatsapp_templates",
-            "fieldtype": "Column Break",
-            "description": "Layout break to start a new column."
+            "fieldtype": "Column Break"
         },
         {
             "default": "1",
