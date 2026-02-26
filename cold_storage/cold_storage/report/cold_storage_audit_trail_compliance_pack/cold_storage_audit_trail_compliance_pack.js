@@ -52,6 +52,7 @@ frappe.query_reports[AUDIT_TRAIL_REPORT] = {
 			label: __("Company"),
 			fieldtype: "Link",
 			options: "Company",
+		description: __("Filter by company."),
 		},
 		{
 			fieldname: "from_date",
@@ -59,6 +60,7 @@ frappe.query_reports[AUDIT_TRAIL_REPORT] = {
 			fieldtype: "Date",
 			default: frappe.datetime.month_start(),
 			reqd: 1,
+		description: __("Filter by from date."),
 		},
 		{
 			fieldname: "to_date",
@@ -66,6 +68,7 @@ frappe.query_reports[AUDIT_TRAIL_REPORT] = {
 			fieldtype: "Date",
 			default: frappe.datetime.get_today(),
 			reqd: 1,
+		description: __("Filter by to date."),
 		},
 		{
 			fieldname: "customer",
@@ -87,6 +90,7 @@ frappe.query_reports[AUDIT_TRAIL_REPORT] = {
 				}
 				query_report.refresh();
 			},
+		description: __("Filter by customer."),
 		},
 		{
 			fieldname: "item",
@@ -105,6 +109,7 @@ frappe.query_reports[AUDIT_TRAIL_REPORT] = {
 				}
 				return {};
 			},
+		description: __("Filter by item."),
 		},
 		{
 			fieldname: "batch_no",
@@ -120,6 +125,7 @@ frappe.query_reports[AUDIT_TRAIL_REPORT] = {
 				return { filters };
 			},
 			reqd: 1,
+		description: __("Filter by batch."),
 		},
 		{
 			fieldname: "warehouse",
@@ -135,18 +141,21 @@ frappe.query_reports[AUDIT_TRAIL_REPORT] = {
 					batch_no: frappe.query_report.get_filter_value("batch_no"),
 				},
 			}),
+		description: __("Filter by warehouse."),
 		},
 		{
 			fieldname: "status",
 			label: __("Status"),
 			fieldtype: "Select",
 			options: "\nDraft\nSubmitted\nCancelled",
+		description: __("Filter by status."),
 		},
 		{
 			fieldname: "include_user_actions",
 			label: __("Include User Actions"),
 			fieldtype: "Check",
 			default: 1,
+		description: __("Enable to filter by include user actions."),
 		},
 	],
 };

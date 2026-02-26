@@ -24,14 +24,16 @@
             "in_list_view": 1,
             "label": "Item",
             "options": "Item",
-            "reqd": 1
+            "reqd": 1,
+            "description": "Specify item."
         },
         {
             "fetch_from": "item.item_name",
             "fieldname": "item_name",
             "fieldtype": "Data",
             "label": "Item Name",
-            "read_only": 1
+            "read_only": 1,
+            "description": "Displays item name."
         },
         {
             "fetch_from": "item.item_group",
@@ -39,7 +41,8 @@
             "fieldtype": "Link",
             "label": "Item Group",
             "options": "Item Group",
-            "read_only": 1
+            "read_only": 1,
+            "description": "Displays item group."
         },
         {
             "fieldname": "batch_no",
@@ -47,7 +50,8 @@
             "in_list_view": 1,
             "label": "Batch No",
             "options": "Batch",
-            "reqd": 1
+            "reqd": 1,
+            "description": "Specify batch no."
         },
         {
             "fieldname": "source_warehouse",
@@ -55,25 +59,29 @@
             "in_list_view": 1,
             "label": "Source Warehouse",
             "options": "Warehouse",
-            "reqd": 0
+            "reqd": 0,
+            "description": "Specify source warehouse."
         },
         {
             "fieldname": "target_warehouse",
             "fieldtype": "Link",
             "in_list_view": 1,
             "label": "Target Warehouse",
-            "options": "Warehouse"
+            "options": "Warehouse",
+            "description": "Specify target warehouse."
         },
         {
             "fieldname": "column_break_item",
-            "fieldtype": "Column Break"
+            "fieldtype": "Column Break",
+            "description": "Layout break to start a new column."
         },
         {
             "fieldname": "available_qty",
             "fieldtype": "Float",
             "in_list_view": 1,
             "label": "Available Qty",
-            "read_only": 1
+            "read_only": 1,
+            "description": "Displays available qty."
         },
         {
             "default": "1",
@@ -81,7 +89,8 @@
             "fieldtype": "Float",
             "in_list_view": 1,
             "label": "Qty",
-            "reqd": 1
+            "reqd": 1,
+            "description": "Specify qty."
         },
         {
             "fetch_from": "item.stock_uom",
@@ -90,21 +99,24 @@
             "in_list_view": 1,
             "label": "UOM",
             "options": "UOM",
-            "read_only": 1
+            "read_only": 1,
+            "description": "Displays uom."
         },
         {
             "fieldname": "transfer_rate",
             "fieldtype": "Currency",
             "in_list_view": 1,
             "label": "Transfer Rate",
-            "read_only": 1
+            "read_only": 1,
+            "description": "Displays transfer rate."
         },
         {
             "fieldname": "amount",
             "fieldtype": "Currency",
             "in_list_view": 1,
             "label": "Amount",
-            "read_only": 1
+            "read_only": 1,
+            "description": "Displays amount."
         }
     ],
     "index_web_pages_for_search": 0,

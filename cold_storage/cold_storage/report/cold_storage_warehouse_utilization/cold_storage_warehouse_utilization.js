@@ -25,12 +25,14 @@ frappe.query_reports["Cold Storage Warehouse Utilization"] = {
 			label: __("Company"),
 			fieldtype: "Link",
 			options: "Company",
+		description: __("Filter by company."),
 		},
 		{
 			fieldname: "warehouse",
 			label: __("Warehouse"),
 			fieldtype: "Link",
 			options: "Warehouse",
+		description: __("Filter by warehouse."),
 		},
 		{
 			fieldname: "as_on_date",
@@ -38,6 +40,7 @@ frappe.query_reports["Cold Storage Warehouse Utilization"] = {
 			fieldtype: "Date",
 			default: frappe.datetime.get_today(),
 			reqd: 1,
+		description: __("Filter by as on date."),
 		},
 	],
 };

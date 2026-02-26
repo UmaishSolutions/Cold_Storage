@@ -1,299 +1,317 @@
 {
- "actions": [],
- "creation": "2026-02-19 17:58:46.857664",
- "doctype": "DocType",
- "engine": "InnoDB",
- "field_order": [
-  "company_section",
-  "company",
-  "default_uom",
-  "column_break_company",
-  "cost_center",
-  "gst_template",
-  "accounts_section",
-  "default_income_account",
-  "labour_account",
-  "column_break_accounts",
-  "labour_manager_account",
-  "transfer_expense_account",
-  "charge_configuration_section",
-  "charge_configurations",
-  "whatsapp_section",
-  "whatsapp_enabled",
-  "whatsapp_api_version",
-  "whatsapp_access_token",
-  "whatsapp_default_country_code",
-  "whatsapp_phone_number_id",
-  "whatsapp_template_language",
-  "column_break_whatsapp",
-  "whatsapp_send_inward_on_submit",
-  "whatsapp_inward_template_name",
-  "whatsapp_inward_template_body_params",
-  "whatsapp_inward_text_template",
-  "column_break_whatsapp_templates",
-  "whatsapp_send_outward_on_submit",
-  "whatsapp_outward_template_name",
-  "whatsapp_outward_template_body_params",
-  "whatsapp_outward_text_template",
-  "portal_section",
-  "portal_announcement",
-  "section_break_zvau",
-  "storage_terms_and_conditions"
- ],
- "fields": [
-  {
-   "fieldname": "company_section",
-   "fieldtype": "Section Break",
-   "label": "Company & Defaults"
-  },
-  {
-   "fieldname": "company",
-   "fieldtype": "Link",
-   "in_list_view": 1,
-   "label": "Default Company",
-   "options": "Company",
-   "reqd": 1
-  },
-  {
-   "fieldname": "default_uom",
-   "fieldtype": "Link",
-   "in_list_view": 1,
-   "label": "Default UOM",
-   "options": "UOM",
-   "read_only": 1,
-   "reqd": 1
-  },
-  {
-   "fieldname": "column_break_company",
-   "fieldtype": "Column Break"
-  },
-  {
-   "fieldname": "cost_center",
-   "fieldtype": "Link",
-   "label": "Default Cost Center",
-   "options": "Cost Center"
-  },
-  {
-   "fieldname": "gst_template",
-   "fieldtype": "Link",
-   "label": "GST Template",
-   "options": "Sales Taxes and Charges Template"
-  },
-  {
-   "fieldname": "accounts_section",
-   "fieldtype": "Section Break",
-   "label": "Accounting Mappings"
-  },
-  {
-   "fieldname": "default_income_account",
-   "fieldtype": "Link",
-   "in_list_view": 1,
-   "label": "Default Income Account",
-   "options": "Account",
-   "reqd": 1
-  },
-  {
-   "fieldname": "labour_account",
-   "fieldtype": "Link",
-   "in_list_view": 1,
-   "label": "Labour Account (Debit)",
-   "options": "Account",
-   "reqd": 1
-  },
-  {
-   "fieldname": "column_break_accounts",
-   "fieldtype": "Column Break"
-  },
-  {
-   "fieldname": "labour_manager_account",
-   "fieldtype": "Link",
-   "label": "Labour Manager Account (Credit)",
-   "options": "Account",
-   "reqd": 1
-  },
-  {
-   "fieldname": "transfer_expense_account",
-   "fieldtype": "Link",
-   "label": "Transfer Expense Account",
-   "options": "Account",
-   "reqd": 1
-  },
-  {
-   "fieldname": "portal_section",
-   "fieldtype": "Section Break",
-   "label": "Client Portal"
-  },
-  {
-   "description": "Message to display on the top of the client portal dashboard.",
-   "fieldname": "portal_announcement",
-   "fieldtype": "Small Text",
-   "label": "Portal Announcement (Banner)"
-  },
-  {
-   "description": "Write these terms in Urdu. They are printed in Nastaliq style on Cold Storage print formats.",
-   "fieldname": "storage_terms_and_conditions",
-   "fieldtype": "Small Text",
-   "label": "Storage Terms and Conditions",
-   "placeholder": "شرائط و ضوابط اردو میں درج کریں"
-  },
-  {
-   "description": "Setup order: 1) Enable Integration 2) Add Phone Number ID + Access Token 3) Check Setup 4) Send WhatsApp Test.",
-   "fieldname": "whatsapp_section",
-   "fieldtype": "Section Break",
-   "label": "WhatsApp (Meta Cloud API)"
-  },
-  {
-   "default": "0",
-   "description": "All outbound WhatsApp messages from Cold Storage are scoped to this setting's company only.",
-   "fieldname": "whatsapp_enabled",
-   "fieldtype": "Check",
-   "label": "Enable WhatsApp Integration"
-  },
-  {
-   "default": "v22.0",
-   "depends_on": "eval:doc.whatsapp_enabled",
-   "description": "Meta Graph API version (example: v22.0).",
-   "fieldname": "whatsapp_api_version",
-   "fieldtype": "Data",
-   "label": "Meta Graph API Version"
-  },
-  {
-   "depends_on": "eval:doc.whatsapp_enabled",
-   "description": "From Meta WhatsApp Manager > API Setup > Phone Number ID.",
-   "fieldname": "whatsapp_phone_number_id",
-   "fieldtype": "Data",
-   "label": "Phone Number ID"
-  },
-  {
-   "fieldname": "column_break_whatsapp",
-   "fieldtype": "Column Break"
-  },
-  {
-   "depends_on": "eval:doc.whatsapp_enabled",
-   "description": "Create a long-lived token in Meta Business and paste it here.",
-   "fieldname": "whatsapp_access_token",
-   "fieldtype": "Password",
-   "label": "Permanent Access Token"
-  },
-  {
-   "depends_on": "eval:doc.whatsapp_enabled",
-   "description": "Digits only. Example: 91",
-   "fieldname": "whatsapp_default_country_code",
-   "fieldtype": "Data",
-   "label": "Default Country Code"
-  },
-  {
-   "default": "en",
-   "depends_on": "eval:doc.whatsapp_enabled",
-   "description": "Template language code approved in Meta (example: en, en_US).",
-   "fieldname": "whatsapp_template_language",
-   "fieldtype": "Data",
-   "label": "Template Language Code"
-  },
-  {
-   "default": "1",
-   "depends_on": "eval:doc.whatsapp_enabled",
-   "description": "Automatically send WhatsApp when Inward is submitted.",
-   "fieldname": "whatsapp_send_inward_on_submit",
-   "fieldtype": "Check",
-   "label": "Auto Notify on Inward Submit"
-  },
-  {
-   "depends_on": "eval:doc.whatsapp_enabled",
-   "description": "Optional. If set, template mode is used for inward notifications.",
-   "fieldname": "whatsapp_inward_template_name",
-   "fieldtype": "Data",
-   "label": "Inward Template Name"
-  },
-  {
-   "default": "[\"{{ voucher_no }}\", \"{{ customer }}\", \"{{ posting_date }}\", \"{{ total_qty }}\"]",
-   "depends_on": "eval:doc.whatsapp_enabled",
-   "description": "Optional JSON array for Meta template body variables. Supports Jinja like {{ doc.name }}.",
-   "fieldname": "whatsapp_inward_template_body_params",
-   "fieldtype": "Code",
-   "label": "Inward Template Body Params (JSON)"
-  },
-  {
-   "depends_on": "eval:doc.whatsapp_enabled",
-   "description": "Used when Inward Template Name is blank. Supports Jinja variables like {{ doc.name }}.",
-   "fieldname": "whatsapp_inward_text_template",
-   "fieldtype": "Code",
-   "label": "Inward Text Message Template"
-  },
-  {
-   "fieldname": "column_break_whatsapp_templates",
-   "fieldtype": "Column Break"
-  },
-  {
-   "default": "1",
-   "depends_on": "eval:doc.whatsapp_enabled",
-   "description": "Automatically send WhatsApp when Outward is submitted.",
-   "fieldname": "whatsapp_send_outward_on_submit",
-   "fieldtype": "Check",
-   "label": "Auto Notify on Outward Submit"
-  },
-  {
-   "depends_on": "eval:doc.whatsapp_enabled",
-   "description": "Optional. If set, template mode is used for outward notifications.",
-   "fieldname": "whatsapp_outward_template_name",
-   "fieldtype": "Data",
-   "label": "Outward Template Name"
-  },
-  {
-   "default": "[\"{{ voucher_no }}\", \"{{ customer }}\", \"{{ posting_date }}\", \"{{ total_qty }}\"]",
-   "depends_on": "eval:doc.whatsapp_enabled",
-   "description": "Optional JSON array for Meta template body variables. Supports Jinja like {{ doc.name }}.",
-   "fieldname": "whatsapp_outward_template_body_params",
-   "fieldtype": "Code",
-   "label": "Outward Template Body Params (JSON)"
-  },
-  {
-   "depends_on": "eval:doc.whatsapp_enabled",
-   "description": "Used when Outward Template Name is blank. Supports Jinja variables like {{ doc.name }}.",
-   "fieldname": "whatsapp_outward_text_template",
-   "fieldtype": "Code",
-   "label": "Outward Text Message Template"
-  },
-  {
-   "fieldname": "charge_configuration_section",
-   "fieldtype": "Section Break",
-   "label": "Charge Configurations"
-  },
-  {
-   "fieldname": "charge_configurations",
-   "fieldtype": "Table",
-   "label": "Charge Configurations",
-   "options": "Charge Configuration",
-   "reqd": 1
-  },
-  {
-   "fieldname": "section_break_zvau",
-   "fieldtype": "Section Break"
-  }
- ],
- "issingle": 1,
- "links": [],
- "modified": "2026-02-19 20:08:22.989531",
- "modified_by": "Administrator",
- "module": "Cold Storage",
- "name": "Cold Storage Settings",
- "naming_rule": "Expression",
- "owner": "Administrator",
- "permissions": [
-  {
-   "create": 1,
-   "delete": 1,
-   "email": 1,
-   "print": 1,
-   "read": 1,
-   "role": "System Manager",
-   "share": 1,
-   "write": 1
-  }
- ],
- "row_format": "Dynamic",
- "sort_field": "creation",
- "sort_order": "DESC",
- "states": [],
- "track_changes": 1
+    "actions": [],
+    "creation": "2026-02-19 17:58:46.857664",
+    "doctype": "DocType",
+    "engine": "InnoDB",
+    "field_order": [
+        "company_section",
+        "company",
+        "default_uom",
+        "column_break_company",
+        "cost_center",
+        "gst_template",
+        "accounts_section",
+        "default_income_account",
+        "labour_account",
+        "column_break_accounts",
+        "labour_manager_account",
+        "transfer_expense_account",
+        "charge_configuration_section",
+        "charge_configurations",
+        "whatsapp_section",
+        "whatsapp_enabled",
+        "whatsapp_api_version",
+        "whatsapp_access_token",
+        "whatsapp_default_country_code",
+        "whatsapp_phone_number_id",
+        "whatsapp_template_language",
+        "column_break_whatsapp",
+        "whatsapp_send_inward_on_submit",
+        "whatsapp_inward_template_name",
+        "whatsapp_inward_template_body_params",
+        "whatsapp_inward_text_template",
+        "column_break_whatsapp_templates",
+        "whatsapp_send_outward_on_submit",
+        "whatsapp_outward_template_name",
+        "whatsapp_outward_template_body_params",
+        "whatsapp_outward_text_template",
+        "portal_section",
+        "portal_announcement",
+        "section_break_zvau",
+        "storage_terms_and_conditions"
+    ],
+    "fields": [
+        {
+            "fieldname": "company_section",
+            "fieldtype": "Section Break",
+            "label": "Company & Defaults",
+            "description": "Section for company & defaults details."
+        },
+        {
+            "fieldname": "company",
+            "fieldtype": "Link",
+            "in_list_view": 1,
+            "label": "Default Company",
+            "options": "Company",
+            "reqd": 1,
+            "description": "Specify default company."
+        },
+        {
+            "fieldname": "default_uom",
+            "fieldtype": "Link",
+            "in_list_view": 1,
+            "label": "Default UOM",
+            "options": "UOM",
+            "read_only": 1,
+            "reqd": 1,
+            "description": "Displays default uom."
+        },
+        {
+            "fieldname": "column_break_company",
+            "fieldtype": "Column Break",
+            "description": "Layout break to start a new column."
+        },
+        {
+            "fieldname": "cost_center",
+            "fieldtype": "Link",
+            "label": "Default Cost Center",
+            "options": "Cost Center",
+            "description": "Specify default cost center."
+        },
+        {
+            "fieldname": "gst_template",
+            "fieldtype": "Link",
+            "label": "GST Template",
+            "options": "Sales Taxes and Charges Template",
+            "description": "Specify gst template."
+        },
+        {
+            "fieldname": "accounts_section",
+            "fieldtype": "Section Break",
+            "label": "Accounting Mappings",
+            "description": "Section for accounting mappings details."
+        },
+        {
+            "fieldname": "default_income_account",
+            "fieldtype": "Link",
+            "in_list_view": 1,
+            "label": "Default Income Account",
+            "options": "Account",
+            "reqd": 1,
+            "description": "Specify default income account."
+        },
+        {
+            "fieldname": "labour_account",
+            "fieldtype": "Link",
+            "in_list_view": 1,
+            "label": "Labour Account (Debit)",
+            "options": "Account",
+            "reqd": 1,
+            "description": "Specify labour account (debit)."
+        },
+        {
+            "fieldname": "column_break_accounts",
+            "fieldtype": "Column Break",
+            "description": "Layout break to start a new column."
+        },
+        {
+            "fieldname": "labour_manager_account",
+            "fieldtype": "Link",
+            "label": "Labour Manager Account (Credit)",
+            "options": "Account",
+            "reqd": 1,
+            "description": "Specify labour manager account (credit)."
+        },
+        {
+            "fieldname": "transfer_expense_account",
+            "fieldtype": "Link",
+            "label": "Transfer Expense Account",
+            "options": "Account",
+            "reqd": 1,
+            "description": "Specify transfer expense account."
+        },
+        {
+            "fieldname": "portal_section",
+            "fieldtype": "Section Break",
+            "label": "Client Portal",
+            "description": "Section for client portal details."
+        },
+        {
+            "description": "Message to display on the top of the client portal dashboard.",
+            "fieldname": "portal_announcement",
+            "fieldtype": "Small Text",
+            "label": "Portal Announcement (Banner)"
+        },
+        {
+            "description": "Write these terms in Urdu. They are printed in Nastaliq style on Cold Storage print formats.",
+            "fieldname": "storage_terms_and_conditions",
+            "fieldtype": "Small Text",
+            "label": "Storage Terms and Conditions",
+            "placeholder": "شرائط و ضوابط اردو میں درج کریں"
+        },
+        {
+            "description": "Setup order: 1) Enable Integration 2) Add Phone Number ID + Access Token 3) Check Setup 4) Send WhatsApp Test.",
+            "fieldname": "whatsapp_section",
+            "fieldtype": "Section Break",
+            "label": "WhatsApp (Meta Cloud API)"
+        },
+        {
+            "default": "0",
+            "description": "All outbound WhatsApp messages from Cold Storage are scoped to this setting's company only.",
+            "fieldname": "whatsapp_enabled",
+            "fieldtype": "Check",
+            "label": "Enable WhatsApp Integration"
+        },
+        {
+            "default": "v22.0",
+            "depends_on": "eval:doc.whatsapp_enabled",
+            "description": "Meta Graph API version (example: v22.0).",
+            "fieldname": "whatsapp_api_version",
+            "fieldtype": "Data",
+            "label": "Meta Graph API Version"
+        },
+        {
+            "depends_on": "eval:doc.whatsapp_enabled",
+            "description": "From Meta WhatsApp Manager > API Setup > Phone Number ID.",
+            "fieldname": "whatsapp_phone_number_id",
+            "fieldtype": "Data",
+            "label": "Phone Number ID"
+        },
+        {
+            "fieldname": "column_break_whatsapp",
+            "fieldtype": "Column Break",
+            "description": "Layout break to start a new column."
+        },
+        {
+            "depends_on": "eval:doc.whatsapp_enabled",
+            "description": "Create a long-lived token in Meta Business and paste it here.",
+            "fieldname": "whatsapp_access_token",
+            "fieldtype": "Password",
+            "label": "Permanent Access Token"
+        },
+        {
+            "depends_on": "eval:doc.whatsapp_enabled",
+            "description": "Digits only. Example: 91",
+            "fieldname": "whatsapp_default_country_code",
+            "fieldtype": "Data",
+            "label": "Default Country Code"
+        },
+        {
+            "default": "en",
+            "depends_on": "eval:doc.whatsapp_enabled",
+            "description": "Template language code approved in Meta (example: en, en_US).",
+            "fieldname": "whatsapp_template_language",
+            "fieldtype": "Data",
+            "label": "Template Language Code"
+        },
+        {
+            "default": "1",
+            "depends_on": "eval:doc.whatsapp_enabled",
+            "description": "Automatically send WhatsApp when Inward is submitted.",
+            "fieldname": "whatsapp_send_inward_on_submit",
+            "fieldtype": "Check",
+            "label": "Auto Notify on Inward Submit"
+        },
+        {
+            "depends_on": "eval:doc.whatsapp_enabled",
+            "description": "Optional. If set, template mode is used for inward notifications.",
+            "fieldname": "whatsapp_inward_template_name",
+            "fieldtype": "Data",
+            "label": "Inward Template Name"
+        },
+        {
+            "default": "[\"{{ voucher_no }}\", \"{{ customer }}\", \"{{ posting_date }}\", \"{{ total_qty }}\"]",
+            "depends_on": "eval:doc.whatsapp_enabled",
+            "description": "Optional JSON array for Meta template body variables. Supports Jinja like {{ doc.name }}.",
+            "fieldname": "whatsapp_inward_template_body_params",
+            "fieldtype": "Code",
+            "label": "Inward Template Body Params (JSON)"
+        },
+        {
+            "depends_on": "eval:doc.whatsapp_enabled",
+            "description": "Used when Inward Template Name is blank. Supports Jinja variables like {{ doc.name }}.",
+            "fieldname": "whatsapp_inward_text_template",
+            "fieldtype": "Code",
+            "label": "Inward Text Message Template"
+        },
+        {
+            "fieldname": "column_break_whatsapp_templates",
+            "fieldtype": "Column Break",
+            "description": "Layout break to start a new column."
+        },
+        {
+            "default": "1",
+            "depends_on": "eval:doc.whatsapp_enabled",
+            "description": "Automatically send WhatsApp when Outward is submitted.",
+            "fieldname": "whatsapp_send_outward_on_submit",
+            "fieldtype": "Check",
+            "label": "Auto Notify on Outward Submit"
+        },
+        {
+            "depends_on": "eval:doc.whatsapp_enabled",
+            "description": "Optional. If set, template mode is used for outward notifications.",
+            "fieldname": "whatsapp_outward_template_name",
+            "fieldtype": "Data",
+            "label": "Outward Template Name"
+        },
+        {
+            "default": "[\"{{ voucher_no }}\", \"{{ customer }}\", \"{{ posting_date }}\", \"{{ total_qty }}\"]",
+            "depends_on": "eval:doc.whatsapp_enabled",
+            "description": "Optional JSON array for Meta template body variables. Supports Jinja like {{ doc.name }}.",
+            "fieldname": "whatsapp_outward_template_body_params",
+            "fieldtype": "Code",
+            "label": "Outward Template Body Params (JSON)"
+        },
+        {
+            "depends_on": "eval:doc.whatsapp_enabled",
+            "description": "Used when Outward Template Name is blank. Supports Jinja variables like {{ doc.name }}.",
+            "fieldname": "whatsapp_outward_text_template",
+            "fieldtype": "Code",
+            "label": "Outward Text Message Template"
+        },
+        {
+            "fieldname": "charge_configuration_section",
+            "fieldtype": "Section Break",
+            "label": "Charge Configurations",
+            "description": "Section for charge configurations details."
+        },
+        {
+            "fieldname": "charge_configurations",
+            "fieldtype": "Table",
+            "label": "Charge Configurations",
+            "options": "Charge Configuration",
+            "reqd": 1,
+            "description": "Child table for charge configurations."
+        },
+        {
+            "fieldname": "section_break_zvau",
+            "fieldtype": "Section Break",
+            "description": "Section for section break zvau details."
+        }
+    ],
+    "issingle": 1,
+    "links": [],
+    "modified": "2026-02-19 20:08:22.989531",
+    "modified_by": "Administrator",
+    "module": "Cold Storage",
+    "name": "Cold Storage Settings",
+    "naming_rule": "Expression",
+    "owner": "Administrator",
+    "permissions": [
+        {
+            "create": 1,
+            "delete": 1,
+            "email": 1,
+            "print": 1,
+            "read": 1,
+            "role": "System Manager",
+            "share": 1,
+            "write": 1
+        }
+    ],
+    "row_format": "Dynamic",
+    "sort_field": "creation",
+    "sort_order": "DESC",
+    "states": [],
+    "track_changes": 1
 }
