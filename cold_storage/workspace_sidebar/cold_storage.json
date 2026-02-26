@@ -405,9 +405,21 @@
    "link_type": "DocType",
    "show_arrow": 0,
    "type": "Link"
+  },
+  {
+   "child": 1,
+   "collapsible": 1,
+   "icon": "\ud83d\udcca",
+   "indent": 0,
+   "keep_closed": 0,
+   "label": "AR Waterfall",
+   "link_to": "Cold Storage Receivables Aging Waterfall",
+   "link_type": "Report",
+   "show_arrow": 0,
+   "type": "Link"
   }
  ],
- "modified": "2026-02-26 23:25:32.027313",
+ "modified": "2026-02-26 23:34:53.353158",
  "modified_by": "Administrator",
  "module": "Cold Storage",
  "name": "Cold Storage",
