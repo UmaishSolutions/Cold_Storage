@@ -64,8 +64,7 @@
         },
         {
             "fieldname": "column_break_main",
-            "fieldtype": "Column Break",
-            "description": "Layout break to start a new column."
+            "fieldtype": "Column Break"
         },
         {
             "fieldname": "total_qty",
