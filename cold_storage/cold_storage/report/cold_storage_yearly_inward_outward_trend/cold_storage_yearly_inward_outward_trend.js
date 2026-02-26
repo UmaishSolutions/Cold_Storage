@@ -25,24 +25,28 @@ frappe.query_reports["Cold Storage Yearly Inward Outward Trend"] = {
 			label: __("Company"),
 			fieldtype: "Link",
 			options: "Company",
+		description: __("Filter by company."),
 		},
 		{
 			fieldname: "item_group",
 			label: __("Item Group"),
 			fieldtype: "Link",
 			options: "Item Group",
+		description: __("Filter by item group."),
 		},
 		{
 			fieldname: "from_year",
 			label: __("From Year"),
 			fieldtype: "Int",
 			default: new Date().getFullYear() - 5,
+		description: __("Filter by from year."),
 		},
 		{
 			fieldname: "to_year",
 			label: __("To Year"),
 			fieldtype: "Int",
 			default: new Date().getFullYear(),
+		description: __("Filter by to year."),
 		},
 	],
 };

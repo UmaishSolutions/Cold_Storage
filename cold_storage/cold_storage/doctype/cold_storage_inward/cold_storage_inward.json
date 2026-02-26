@@ -35,7 +35,8 @@
             "label": "Company",
             "options": "Company",
             "read_only": 1,
-            "reqd": 1
+            "reqd": 1,
+            "description": "Displays company."
         },
         {
             "fieldname": "naming_series",
@@ -43,7 +44,8 @@
             "label": "Naming Series",
             "options": "CS-IN-.YYYY.-",
             "reqd": 1,
-            "set_only_once": 1
+            "set_only_once": 1,
+            "description": "Specify naming series."
         },
         {
             "fieldname": "customer",
@@ -52,40 +54,47 @@
             "in_standard_filter": 1,
             "label": "Customer",
             "options": "Customer",
-            "reqd": 1
+            "reqd": 1,
+            "description": "Specify customer."
         },
         {
             "default": "Today",
             "fieldname": "posting_date",
             "fieldtype": "Date",
             "label": "Posting Date",
-            "reqd": 1
+            "reqd": 1,
+            "description": "Specify posting date."
         },
         {
             "fieldname": "receipt_no",
             "fieldtype": "Data",
-            "label": "Receipt #"
+            "label": "Receipt #",
+            "description": "Specify receipt #."
         },
         {
             "fieldname": "column_break_main",
-            "fieldtype": "Column Break"
+            "fieldtype": "Column Break",
+            "description": "Layout break to start a new column."
         },
         {
             "fieldname": "total_qty",
             "fieldtype": "Float",
             "label": "Total Quantity",
-            "read_only": 1
+            "read_only": 1,
+            "description": "Displays total quantity."
         },
         {
             "fieldname": "total_unloading_charges",
             "fieldtype": "Currency",
             "label": "Total Unloading Charges",
-            "read_only": 1
+            "read_only": 1,
+            "description": "Displays total unloading charges."
         },
         {
             "fieldname": "items_section",
             "fieldtype": "Section Break",
-            "label": "Items"
+            "label": "Items",
+            "description": "Section for items details."
         },
         {
             "fieldname": "items",
@@ -93,22 +102,26 @@
             "label": "Items",
             "options": "Cold Storage Inward Item",
             "reqd": 1,
-            "editable_grid": 1
+            "editable_grid": 1,
+            "description": "Child table for items."
         },
         {
             "fieldname": "remarks_section",
             "fieldtype": "Section Break",
-            "label": "Remarks"
+            "label": "Remarks",
+            "description": "Section for remarks details."
         },
         {
             "fieldname": "remarks",
             "fieldtype": "Small Text",
-            "label": "Remarks"
+            "label": "Remarks",
+            "description": "Specify remarks."
         },
         {
             "fieldname": "references_section",
             "fieldtype": "Section Break",
-            "label": "References"
+            "label": "References",
+            "description": "Section for references details."
         },
         {
             "fieldname": "sales_invoice",
@@ -116,7 +129,8 @@
             "label": "Sales Invoice",
             "no_copy": 1,
             "options": "Sales Invoice",
-            "read_only": 1
+            "read_only": 1,
+            "description": "Displays sales invoice."
         },
         {
             "fieldname": "stock_entry",
@@ -124,11 +138,13 @@
             "label": "Stock Entry",
             "no_copy": 1,
             "options": "Stock Entry",
-            "read_only": 1
+            "read_only": 1,
+            "description": "Displays stock entry."
         },
         {
             "fieldname": "column_break_refs",
-            "fieldtype": "Column Break"
+            "fieldtype": "Column Break",
+            "description": "Layout break to start a new column."
         },
         {
             "fieldname": "journal_entry",
@@ -136,7 +152,8 @@
             "label": "Journal Entry",
             "no_copy": 1,
             "options": "Journal Entry",
-            "read_only": 1
+            "read_only": 1,
+            "description": "Displays journal entry."
         },
         {
             "fieldname": "amended_from",
@@ -145,7 +162,8 @@
             "no_copy": 1,
             "options": "Cold Storage Inward",
             "print_hide": 1,
-            "read_only": 1
+            "read_only": 1,
+            "description": "Displays amended from."
         },
         {
             "fieldname": "submitted_qr_code_data_uri",
@@ -153,7 +171,8 @@
             "hidden": 1,
             "label": "Submitted QR Code Data URI",
             "no_copy": 1,
-            "read_only": 1
+            "read_only": 1,
+            "description": "Displays submitted qr code data uri."
         }
     ],
     "index_web_pages_for_search": 0,

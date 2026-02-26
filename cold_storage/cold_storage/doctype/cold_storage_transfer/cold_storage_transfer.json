@@ -37,7 +37,8 @@
             "label": "Company",
             "options": "Company",
             "read_only": 1,
-            "reqd": 1
+            "reqd": 1,
+            "description": "Displays company."
         },
         {
             "fieldname": "naming_series",
@@ -45,7 +46,8 @@
             "label": "Naming Series",
             "options": "CS-TR-.YYYY.-",
             "reqd": 1,
-            "set_only_once": 1
+            "set_only_once": 1,
+            "description": "Specify naming series."
         },
         {
             "fieldname": "transfer_type",
@@ -54,36 +56,42 @@
             "in_standard_filter": 1,
             "label": "Transfer Type",
             "options": "\nOwnership Transfer\nInter-Warehouse Transfer\nIntra-Warehouse Transfer",
-            "reqd": 1
+            "reqd": 1,
+            "description": "Specify transfer type."
         },
         {
             "default": "Today",
             "fieldname": "posting_date",
             "fieldtype": "Date",
             "label": "Posting Date",
-            "reqd": 1
+            "reqd": 1,
+            "description": "Specify posting date."
         },
         {
             "fieldname": "column_break_header",
-            "fieldtype": "Column Break"
+            "fieldtype": "Column Break",
+            "description": "Layout break to start a new column."
         },
         {
             "fieldname": "total_qty",
             "fieldtype": "Float",
             "label": "Total Quantity",
-            "read_only": 1
+            "read_only": 1,
+            "description": "Displays total quantity."
         },
         {
             "fieldname": "total_transfer_charges",
             "fieldtype": "Currency",
             "label": "Total Transfer Charges",
-            "read_only": 1
+            "read_only": 1,
+            "description": "Displays total transfer charges."
         },
         {
             "depends_on": "eval:doc.transfer_type=='Ownership Transfer'",
             "fieldname": "ownership_section",
             "fieldtype": "Section Break",
-            "label": "Ownership Transfer Details"
+            "label": "Ownership Transfer Details",
+            "description": "Section for ownership transfer details details."
         },
         {
             "depends_on": "eval:doc.transfer_type=='Ownership Transfer'",
@@ -92,11 +100,13 @@
             "in_list_view": 1,
             "label": "From Customer",
             "mandatory_depends_on": "eval:doc.transfer_type=='Ownership Transfer'",
-            "options": "Customer"
+            "options": "Customer",
+            "description": "Specify from customer."
         },
         {
             "fieldname": "column_break_ownership",
-            "fieldtype": "Column Break"
+            "fieldtype": "Column Break",
+            "description": "Layout break to start a new column."
         },
         {
             "depends_on": "eval:doc.transfer_type=='Ownership Transfer'",
@@ -105,13 +115,15 @@
             "in_list_view": 1,
             "label": "To Customer",
             "mandatory_depends_on": "eval:doc.transfer_type=='Ownership Transfer'",
-            "options": "Customer"
+            "options": "Customer",
+            "description": "Specify to customer."
         },
         {
             "depends_on": "eval:doc.transfer_type && doc.transfer_type!='Ownership Transfer'",
             "fieldname": "location_section",
             "fieldtype": "Section Break",
-            "label": "Location Transfer Details"
+            "label": "Location Transfer Details",
+            "description": "Section for location transfer details details."
         },
         {
             "depends_on": "eval:doc.transfer_type && doc.transfer_type!='Ownership Transfer'",
@@ -119,12 +131,14 @@
             "fieldtype": "Link",
             "label": "Customer",
             "mandatory_depends_on": "eval:doc.transfer_type && doc.transfer_type!='Ownership Transfer'",
-            "options": "Customer"
+            "options": "Customer",
+            "description": "Specify customer."
         },
         {
             "fieldname": "items_section",
             "fieldtype": "Section Break",
-            "label": "Items"
+            "label": "Items",
+            "description": "Section for items details."
         },
         {
             "fieldname": "items",
@@ -132,22 +146,26 @@
             "label": "Items",
             "options": "Cold Storage Transfer Item",
             "reqd": 1,
-            "editable_grid": 1
+            "editable_grid": 1,
+            "description": "Child table for items."
         },
         {
             "fieldname": "remarks_section",
             "fieldtype": "Section Break",
-            "label": "Remarks"
+            "label": "Remarks",
+            "description": "Section for remarks details."
         },
         {
             "fieldname": "remarks",
             "fieldtype": "Small Text",
-            "label": "Remarks"
+            "label": "Remarks",
+            "description": "Specify remarks."
         },
         {
             "fieldname": "references_section",
             "fieldtype": "Section Break",
-            "label": "References"
+            "label": "References",
+            "description": "Section for references details."
         },
         {
             "fieldname": "journal_entry",
@@ -155,7 +173,8 @@
             "label": "Journal Entry",
             "no_copy": 1,
             "options": "Journal Entry",
-            "read_only": 1
+            "read_only": 1,
+            "description": "Displays journal entry."
         },
         {
             "fieldname": "stock_entry",
@@ -163,7 +182,8 @@
             "label": "Stock Entry",
             "no_copy": 1,
             "options": "Stock Entry",
-            "read_only": 1
+            "read_only": 1,
+            "description": "Displays stock entry."
         },
         {
             "fieldname": "amended_from",
@@ -172,7 +192,8 @@
             "no_copy": 1,
             "options": "Cold Storage Transfer",
             "print_hide": 1,
-            "read_only": 1
+            "read_only": 1,
+            "description": "Displays amended from."
         }
     ],
     "index_web_pages_for_search": 0,

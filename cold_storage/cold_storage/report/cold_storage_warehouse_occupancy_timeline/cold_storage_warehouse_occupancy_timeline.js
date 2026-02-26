@@ -25,12 +25,14 @@ frappe.query_reports["Cold Storage Warehouse Occupancy Timeline"] = {
 			label: __("Company"),
 			fieldtype: "Link",
 			options: "Company",
+		description: __("Filter by company."),
 		},
 		{
 			fieldname: "warehouse",
 			label: __("Warehouse"),
 			fieldtype: "Link",
 			options: "Warehouse",
+		description: __("Filter by warehouse."),
 		},
 		{
 			fieldname: "from_date",
@@ -41,6 +43,7 @@ frappe.query_reports["Cold Storage Warehouse Occupancy Timeline"] = {
 				-5
 			),
 			reqd: 1,
+		description: __("Filter by from date."),
 		},
 		{
 			fieldname: "to_date",
@@ -48,6 +51,7 @@ frappe.query_reports["Cold Storage Warehouse Occupancy Timeline"] = {
 			fieldtype: "Date",
 			default: frappe.datetime.get_today(),
 			reqd: 1,
+		description: __("Filter by to date."),
 		},
 	],
 };

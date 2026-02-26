@@ -20,32 +20,37 @@
             "in_list_view": 1,
             "label": "Item Group",
             "options": "Item Group",
-            "reqd": 1
+            "reqd": 1,
+            "description": "Specify item group."
         },
         {
             "fieldname": "unloading_rate",
             "fieldtype": "Currency",
             "in_list_view": 1,
             "label": "Unloading Rate",
-            "reqd": 1
+            "reqd": 1,
+            "description": "Specify unloading rate."
         },
         {
             "fieldname": "handling_rate",
             "fieldtype": "Currency",
             "in_list_view": 1,
             "label": "Handling Rate",
-            "reqd": 1
+            "reqd": 1,
+            "description": "Specify handling rate."
         },
         {
             "fieldname": "loading_rate",
             "fieldtype": "Currency",
             "in_list_view": 1,
             "label": "Loading Rate",
-            "reqd": 1
+            "reqd": 1,
+            "description": "Specify loading rate."
         },
         {
             "fieldname": "column_break_rates",
-            "fieldtype": "Column Break"
+            "fieldtype": "Column Break",
+            "description": "Layout break to start a new column."
         },
         {
             "default": "0",
@@ -53,7 +58,8 @@
             "fieldtype": "Currency",
             "in_list_view": 1,
             "label": "Inter-Warehouse Transfer Rate",
-            "reqd": 1
+            "reqd": 1,
+            "description": "Specify inter-warehouse transfer rate."
         },
         {
             "default": "0",
@@ -61,7 +67,8 @@
             "fieldtype": "Currency",
             "in_list_view": 1,
             "label": "Intra-Warehouse Transfer Rate",
-            "reqd": 1
+            "reqd": 1,
+            "description": "Specify intra-warehouse transfer rate."
         }
     ],
     "index_web_pages_for_search": 0,
