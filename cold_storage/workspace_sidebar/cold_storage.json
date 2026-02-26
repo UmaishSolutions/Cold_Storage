@@ -209,6 +209,18 @@
   {
    "child": 1,
    "collapsible": 1,
+   "icon": "\ud83d\udd00",
+   "indent": 0,
+   "keep_closed": 0,
+   "label": "Stock Flow",
+   "link_to": "Cold Storage Stock Flow Sankey",
+   "link_type": "Report",
+   "show_arrow": 0,
+   "type": "Link"
+  },
+  {
+   "child": 1,
+   "collapsible": 1,
    "icon": "\ud83d\udcc8",
    "indent": 0,
    "keep_closed": 0,
@@ -395,7 +407,7 @@
    "type": "Link"
   }
  ],
- "modified": "2026-02-26 23:09:44.163446",
+ "modified": "2026-02-26 23:25:32.027313",
  "modified_by": "Administrator",
  "module": "Cold Storage",
  "name": "Cold Storage",
