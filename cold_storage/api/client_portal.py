@@ -127,7 +127,7 @@ def get_snapshot(limit: int = DEFAULT_LIMIT, customer: str | None = None) -> dic
 	trend_chart_data = _get_movement_trends(customers)
 
 	# Fetch settings
-	announcement = frappe.db.get_single_value("Cold Storage Settings", "portal_announcement")
+	announcement = _safe_get_single_value("Cold Storage Settings", "portal_announcement")
 	company_name = frappe.db.get_single_value("Cold Storage Settings", "company") or ""
 	
 
@@ -489,6 +489,80 @@ def download_invoices_csv(customer: str | None = None) -> None:
 
 
 @frappe.whitelist()
+def download_customer_statement(customer: str | None = None) -> None:
+	"""Download a customer-scoped statement PDF from portal invoices."""
+	_ensure_client_portal_access()
+	customers, _available_customers, selected_customer = _resolve_customer_scope(customer)
+	rows = _get_invoice_rows(customers, MAX_LIMIT * 5) if customers else []
+	total_invoiced = sum(flt(row.get("grand_total")) for row in rows)
+	total_outstanding = sum(flt(row.get("outstanding_amount")) for row in rows)
+
+	html = _render_customer_statement_pdf_html(
+		selected_customer=selected_customer,
+		customers=customers,
+		rows=rows,
+		total_invoiced=total_invoiced,
+		total_outstanding=total_outstanding,
+	)
+	pdf_content = get_pdf(
+		html,
+		{
+			"page-size": "A4",
+			"encoding": "UTF-8",
+			"print-media-type": "",
+			"margin-top": "8mm",
+			"margin-bottom": "10mm",
+			"margin-left": "8mm",
+			"margin-right": "8mm",
+		},
+	)
+	scope_part = frappe.scrub(selected_customer or "all-customers").replace("_", "-")
+	frappe.response.filename = f"cold-storage-statement-{scope_part}.pdf"
+	frappe.response.filecontent = pdf_content
+	frappe.response.type = "pdf"
+
+
+@frappe.whitelist()
+def get_invoice_payment_link(invoice_name: str) -> dict[str, str]:
+	"""Return a portal-safe payment link for a Sales Invoice."""
+	_ensure_client_portal_access()
+	invoice_name = cstr(invoice_name).strip()
+	if not invoice_name:
+		frappe.throw(_("Invoice is required"), frappe.ValidationError)
+	if not frappe.db.exists("Sales Invoice", invoice_name):
+		frappe.throw(_("Invoice not found"), frappe.DoesNotExistError)
+
+	invoice = frappe.db.get_value(
+		"Sales Invoice",
+		invoice_name,
+		["name", "customer", "outstanding_amount", "docstatus"],
+		as_dict=True,
+	)
+	if not invoice or cint(invoice.get("docstatus")) != 1:
+		frappe.throw(_("Only submitted invoices are eligible for payment links"), frappe.ValidationError)
+
+	allowed_customers, _available_customers, _selected_customer = _resolve_customer_scope(
+		cstr(invoice.get("customer"))
+	)
+	if cstr(invoice.get("customer")) not in allowed_customers:
+		frappe.throw(_("You are not allowed to access this invoice"), frappe.PermissionError)
+
+	if flt(invoice.get("outstanding_amount")) <= 0:
+		return {"payment_url": _to_invoice_route(invoice_name), "source": "invoice", "status": "paid"}
+
+	existing = _get_existing_payment_request(invoice_name)
+	if existing:
+		payment_url = cstr(existing.get("payment_url")).strip() or _to_payment_request_route(existing.get("name"))
+		return {"payment_url": payment_url, "source": "payment_request", "status": "existing"}
+
+	created = _create_portal_payment_request(invoice_name, cstr(invoice.get("customer")))
+	payment_url = cstr(created.get("payment_url")).strip() or _to_payment_request_route(created.get("name"))
+	if payment_url:
+		return {"payment_url": payment_url, "source": "payment_request", "status": "created"}
+	return {"payment_url": _to_invoice_route(invoice_name), "source": "invoice", "status": "fallback"}
+
+
+@frappe.whitelist()
 def download_report_pdf(report_name: str, customer: str | None = None) -> None:
 	"""Download a customer-scoped portal report as PDF."""
 	_ensure_client_portal_access()
@@ -535,6 +609,16 @@ def _sanitize_limit(limit: int | str | None) -> int:
 	if row_limit < 1:
 		return DEFAULT_LIMIT
 	return min(row_limit, MAX_LIMIT)
+
+
+def _safe_get_single_value(doctype: str, fieldname: str):
+	"""Safely fetch a Single field value even if schema is partially migrated."""
+	try:
+		if not frappe.db.has_column(doctype, fieldname):
+			return None
+		return frappe.db.get_single_value(doctype, fieldname)
+	except Exception:
+		return None
 
 
 def _ensure_client_portal_access() -> None:
@@ -1244,10 +1328,142 @@ def _get_report_pdf_filename(report_name: str, selected_customer: str = "") -> s
 	return f"{base}.pdf"
 
 
+def _render_customer_statement_pdf_html(
+	*,
+	selected_customer: str,
+	customers: list[str],
+	rows: list[dict],
+	total_invoiced: float,
+	total_outstanding: float,
+) -> str:
+	scope = selected_customer or (", ".join(customers[:6]) + (" ..." if len(customers) > 6 else ""))
+	if not scope:
+		scope = _("No customer scope")
+
+	body_rows = []
+	for row in rows:
+		grand_total_display = f"{flt(row.get('grand_total')):,.2f}"
+		outstanding_display = f"{flt(row.get('outstanding_amount')):,.2f}"
+		body_rows.append(
+			"<tr>"
+			f"<td>{escape_html(cstr(row.get('name')))}</td>"
+			f"<td>{escape_html(cstr(formatdate(row.get('posting_date'))))}</td>"
+			f"<td>{escape_html(cstr(formatdate(row.get('due_date'))))}</td>"
+			f"<td>{escape_html(cstr(row.get('customer')))}</td>"
+			f"<td style='text-align:right'>{escape_html(grand_total_display)}</td>"
+			f"<td style='text-align:right'>{escape_html(outstanding_display)}</td>"
+			f"<td>{escape_html(cstr(row.get('status')))}</td>"
+			"</tr>"
+		)
+
+	if not body_rows:
+		body_rows.append(
+			f"<tr><td colspan='7' style='text-align:center;color:#6b7280;padding:14px'>{escape_html(_('No invoices found'))}</td></tr>"
+		)
+
+	return f"""
+	<!doctype html>
+	<html>
+	<head>
+		<meta charset="utf-8">
+		<style>
+			body {{ font-family: "Segoe UI", Arial, sans-serif; margin: 0; padding: 0; color: #163830; font-size: 11px; }}
+			.wrap {{ padding: 10px; }}
+			.hero {{ background: linear-gradient(130deg, #1f8a70, #166b58); color: #fff; border-radius: 10px; padding: 12px 14px; }}
+			.title {{ font-size: 17px; font-weight: 700; margin: 0; }}
+			.subtitle {{ margin-top: 4px; font-size: 11px; opacity: .95; }}
+			.meta {{ display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 10px 0; }}
+			.meta-card {{ border: 1px solid #d5e8e2; border-radius: 8px; padding: 7px 8px; }}
+			.meta-label {{ font-size: 9px; color: #5d7e75; text-transform: uppercase; letter-spacing: .08em; }}
+			.meta-value {{ font-size: 12px; font-weight: 700; margin-top: 2px; }}
+			table {{ width: 100%; border-collapse: collapse; border: 1px solid #d5e8e2; border-radius: 8px; overflow: hidden; }}
+			thead th {{ background: #ebf5f2; color: #476d63; font-size: 9px; text-transform: uppercase; letter-spacing: .05em; text-align: left; padding: 8px 7px; }}
+			tbody td {{ border-top: 1px solid #e6f1ed; padding: 7px; font-size: 10px; }}
+			tbody tr:nth-child(even) td {{ background: #fbfdfc; }}
+		</style>
+	</head>
+	<body>
+		<div class="wrap">
+			<div class="hero">
+				<div class="title">Customer Statement</div>
+				<div class="subtitle">Cold Storage Client Portal</div>
+			</div>
+			<div class="meta">
+				<div class="meta-card"><div class="meta-label">Customer Scope</div><div class="meta-value">{escape_html(scope)}</div></div>
+				<div class="meta-card"><div class="meta-label">Total Invoiced</div><div class="meta-value">{escape_html(f'{total_invoiced:,.2f}')}</div></div>
+				<div class="meta-card"><div class="meta-label">Total Outstanding</div><div class="meta-value">{escape_html(f'{total_outstanding:,.2f}')}</div></div>
+			</div>
+			<table>
+				<thead>
+					<tr>
+						<th>Invoice</th><th>Date</th><th>Due Date</th><th>Customer</th><th>Total</th><th>Outstanding</th><th>Status</th>
+					</tr>
+				</thead>
+				<tbody>
+					{''.join(body_rows)}
+				</tbody>
+			</table>
+		</div>
+	</body>
+	</html>
+	"""
+
+
+def _get_existing_payment_request(invoice_name: str) -> frappe._dict | None:
+	return frappe.db.get_value(
+		"Payment Request",
+		{
+			"reference_doctype": "Sales Invoice",
+			"reference_name": invoice_name,
+			"docstatus": 1,
+		},
+		["name", "payment_url", "status"],
+		as_dict=True,
+		order_by="modified desc",
+	)
+
+
+def _create_portal_payment_request(invoice_name: str, customer: str) -> frappe._dict:
+	from erpnext.accounts.doctype.payment_request.payment_request import make_payment_request
+
+	original_user = frappe.session.user
+	try:
+		if not frappe.has_permission("Payment Request", "create", user=original_user):
+			frappe.set_user("Administrator")
+
+		payment_request = make_payment_request(
+			dt="Sales Invoice",
+			dn=invoice_name,
+			party_type="Customer",
+			party=customer,
+			submit_doc=1,
+			return_doc=1,
+			mute_email=1,
+		)
+		return frappe._dict(
+			{
+				"name": payment_request.name,
+				"payment_url": cstr(payment_request.get("payment_url")).strip(),
+			}
+		)
+	except Exception:
+		frappe.log_error(frappe.get_traceback(), "Portal Payment Link Fallback")
+		return frappe._dict({})
+	finally:
+		if frappe.session.user != original_user:
+			frappe.set_user(original_user)
+
+
 def _to_invoice_route(docname: str | None) -> str:
 	if not docname:
 		return ""
 	return f"/invoices/{docname}"
+
+
+def _to_payment_request_route(docname: str | None) -> str:
+	if not docname:
+		return ""
+	return f"/app/payment-request/{docname}"
 
 
 def _download_csv(filename: str, fieldnames: list[str], rows: list[dict]) -> None:

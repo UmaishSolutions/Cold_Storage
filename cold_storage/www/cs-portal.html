@@ -1468,6 +1468,10 @@
 						<div class="cs-board-meta" id="cs-invoice-count">0 rows</div>
 					</div>
 					<div class="cs-board-actions">
+						<button class="cs-btn" data-download="statement" type="button">
+							<span class="cs-btn-dot" aria-hidden="true"></span>
+							Download Statement
+						</button>
 						<button class="cs-btn" data-download="invoices" type="button">
 							<span class="cs-btn-dot" aria-hidden="true"></span>
 							Download CSV
@@ -1496,6 +1500,7 @@
 								<th class="text-end">Grand Total</th>
 								<th class="text-end">Outstanding</th>
 								<th>Status</th>
+								<th class="text-end">Actions</th>
 							</tr>
 						</thead>
 						<tbody></tbody>
@@ -1619,6 +1624,7 @@
 			stock: "/api/method/cold_storage.api.client_portal.download_stock_csv",
 			movements: "/api/method/cold_storage.api.client_portal.download_movements_csv",
 			invoices: "/api/method/cold_storage.api.client_portal.download_invoices_csv",
+			statement: "/api/method/cold_storage.api.client_portal.download_customer_statement",
 		};
 
 		let selectedCustomer = "";
@@ -1969,12 +1975,21 @@
 		const renderInvoices = (rows, totalRows) => {
 			setPanelCount(invoiceCount, rows.length, totalRows);
 			if (!rows.length) {
-				invoiceBody.innerHTML = emptyRow(8, totalRows ? "No records match your search" : "No records");
+				invoiceBody.innerHTML = emptyRow(9, totalRows ? "No records match your search" : "No records");
 				return;
 			}
 			invoiceBody.innerHTML = rows
 				.map(
-					(row) => `
+					(row) => {
+						const outstanding = Number(row.outstanding_amount || 0);
+						const canPay = Number.isFinite(outstanding) && outstanding > 0;
+						const payButton = canPay
+							? `<button class="cs-btn cs-btn-sm" type="button" data-action="pay-invoice" data-invoice="${escapeHtml(row.name || "")}">
+								<span class="cs-btn-dot" aria-hidden="true"></span>
+								Pay
+							</button>`
+							: `<span class="cs-muted">Settled</span>`;
+						return `
 				<tr>
 					<td>${linkCell(row.name, row.route)}</td>
 					<td>${formatDate(row.posting_date)}</td>
@@ -1984,7 +1999,9 @@
 					<td class="text-end">${formatMoney(row.grand_total)}</td>
 					<td class="text-end">${formatMoney(row.outstanding_amount)}</td>
 					<td>${statusPill(row.status || "")}</td>
-				</tr>`
+					<td class="text-end"><span class="cs-actions">${payButton}</span></td>
+				</tr>`;
+					}
 				)
 				.join("");
 		};
@@ -2314,6 +2331,25 @@
 			return response.json();
 		};
 
+		const openInvoicePaymentLink = async (invoiceName) => {
+			const cleanInvoice = String(invoiceName || "").trim();
+			if (!cleanInvoice) return;
+			try {
+				const res = await callApi("cold_storage.api.client_portal.get_invoice_payment_link", {
+					invoice_name: cleanInvoice
+				});
+				const data = res.message || {};
+				const paymentUrl = String(data.payment_url || "").trim();
+				if (!paymentUrl) {
+					showToast("Payment link is not available for this invoice.", "error");
+					return;
+				}
+				window.open(paymentUrl, "_blank", "noopener");
+			} catch (error) {
+				showToast("Unable to generate payment link. Please try again.", "error");
+			}
+		};
+
 
 
 		const setLoading = (loading) => {
@@ -2455,6 +2491,15 @@
 				window.open(endpoint, "_blank", "noopener");
 			});
 		});
+
+		if (invoiceBody) {
+			invoiceBody.addEventListener("click", (event) => {
+				const payButton = event.target.closest("[data-action='pay-invoice']");
+				if (!payButton) return;
+				const invoiceName = payButton.getAttribute("data-invoice") || "";
+				openInvoicePaymentLink(invoiceName);
+			});
+		}
 
 
 
