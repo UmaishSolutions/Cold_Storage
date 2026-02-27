@@ -64,6 +64,9 @@ LOGIN_ACTIVITY_LOG_SHORTCUT_BLOCK_ID = "shortcut-cold-storage-login-activity-log
 CLIENT_PORTAL_ACCESS_LOG_REPORT = "Cold Storage Client Portal Access Log"
 CLIENT_PORTAL_ACCESS_LOG_SHORTCUT_LABEL = "Client Portal Access Log"
 CLIENT_PORTAL_ACCESS_LOG_SHORTCUT_BLOCK_ID = "shortcut-cold-storage-cs-portal-access-log"
+LOT_TRACEABILITY_GRAPH_REPORT = "Cold Storage Lot Traceability Graph"
+LOT_TRACEABILITY_GRAPH_SHORTCUT_LABEL = "Lot Traceability Graph"
+LOT_TRACEABILITY_GRAPH_SHORTCUT_BLOCK_ID = "shortcut-cold-storage-lot-traceability-graph"
 LEGACY_AUDIT_TRAIL_REPORT = "Cold Storage Audit Trail & Compliance Pack"
 AUDIT_TRAIL_REPORT = "Cold Storage Audit Trail Compliance Pack"
 AUDIT_TRAIL_SHORTCUT_LABEL = "Audit Trail & Compliance Pack"
@@ -84,6 +87,9 @@ REMOVED_PEOPLE_OPS_DOCTYPES = (
 	"Loan Disbursement",
 	"Loan Repayment",
 )
+LETTER_HEAD_NAME = "Cold Storage Branded Letter Head"
+LETTER_HEAD_HEADER_TEMPLATE = "templates/letter_head/cold_storage_branded_header.html"
+LETTER_HEAD_FOOTER_TEMPLATE = "templates/letter_head/cold_storage_branded_footer.html"
 SIDEBAR_ICON_BY_LABEL = {
 	"Home": "🏠",
 	"Inward Receipt": "📥",
@@ -393,8 +399,7 @@ def _ensure_workspace_report_link_and_shortcut(
 
 	content_blocks = _get_workspace_content_blocks(workspace.content)
 	has_shortcut_block = any(
-		block.get("type") == "shortcut"
-		and (block.get("data") or {}).get("shortcut_name") == label
+		block.get("type") == "shortcut" and (block.get("data") or {}).get("shortcut_name") == label
 		for block in content_blocks
 	)
 	if not has_shortcut_block:
@@ -428,6 +433,52 @@ def _ensure_workspace_assets() -> None:
 	workspace = frappe.get_doc("Workspace", WORKSPACE_NAME)
 	updated = False
 
+	removed_shortcut_report_names = {
+		LIVE_BATCH_STOCK_REPORT,
+		LOGIN_ACTIVITY_LOG_REPORT,
+		CLIENT_PORTAL_ACCESS_LOG_REPORT,
+		LOT_TRACEABILITY_GRAPH_REPORT,
+	}
+	removed_shortcut_labels = {
+		LIVE_BATCH_STOCK_SHORTCUT_LABEL,
+		LOGIN_ACTIVITY_LOG_SHORTCUT_LABEL,
+		CLIENT_PORTAL_ACCESS_LOG_SHORTCUT_LABEL,
+		LOT_TRACEABILITY_GRAPH_SHORTCUT_LABEL,
+	}
+	removed_shortcut_block_ids = {
+		LIVE_BATCH_STOCK_SHORTCUT_BLOCK_ID,
+		LOGIN_ACTIVITY_LOG_SHORTCUT_BLOCK_ID,
+		CLIENT_PORTAL_ACCESS_LOG_SHORTCUT_BLOCK_ID,
+		LOT_TRACEABILITY_GRAPH_SHORTCUT_BLOCK_ID,
+	}
+
+	# Remove deprecated dashboard shortcuts from Workspace Shortcut child table.
+	for shortcut in list(workspace.get("shortcuts", [])):
+		if shortcut.type == "Report" and shortcut.link_to in removed_shortcut_report_names:
+			workspace.remove(shortcut)
+			updated = True
+
+	# Remove deprecated shortcut blocks from workspace layout content.
+	content_blocks = _get_workspace_content_blocks(workspace.content)
+	filtered_content_blocks = []
+	content_blocks_changed = False
+	for block in content_blocks:
+		if block.get("type") != "shortcut":
+			filtered_content_blocks.append(block)
+			continue
+
+		block_id = block.get("id")
+		shortcut_name = (block.get("data") or {}).get("shortcut_name")
+		if block_id in removed_shortcut_block_ids or shortcut_name in removed_shortcut_labels:
+			content_blocks_changed = True
+			continue
+
+		filtered_content_blocks.append(block)
+
+	if content_blocks_changed:
+		workspace.content = frappe.as_json(filtered_content_blocks)
+		updated = True
+
 	# Remove previously-added People Ops links from existing sites.
 	people_ops_links = [
 		link
@@ -443,9 +494,7 @@ def _ensure_workspace_assets() -> None:
 	legacy_audit_links = [
 		link
 		for link in workspace.get("links", [])
-		if link.type == "Link"
-		and link.link_type == "Report"
-		and link.link_to == LEGACY_AUDIT_TRAIL_REPORT
+		if link.type == "Link" and link.link_type == "Report" and link.link_to == LEGACY_AUDIT_TRAIL_REPORT
 	]
 	for link in legacy_audit_links:
 		workspace.remove(link)
@@ -659,56 +708,6 @@ def _ensure_workspace_assets() -> None:
 			)
 			updated = True
 
-		has_live_batch_stock_shortcut = any(
-			shortcut.type == "Report" and shortcut.link_to == LIVE_BATCH_STOCK_REPORT
-			for shortcut in workspace.get("shortcuts", [])
-		)
-		if not has_live_batch_stock_shortcut:
-			workspace.append(
-				"shortcuts",
-				{
-					"type": "Report",
-					"label": LIVE_BATCH_STOCK_SHORTCUT_LABEL,
-					"link_to": LIVE_BATCH_STOCK_REPORT,
-					"color": "Orange",
-				},
-			)
-			updated = True
-
-		content_blocks = _get_workspace_content_blocks(workspace.content)
-		has_live_batch_stock_shortcut_block = any(
-			block.get("type") == "shortcut"
-			and (block.get("data") or {}).get("shortcut_name") == LIVE_BATCH_STOCK_SHORTCUT_LABEL
-			for block in content_blocks
-		)
-		if not has_live_batch_stock_shortcut_block:
-			content_blocks.append(
-				{
-					"id": LIVE_BATCH_STOCK_SHORTCUT_BLOCK_ID,
-					"type": "shortcut",
-					"data": {"shortcut_name": LIVE_BATCH_STOCK_SHORTCUT_LABEL, "col": 3},
-				}
-			)
-			workspace.content = frappe.as_json(content_blocks)
-			updated = True
-
-	updated = _ensure_workspace_report_link_and_shortcut(
-		workspace,
-		report_name=LOGIN_ACTIVITY_LOG_REPORT,
-		label=LOGIN_ACTIVITY_LOG_SHORTCUT_LABEL,
-		shortcut_block_id=LOGIN_ACTIVITY_LOG_SHORTCUT_BLOCK_ID,
-		shortcut_color="Blue",
-		insert_after_block_id=CLIENT_PORTAL_VIEWS_CHART_BLOCK_ID,
-	) or updated
-	updated = _ensure_workspace_report_link_and_shortcut(
-		workspace,
-		report_name=CLIENT_PORTAL_ACCESS_LOG_REPORT,
-		label=CLIENT_PORTAL_ACCESS_LOG_SHORTCUT_LABEL,
-		shortcut_block_id=CLIENT_PORTAL_ACCESS_LOG_SHORTCUT_BLOCK_ID,
-		shortcut_color="Blue",
-		insert_after_block_id=LOGIN_ACTIVITY_LOG_SHORTCUT_BLOCK_ID,
-	) or updated
-
 	if frappe.db.exists("Report", AUDIT_TRAIL_REPORT):
 		has_audit_trail_link = any(
 			link.type == "Link" and link.link_type == "Report" and link.link_to == AUDIT_TRAIL_REPORT
@@ -753,10 +752,7 @@ def _ensure_workspace_assets() -> None:
 				if block.get("type") != "number_card":
 					continue
 				data = block.get("data") or {}
-				if (
-					block.get("id") == "jXtpNEtdDN"
-					and data.get("number_card_name") == "Total Active Items"
-				):
+				if block.get("id") == "jXtpNEtdDN" and data.get("number_card_name") == "Total Active Items":
 					data["number_card_name"] = ACTIVE_BATCHES_NUMBER_CARD
 					block["data"] = data
 					replaced_existing_slot = True
@@ -789,7 +785,10 @@ def _ensure_workspace_sidebar_assets() -> None:
 	# Remove previously-added People Ops section and links from existing sites.
 	cleaned_items = []
 	for item in items:
-		if item.get("type") == "Section Break" and (item.get("label") or "").strip() == PEOPLE_OPS_SECTION_LABEL:
+		if (
+			item.get("type") == "Section Break"
+			and (item.get("label") or "").strip() == PEOPLE_OPS_SECTION_LABEL
+		):
 			continue
 		if (
 			item.get("type") == "Link"
@@ -968,8 +967,7 @@ def _ensure_sidebar_link_under_section(
 		(
 			idx
 			for idx, item in enumerate(clean_items)
-			if item.get("type") == "Section Break"
-			and (item.get("label") or "").strip() == section_label
+			if item.get("type") == "Section Break" and (item.get("label") or "").strip() == section_label
 		),
 		None,
 	)
@@ -1119,8 +1117,52 @@ def _ensure_default_uom_setting(*, create_uom_if_missing: bool) -> None:
 	frappe.db.set_single_value("Cold Storage Settings", "default_uom", resolved_uom)
 
 
+def _read_letter_head_template(relative_path: str) -> str:
+	"""Read bundled letter head HTML template from the app directory."""
+	template_path = frappe.get_app_path("cold_storage", *relative_path.split("/"))
+	return frappe.read_file(template_path)
+
+
+def _ensure_cold_storage_letter_head() -> None:
+	"""Create or update a branded Cold Storage letter head used by print formats."""
+	content = _read_letter_head_template(LETTER_HEAD_HEADER_TEMPLATE)
+	footer = _read_letter_head_template(LETTER_HEAD_FOOTER_TEMPLATE)
+
+	if frappe.db.exists("Letter Head", LETTER_HEAD_NAME):
+		letter_head = frappe.get_doc("Letter Head", LETTER_HEAD_NAME)
+		changed = False
+		for fieldname, value in (
+			("source", "HTML"),
+			("footer_source", "HTML"),
+			("content", content),
+			("footer", footer),
+			("disabled", 0),
+		):
+			if letter_head.get(fieldname) != value:
+				letter_head.set(fieldname, value)
+				changed = True
+
+		if changed:
+			letter_head.save(ignore_permissions=True)
+		return
+
+	frappe.get_doc(
+		{
+			"doctype": "Letter Head",
+			"letter_head_name": LETTER_HEAD_NAME,
+			"source": "HTML",
+			"footer_source": "HTML",
+			"content": content,
+			"footer": footer,
+			"is_default": 0,
+			"disabled": 0,
+		}
+	).insert(ignore_permissions=True)
+
+
 def after_install() -> None:
 	_ensure_default_uom_setting(create_uom_if_missing=True)
+	_ensure_cold_storage_letter_head()
 	_ensure_website_view_tracking_enabled()
 	_ensure_batch_customizations()
 	_ensure_dashboard_chart_types()
@@ -1138,6 +1180,7 @@ def after_install() -> None:
 
 def after_migrate() -> None:
 	_ensure_default_uom_setting(create_uom_if_missing=True)
+	_ensure_cold_storage_letter_head()
 	_ensure_website_view_tracking_enabled()
 	_ensure_batch_customizations()
 	_ensure_dashboard_chart_types()

@@ -1,0 +1,52 @@
+<style>
+	.cs-letterhead-footer {
+		-webkit-print-color-adjust: exact;
+		print-color-adjust: exact;
+		font-family: "Manrope", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+		margin-top: 10px;
+	}
+
+	.cs-letterhead-footer-card {
+		border-top: 1px solid #cbd5e1;
+		padding-top: 6px;
+		font-size: 9px;
+		line-height: 1.35;
+		color: #475569;
+		display: table;
+		width: 100%;
+	}
+
+	.cs-letterhead-footer-left,
+	.cs-letterhead-footer-right {
+		display: table-cell;
+		vertical-align: middle;
+	}
+
+	.cs-letterhead-footer-right {
+		text-align: right;
+		color: #64748b;
+		font-weight: 600;
+	}
+
+	.cs-letterhead-footer-strong {
+		color: #0f172a;
+		font-weight: 700;
+	}
+</style>
+
+{% set company_name = doc.company if doc and doc.get("company") else frappe.defaults.get_defaults().company %}
+{% set company_website = frappe.db.get_value("Company", company_name, "website") if company_name else None %}
+{% set company_gstin = frappe.db.get_value("Company", company_name, "tax_id") if company_name else None %}
+
+<div class="cs-letterhead-footer">
+	<div class="cs-letterhead-footer-card">
+		<div class="cs-letterhead-footer-left">
+			<span class="cs-letterhead-footer-strong">{{ company_name or _("Cold Storage") }}</span>
+			{% if company_website %} | {{ company_website }}{% endif %}
+			{% if company_gstin %} | {{ _("GSTIN") }}: {{ company_gstin }}{% endif %}
+		</div>
+		<div class="cs-letterhead-footer-right">
+			{{ _("Temperature Controlled Storage & Dispatch Documentation") }}
+		</div>
+	</div>
+</div>

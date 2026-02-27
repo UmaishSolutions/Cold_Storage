@@ -2,7 +2,6 @@ import frappe
 from frappe import _
 from frappe.utils import cint, flt, getdate, nowdate
 
-
 BUCKETS = [
 	("Current", "Current"),
 	("1-30", "1-30 Days"),
@@ -136,12 +135,12 @@ def get_data(filters):
 		elif row.get("posting_date") <= filters.to_date:
 			rec["new_bills"] += grand_total
 
-	for key, _ in BUCKETS:
+	for key, _bucket_label in BUCKETS:
 		rec = bucket_map[key]
 		rec["closing_ar"] = rec["opening_ar"] + rec["new_bills"] - rec["collections"]
 		rec["variance"] = rec["closing_actual"] - rec["closing_ar"]
 
-	return [bucket_map[key] for key, _ in BUCKETS]
+	return [bucket_map[key] for key, _bucket_label in BUCKETS]
 
 
 def get_chart(data):

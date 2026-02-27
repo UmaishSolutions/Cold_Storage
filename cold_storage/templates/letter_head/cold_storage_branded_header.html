@@ -1,0 +1,191 @@
+<style>
+	.cs-letterhead {
+		-webkit-print-color-adjust: exact;
+		print-color-adjust: exact;
+		font-family: "Manrope", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+		margin: 0 0 12px;
+	}
+
+	.cs-letterhead-card {
+		background: linear-gradient(135deg, #0f172a 0%, #1e293b 58%, #0f3a33 100%);
+		color: #ecfeff;
+		border: 1px solid #d7e1e8;
+		border-radius: 12px;
+		padding: 10px 12px;
+		box-shadow: 0 8px 18px rgba(15, 23, 42, 0.1);
+		position: relative;
+		overflow: hidden;
+	}
+
+	.cs-letterhead-card::before {
+		content: "";
+		position: absolute;
+		top: -54px;
+		right: -30px;
+		width: 170px;
+		height: 170px;
+		background: radial-gradient(circle, rgba(13, 148, 136, 0.26) 0%, transparent 72%);
+	}
+
+	.cs-letterhead-card::after {
+		content: "";
+		position: absolute;
+		bottom: -62px;
+		left: 22%;
+		width: 140px;
+		height: 140px;
+		background: radial-gradient(circle, rgba(16, 185, 129, 0.2) 0%, transparent 72%);
+	}
+
+	.cs-letterhead-top {
+		position: relative;
+		z-index: 1;
+		display: table;
+		width: 100%;
+		border-collapse: collapse;
+	}
+
+	.cs-letterhead-logo-wrap,
+	.cs-letterhead-meta-wrap {
+		display: table-cell;
+		vertical-align: middle;
+	}
+
+	.cs-letterhead-logo-wrap {
+		width: 86px;
+	}
+
+	.cs-letterhead-logo {
+		width: 70px;
+		height: 70px;
+		border-radius: 12px;
+		background: rgba(255, 255, 255, 0.12);
+		padding: 8px;
+		box-sizing: border-box;
+		display: inline-block;
+	}
+
+	.cs-letterhead-logo img {
+		max-width: 100%;
+		max-height: 100%;
+		display: block;
+	}
+
+	.cs-letterhead-main {
+		display: table-cell;
+		vertical-align: middle;
+		padding: 0 8px;
+	}
+
+	.cs-letterhead-company {
+		font-family: "Sora", "Manrope", "Segoe UI", sans-serif;
+		font-size: 20px;
+		font-weight: 700;
+		letter-spacing: -0.01em;
+		color: #f0fdfa;
+		line-height: 1.12;
+	}
+
+	.cs-letterhead-sub {
+		margin-top: 3px;
+		font-size: 9px;
+		font-weight: 600;
+		letter-spacing: 0.06em;
+		text-transform: uppercase;
+		color: #99f6e4;
+	}
+
+	.cs-letterhead-address {
+		margin-top: 4px;
+		font-size: 9px;
+		line-height: 1.32;
+		color: #c7d2fe;
+		max-width: 390px;
+	}
+
+	.cs-letterhead-meta {
+		font-size: 9px;
+		font-weight: 600;
+		color: #bfdbfe;
+		text-align: right;
+		line-height: 1.45;
+	}
+
+	.cs-letterhead-meta-label {
+		color: #7dd3fc;
+	}
+
+	.cs-letterhead-line {
+		margin-top: 8px;
+		height: 3px;
+		border-radius: 999px;
+		background: linear-gradient(90deg, #0d9488 0%, #10b981 45%, #38bdf8 100%);
+		position: relative;
+		z-index: 1;
+	}
+</style>
+
+{% set company_name = doc.company if doc and doc.get("company") else frappe.defaults.get_defaults().company %}
+{% set header_logo = frappe.db.get_value("Company", company_name, "company_logo") if company_name else None %}
+{% set company_phone = frappe.db.get_value("Company", company_name, "phone_no") if company_name else None %}
+{% set company_email = frappe.db.get_value("Company", company_name, "email") if company_name else None %}
+{% set company_address_row = frappe.db.sql(
+	"""
+		SELECT CONCAT_WS(
+			', ',
+			NULLIF(TRIM(a.address_line1), ''),
+			NULLIF(TRIM(a.address_line2), ''),
+			NULLIF(TRIM(a.city), ''),
+			NULLIF(TRIM(a.state), ''),
+			NULLIF(TRIM(a.pincode), '')
+		) AS one_line
+		FROM `tabAddress` a
+		INNER JOIN `tabDynamic Link` dl
+			ON dl.parent = a.name
+			AND dl.parenttype = 'Address'
+		WHERE dl.link_doctype = 'Company'
+			AND dl.link_name = %s
+		ORDER BY a.is_primary_address DESC, a.modified DESC
+		LIMIT 1
+	""",
+	(company_name,),
+	as_dict=1
+) if company_name else [] %}
+{% set company_address_line = company_address_row[0].one_line if company_address_row and company_address_row[0].one_line else "" %}
+
+<div class="cs-letterhead">
+	<div class="cs-letterhead-card">
+		<div class="cs-letterhead-top">
+			<div class="cs-letterhead-logo-wrap">
+				<div class="cs-letterhead-logo">
+					<img
+						src="{{ frappe.utils.get_url(header_logo or '/assets/cold_storage/images/cold-storage-logo.svg') }}"
+						alt="Cold Storage Logo"
+					/>
+				</div>
+			</div>
+
+			<div class="cs-letterhead-main">
+				<div class="cs-letterhead-company">{{ company_name or _("Cold Storage") }}</div>
+				<div class="cs-letterhead-sub">{{ _("Cold Storage Operations") }}</div>
+				{% if company_address_line %}
+				<div class="cs-letterhead-address">{{ company_address_line }}</div>
+				{% endif %}
+			</div>
+
+			<div class="cs-letterhead-meta-wrap">
+				<div class="cs-letterhead-meta">
+					<div><span class="cs-letterhead-meta-label">{{ _("Doc:") }}</span> {{ doc.doctype }}</div>
+					<div><span class="cs-letterhead-meta-label">{{ _("No:") }}</span> {{ doc.name }}</div>
+					{% if company_phone %}
+					<div><span class="cs-letterhead-meta-label">{{ _("Phone:") }}</span> {{ company_phone }}</div>
+					{% endif %}
+					{% if company_email %}
+					<div><span class="cs-letterhead-meta-label">{{ _("Email:") }}</span> {{ company_email }}</div>
+					{% endif %}
+				</div>
+			</div>
+		</div>
+		<div class="cs-letterhead-line"></div>
+	</div>
+</div>
