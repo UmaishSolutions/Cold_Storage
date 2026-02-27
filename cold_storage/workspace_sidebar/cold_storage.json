@@ -221,6 +221,18 @@
   {
    "child": 1,
    "collapsible": 1,
+   "icon": "\ud83d\udd17",
+   "indent": 0,
+   "keep_closed": 0,
+   "label": "Lot Traceability Graph",
+   "link_to": "Cold Storage Lot Traceability Graph",
+   "link_type": "Report",
+   "show_arrow": 0,
+   "type": "Link"
+  },
+  {
+   "child": 1,
+   "collapsible": 1,
    "icon": "\ud83d\udcc8",
    "indent": 0,
    "keep_closed": 0,
@@ -309,6 +321,18 @@
    "keep_closed": 0,
    "label": "Payment Follow-up",
    "link_to": "Cold Storage Customer Payment Follow-up Queue",
+   "link_type": "Report",
+   "show_arrow": 0,
+   "type": "Link"
+  },
+  {
+   "child": 1,
+   "collapsible": 1,
+   "icon": "\ud83d\udcca",
+   "indent": 0,
+   "keep_closed": 0,
+   "label": "AR Waterfall",
+   "link_to": "Cold Storage Receivables Aging Waterfall",
    "link_type": "Report",
    "show_arrow": 0,
    "type": "Link"
@@ -405,21 +429,9 @@
    "link_type": "DocType",
    "show_arrow": 0,
    "type": "Link"
-  },
-  {
-   "child": 1,
-   "collapsible": 1,
-   "icon": "\ud83d\udcca",
-   "indent": 0,
-   "keep_closed": 0,
-   "label": "AR Waterfall",
-   "link_to": "Cold Storage Receivables Aging Waterfall",
-   "link_type": "Report",
-   "show_arrow": 0,
-   "type": "Link"
   }
  ],
- "modified": "2026-02-26 23:34:53.353158",
+ "modified": "2026-02-27 08:33:49.885604",
  "modified_by": "Administrator",
  "module": "Cold Storage",
  "name": "Cold Storage",
