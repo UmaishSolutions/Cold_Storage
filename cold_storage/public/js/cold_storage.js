@@ -63,6 +63,9 @@
 				gap: 10px;
 				margin-bottom: 10px;
 			}
+			.cs-hbar-row:last-of-type {
+				margin-bottom: 6px;
+			}
 			.cs-hbar-label {
 				color: var(--text-color);
 				font-size: 12px;
@@ -88,6 +91,45 @@
 				font-size: 12px;
 				font-weight: 600;
 				font-variant-numeric: tabular-nums;
+			}
+			.cs-hbar-axis {
+				display: grid;
+				grid-template-columns: minmax(120px, 1.6fr) minmax(140px, 3fr) minmax(72px, 0.9fr);
+				gap: 10px;
+				align-items: start;
+				margin-top: 2px;
+			}
+			.cs-hbar-axis-label {
+				color: var(--text-muted);
+				font-size: 11px;
+				font-weight: 600;
+			}
+			.cs-hbar-scale {
+				position: relative;
+				padding-top: 8px;
+			}
+			.cs-hbar-scale-line {
+				height: 1px;
+				background: color-mix(in srgb, var(--gray-400) 55%, white 45%);
+			}
+			.cs-hbar-scale-ticks {
+				display: grid;
+				grid-template-columns: repeat(5, 1fr);
+				margin-top: 3px;
+			}
+			.cs-hbar-scale-tick {
+				color: var(--text-muted);
+				font-size: 10px;
+				font-variant-numeric: tabular-nums;
+			}
+			.cs-hbar-scale-tick:first-child {
+				text-align: left;
+			}
+			.cs-hbar-scale-tick:not(:first-child):not(:last-child) {
+				text-align: center;
+			}
+			.cs-hbar-scale-tick:last-child {
+				text-align: right;
 			}
 			.cs-hbar-empty {
 				color: var(--text-muted);
@@ -131,7 +173,7 @@
 		}
 
 		const maxValue = Math.max(...points.map((point) => point.value), 1);
-		container.innerHTML = points
+		const rowsHtml = points
 			.map((point) => {
 				const percent = Math.max(2, (point.value / maxValue) * 100);
 				return `
@@ -145,6 +187,22 @@
 				`;
 			})
 			.join("");
+
+		const tickValues = [0, 0.25, 0.5, 0.75, 1].map((factor) => formatQty(maxValue * factor));
+		const axisHtml = `
+			<div class="cs-hbar-axis">
+				<div class="cs-hbar-axis-label">${escapeHtml(__("Customer (Y)"))}</div>
+				<div class="cs-hbar-scale">
+					<div class="cs-hbar-scale-line"></div>
+					<div class="cs-hbar-scale-ticks">
+						${tickValues.map((value) => `<div class="cs-hbar-scale-tick">${escapeHtml(value)}</div>`).join("")}
+					</div>
+				</div>
+				<div class="cs-hbar-axis-label" style="text-align: right;">${escapeHtml(__("Qty (X)"))}</div>
+			</div>
+		`;
+
+		container.innerHTML = rowsHtml + axisHtml;
 	};
 
 	const renderHorizontalBars = (rootEl, labels, values) => {

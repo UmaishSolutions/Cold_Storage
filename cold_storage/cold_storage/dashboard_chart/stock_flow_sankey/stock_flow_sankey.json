@@ -1,0 +1,33 @@
+{
+ "chart_name": "Stock Flow Sankey",
+ "chart_type": "Report",
+ "creation": "2026-02-26 23:25:00.000000",
+ "custom_options": "",
+ "docstatus": 0,
+ "doctype": "Dashboard Chart",
+ "dynamic_filters_json": "{}",
+ "filters_json": "{}",
+ "idx": 0,
+ "is_public": 1,
+ "is_standard": 1,
+ "last_synced_on": "2026-02-26 23:25:00.000000",
+ "modified": "2026-02-26 23:25:00.000000",
+ "modified_by": "Administrator",
+ "module": "Cold Storage",
+ "name": "Stock Flow Sankey",
+ "number_of_groups": 0,
+ "owner": "Administrator",
+ "roles": [
+  {"role": "System Manager"},
+  {"role": "Stock Manager"},
+  {"role": "Stock User"},
+  {"role": "Cold Storage Admin"},
+  {"role": "Cold Storage Warehouse Manager"}
+ ],
+ "show_values_over_chart": 0,
+ "report_name": "Cold Storage Stock Flow Sankey",
+ "timeseries": 0,
+ "type": "Bar",
+ "use_report_chart": 1,
+ "y_axis": []
+}

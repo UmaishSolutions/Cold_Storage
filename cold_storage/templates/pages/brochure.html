@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<title>Cold Storage Brochure</title>
+	<style>
+		@page {
+			size: A4 portrait;
+			margin: 0;
+		}
+
+		* { box-sizing: border-box; }
+
+		html,
+		body {
+			margin: 0;
+			padding: 0;
+			width: 210mm;
+			height: 297mm;
+			font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+			background: #f4f8fc;
+			color: #102a43;
+		}
+
+		.page {
+			width: 210mm;
+			height: 297mm;
+			padding: 8mm;
+			background:
+				radial-gradient(circle at 88% 6%, rgba(20, 165, 114, 0.15) 0, rgba(20, 165, 114, 0) 35%),
+				radial-gradient(circle at 8% 94%, rgba(21, 99, 157, 0.14) 0, rgba(21, 99, 157, 0) 40%),
+				#f4f8fc;
+		}
+
+		.header {
+			display: grid;
+			grid-template-columns: 1fr;
+			gap: 4.5mm;
+			align-items: center;
+			padding: 4.8mm;
+			border-radius: 4mm;
+			background: linear-gradient(135deg, #0f3e66 0%, #146c8f 52%, #14a572 100%);
+			color: #fff;
+		}
+
+		.kicker {
+			margin: 0 0 1mm 0;
+			font-size: 3.4mm;
+			letter-spacing: 0.2mm;
+			opacity: 0.95;
+		}
+
+		h1 {
+			margin: 0;
+			font-size: 8.6mm;
+			line-height: 1.06;
+		}
+
+		.subtitle {
+			margin: 1mm 0 0 0;
+			font-size: 3.5mm;
+			opacity: 0.95;
+		}
+
+		.main {
+			display: grid;
+			grid-template-columns: 1fr;
+			gap: 4.6mm;
+			margin-top: 4.8mm;
+		}
+
+		.panel {
+			background: #fff;
+			border: 0.3mm solid #d8e3ee;
+			border-radius: 3mm;
+			padding: 4.2mm;
+		}
+
+		.section-title {
+			margin: 0 0 2mm 0;
+			font-size: 4.2mm;
+			font-weight: 700;
+			color: #0f3e66;
+		}
+
+		.flow {
+			display: grid;
+			grid-template-columns: repeat(4, 1fr);
+			gap: 1.6mm;
+			margin-bottom: 2.6mm;
+		}
+
+		.step {
+			color: #fff;
+			font-size: 3.05mm;
+			font-weight: 700;
+			padding: 2.2mm 1.3mm;
+			border-radius: 2mm;
+			text-align: center;
+		}
+
+		.s1 { background: #0f766e; }
+		.s2 { background: #1d4ed8; }
+		.s3 { background: #b45309; }
+		.s4 { background: #166534; }
+
+		.grid-2 {
+			display: grid;
+			grid-template-columns: 1fr 1fr;
+			gap: 2.2mm;
+		}
+
+		.card {
+			border: 0.25mm solid #e1ebf5;
+			background: #f9fcff;
+			border-radius: 2mm;
+			padding: 2mm;
+		}
+
+		.card h3 {
+			margin: 0 0 0.7mm 0;
+			font-size: 3.35mm;
+			color: #154f7a;
+		}
+
+		.card p {
+			margin: 0;
+			font-size: 2.85mm;
+			line-height: 1.35;
+			color: #2f455b;
+		}
+
+		.chips {
+			display: flex;
+			flex-wrap: wrap;
+			gap: 1.1mm;
+			margin-top: 2mm;
+		}
+
+		.chip {
+			font-size: 2.6mm;
+			font-weight: 700;
+			padding: 1.1mm 1.7mm;
+			border-radius: 99px;
+			border: 0.25mm solid #d5e8fa;
+			background: #edf6ff;
+			color: #0f4f7a;
+		}
+
+		.list-wrap {
+			display: grid;
+			grid-template-columns: 1fr 1fr;
+			gap: 2.2mm;
+		}
+
+		.list-box {
+			border: 0.25mm solid #dce9f5;
+			background: #f8fbff;
+			border-radius: 2mm;
+			padding: 2mm;
+		}
+
+		.list-box h4 {
+			margin: 0 0 1mm 0;
+			font-size: 3.2mm;
+			color: #0f3e66;
+		}
+
+		.list-box ul {
+			margin: 0;
+			padding-left: 4mm;
+		}
+
+		.list-box li {
+			font-size: 2.7mm;
+			line-height: 1.32;
+			margin-bottom: 0.7mm;
+		}
+
+		.footer {
+			margin-top: 3.2mm;
+			padding: 2.5mm 3mm;
+			border-radius: 2.4mm;
+			background: #0f3e66;
+			color: #eaf4ff;
+			display: grid;
+			grid-template-columns: 1fr auto;
+			gap: 2.5mm;
+			align-items: center;
+		}
+
+		.footer p {
+			margin: 0;
+			font-size: 2.95mm;
+			line-height: 1.3;
+		}
+
+		.badge {
+			font-size: 2.95mm;
+			font-weight: 700;
+			padding: 1.25mm 2.5mm;
+			border-radius: 2mm;
+			border: 0.25mm solid rgba(255,255,255,0.5);
+			background: rgba(255,255,255,0.12);
+		}
+
+		.branding-strip {
+			margin-top: 2.4mm;
+			padding: 2.6mm 3mm;
+			border-radius: 2.4mm;
+			background: linear-gradient(135deg, #0d3557 0%, #146c8f 55%, #14a572 100%);
+			color: #ffffff;
+			border: 0.25mm solid rgba(255, 255, 255, 0.26);
+			text-align: center;
+		}
+
+		.branding-title {
+			margin: 0;
+			font-size: 3.6mm;
+			font-weight: 800;
+			letter-spacing: 0.1mm;
+		}
+
+		.branding-sub {
+			margin: 0.7mm 0 0 0;
+			font-size: 3.05mm;
+			font-weight: 600;
+			opacity: 0.97;
+		}
+	</style>
+</head>
+<body>
+	<div class="page">
+		<header class="header">
+			<div>
+				<p class="kicker">Cold Chain Warehouse Management Solution</p>
+				<h1>Cold Storage App</h1>
+				<p class="subtitle">A complete cold storage solution for inward receipt, storage, dispatch, billing, and customer portal operations.</p>
+			</div>
+		</header>
+
+		<main class="main">
+			<section class="panel">
+				<h2 class="section-title">Complete Operational Flow</h2>
+				<div class="flow">
+					<div class="step s1">Inward Receipt</div>
+					<div class="step s2">Cold Storage</div>
+					<div class="step s3">Outward Dispatch</div>
+					<div class="step s4">Automated Billing</div>
+				</div>
+
+				<div class="grid-2">
+					<div class="card">
+						<h3>Transaction Control</h3>
+						<p>Complete inward, outward, and transfer records with strict customer and batch-level tracking.</p>
+					</div>
+					<div class="card">
+						<h3>Automated Accounting</h3>
+						<p>Sales Invoice, Journal Entry, and Stock Entry are generated automatically from charge configuration.</p>
+					</div>
+					<div class="card">
+						<h3>Client Portal</h3>
+						<p>Real-time KPIs, movement history, batch stock, and invoice visibility at <strong>/cs-portal</strong>.</p>
+					</div>
+					<div class="card">
+						<h3>Compliance and Audit</h3>
+						<p>Audit trail reports, QR print formats, and activity logs for operational transparency and control.</p>
+					</div>
+				</div>
+
+				<h2 class="section-title" style="margin-top: 2.4mm;">Core Modules</h2>
+				<div class="chips">
+					<span class="chip">Cold Storage Settings</span>
+					<span class="chip">Charge Configuration</span>
+					<span class="chip">Cold Storage Inward</span>
+					<span class="chip">Cold Storage Outward</span>
+					<span class="chip">Cold Storage Transfer</span>
+					<span class="chip">Inward/Outward/Transfer Items</span>
+					<span class="chip">Permissions Dashboard</span>
+					<span class="chip">QR Print Formats</span>
+				</div>
+			</section>
+
+			<section class="panel">
+				<h2 class="section-title">Reports and Insights</h2>
+				<div class="list-wrap">
+					<div class="list-box">
+						<h4>Operational Reports</h4>
+						<ul>
+							<li>Cold Storage Inward Register</li>
+							<li>Cold Storage Outward Register</li>
+							<li>Cold Storage Transfer Register</li>
+							<li>Cold Storage Customer Register</li>
+							<li>Cold Storage Live Batch Stock</li>
+							<li>Cold Storage Warehouse Utilization</li>
+						</ul>
+					</div>
+					<div class="list-box">
+						<h4>Analytics and Compliance</h4>
+						<ul>
+							<li>Warehouse Occupancy Timeline</li>
+							<li>Yearly Inward Outward Trend</li>
+							<li>Net Movement Waterfall (Monthly)</li>
+							<li>Audit Trail Compliance Pack</li>
+							<li>Client Portal Access Log</li>
+							<li>Login Activity Log</li>
+						</ul>
+					</div>
+				</div>
+
+				<h2 class="section-title" style="margin-top: 2.4mm;">Key Benefits</h2>
+				<div class="grid-2">
+					<div class="card">
+						<h3>Easy for Operations Teams</h3>
+						<p>Smart filters for customer, batch, item, and warehouse make daily entry faster and more accurate.</p>
+					</div>
+					<div class="card">
+						<h3>Real-Time Visibility</h3>
+						<p>Get clear insight into capacity, stock position, and movement for faster decision-making.</p>
+					</div>
+				</div>
+			</section>
+		</main>
+
+		<footer class="footer">
+			<p>
+				A complete solution for cold storage operations, billing, and customer visibility.<br />
+				Key routes: <strong>/app/cold-storage</strong> | <strong>/app/cs-permissions</strong> | <strong>/cs-portal</strong>
+			</p>
+			<div class="badge">Production Ready</div>
+		</footer>
+
+		<section class="branding-strip">
+			<p class="branding-title">Designed, Developed, and Powered by Umaish Solutions</p>
+			<p class="branding-sub">Contact: 03004189972</p>
+		</section>
+	</div>
+</body>
+</html>
