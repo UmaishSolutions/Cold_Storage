@@ -79,7 +79,7 @@
   {
    "child": 0,
    "collapsible": 1,
-   "icon": "\ud83d\uddc2\ufe0f",
+   "icon": "",
    "indent": 1,
    "keep_closed": 1,
    "label": "Registers",
@@ -138,7 +138,7 @@
   {
    "child": 0,
    "collapsible": 1,
-   "icon": "\ud83d\udce6",
+   "icon": "",
    "indent": 1,
    "keep_closed": 1,
    "label": "Inventory & Movement",
@@ -161,7 +161,7 @@
   {
    "child": 1,
    "collapsible": 1,
-   "icon": "\ud83d\udce6",
+   "icon": "",
    "indent": 0,
    "keep_closed": 0,
    "label": "Item Movement",
@@ -173,7 +173,7 @@
   {
    "child": 1,
    "collapsible": 1,
-   "icon": "\ud83d\udd00",
+   "icon": "",
    "indent": 0,
    "keep_closed": 0,
    "label": "Stock Flow",
@@ -185,7 +185,7 @@
   {
    "child": 1,
    "collapsible": 1,
-   "icon": "\ud83d\udd17",
+   "icon": "",
    "indent": 0,
    "keep_closed": 0,
    "label": "Lot Traceability Graph",
@@ -209,7 +209,7 @@
   {
    "child": 1,
    "collapsible": 1,
-   "icon": "\ud83d\uddd3\ufe0f",
+   "icon": "",
    "indent": 0,
    "keep_closed": 0,
    "label": "Occupancy Timeline",
@@ -221,7 +221,7 @@
   {
    "child": 1,
    "collapsible": 1,
-   "icon": "\ud83d\udcc9",
+   "icon": "",
    "indent": 0,
    "keep_closed": 0,
    "label": "Yearly IO Trend",
@@ -233,7 +233,7 @@
   {
    "child": 1,
    "collapsible": 1,
-   "icon": "\ud83d\udcca",
+   "icon": "",
    "indent": 0,
    "keep_closed": 0,
    "label": "Net Movement",
@@ -245,7 +245,7 @@
   {
    "child": 0,
    "collapsible": 1,
-   "icon": "\ud83d\udcb3",
+   "icon": "",
    "indent": 1,
    "keep_closed": 1,
    "label": "Customer & Billing",
@@ -256,7 +256,7 @@
   {
    "child": 1,
    "collapsible": 1,
-   "icon": "\ud83d\udcb5",
+   "icon": "",
    "indent": 0,
    "keep_closed": 0,
    "label": "Billing Summary",
@@ -268,7 +268,7 @@
   {
    "child": 1,
    "collapsible": 1,
-   "icon": "\ud83d\udcc3",
+   "icon": "",
    "indent": 0,
    "keep_closed": 0,
    "label": "Outstanding Aging",
@@ -280,7 +280,7 @@
   {
    "child": 1,
    "collapsible": 1,
-   "icon": "\ud83d\udccc",
+   "icon": "",
    "indent": 0,
    "keep_closed": 0,
    "label": "Payment Follow-up",
@@ -292,7 +292,7 @@
   {
    "child": 1,
    "collapsible": 1,
-   "icon": "\ud83d\udcca",
+   "icon": "",
    "indent": 0,
    "keep_closed": 0,
    "label": "AR Waterfall",
@@ -304,7 +304,7 @@
   {
    "child": 0,
    "collapsible": 1,
-   "icon": "\ud83d\udee1\ufe0f",
+   "icon": "",
    "indent": 1,
    "keep_closed": 1,
    "label": "Compliance & Activity",
@@ -315,7 +315,7 @@
   {
    "child": 1,
    "collapsible": 1,
-   "icon": "\ud83d\udee1\ufe0f",
+   "icon": "",
    "indent": 0,
    "keep_closed": 0,
    "label": "Audit & Compliance",
@@ -339,7 +339,7 @@
   {
    "child": 1,
    "collapsible": 1,
-   "icon": "\ud83c\udf10",
+   "icon": "",
    "indent": 0,
    "keep_closed": 0,
    "label": "Portal Access Log",
@@ -431,7 +431,7 @@
    "type": "Link"
   }
  ],
- "modified": "2026-02-27 08:33:49.885604",
+ "modified": "2026-02-28 18:07:04.679933",
  "modified_by": "Administrator",
  "module": "Cold Storage",
  "name": "Cold Storage",

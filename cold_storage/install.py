@@ -71,7 +71,9 @@ LEGACY_AUDIT_TRAIL_REPORT = "Cold Storage Audit Trail & Compliance Pack"
 AUDIT_TRAIL_REPORT = "Cold Storage Audit Trail Compliance Pack"
 AUDIT_TRAIL_SHORTCUT_LABEL = "Audit Trail & Compliance Pack"
 REPORTS_SECTION_LABEL = "Reports"
+REGISTERS_SECTION_LABEL = "Registers"
 INVENTORY_MOVEMENT_SECTION_LABEL = "Inventory & Movement"
+CUSTOMER_BILLING_SECTION_LABEL = "Customer & Billing"
 COMPLIANCE_ACTIVITY_SECTION_LABEL = "Compliance & Activity"
 SETUP_SECTION_LABEL = "Setup"
 MASTERS_SECTION_LABEL = "Masters"
@@ -163,6 +165,56 @@ LOGIN_ACTIVITY_CHART_ROLES = (
 	"Stock Manager",
 	"Stock User",
 )
+SIDEBAR_REPORT_SECTION_ORDER = {
+	REGISTERS_SECTION_LABEL: [
+		"Cold Storage Inward Register",
+		"Cold Storage Outward Register",
+		"Cold Storage Transfer Register",
+		"Cold Storage Customer Register",
+	],
+	INVENTORY_MOVEMENT_SECTION_LABEL: [
+		"Cold Storage Live Batch Stock",
+		"Cold Storage Item Movement Summary",
+		"Cold Storage Stock Flow Sankey",
+		"Cold Storage Lot Traceability Graph",
+		"Cold Storage Warehouse Utilization",
+		"Cold Storage Warehouse Occupancy Timeline",
+		"Cold Storage Yearly Inward Outward Trend",
+		"Cold Storage Net Movement Waterfall Monthly",
+	],
+	CUSTOMER_BILLING_SECTION_LABEL: [
+		"Cold Storage Customer Billing Summary",
+		"Cold Storage Customer Outstanding Aging",
+		"Cold Storage Customer Payment Follow-up Queue",
+		"Cold Storage Receivables Aging Waterfall",
+	],
+	COMPLIANCE_ACTIVITY_SECTION_LABEL: [
+		"Cold Storage Audit Trail Compliance Pack",
+		"Cold Storage Login Activity Log",
+		"Cold Storage Client Portal Access Log",
+	],
+}
+SIDEBAR_REPORT_LABEL_BY_LINK = {
+	"Cold Storage Inward Register": "Inward Register",
+	"Cold Storage Outward Register": "Outward Register",
+	"Cold Storage Transfer Register": "Transfer Register",
+	"Cold Storage Customer Register": "Customer Register",
+	"Cold Storage Live Batch Stock": "Live Batch Stock",
+	"Cold Storage Item Movement Summary": "Item Movement",
+	"Cold Storage Stock Flow Sankey": "Stock Flow",
+	"Cold Storage Lot Traceability Graph": "Lot Traceability Graph",
+	"Cold Storage Warehouse Utilization": "Warehouse Utilization",
+	"Cold Storage Warehouse Occupancy Timeline": "Occupancy Timeline",
+	"Cold Storage Yearly Inward Outward Trend": "Yearly IO Trend",
+	"Cold Storage Net Movement Waterfall Monthly": "Net Movement",
+	"Cold Storage Customer Billing Summary": "Billing Summary",
+	"Cold Storage Customer Outstanding Aging": "Outstanding Aging",
+	"Cold Storage Customer Payment Follow-up Queue": "Payment Follow-up",
+	"Cold Storage Receivables Aging Waterfall": "AR Waterfall",
+	"Cold Storage Audit Trail Compliance Pack": "Audit & Compliance",
+	"Cold Storage Login Activity Log": "Login Activity Log",
+	"Cold Storage Client Portal Access Log": "Portal Access Log",
+}
 
 
 def _ensure_batch_customizations() -> None:
@@ -851,6 +903,7 @@ def _ensure_workspace_sidebar_assets() -> None:
 		link_to="Customer",
 		label="Customer",
 	)
+	items_with_required_masters = _enforce_report_section_placement(items_with_required_masters)
 	items_with_required_masters = _apply_sidebar_icons(items_with_required_masters)
 	items_with_required_masters = _normalize_sidebar_sections(items_with_required_masters)
 
@@ -860,6 +913,136 @@ def _ensure_workspace_sidebar_assets() -> None:
 	sidebar.save(ignore_permissions=True)
 	frappe.clear_cache(doctype="Workspace Sidebar")
 
+
+def _enforce_report_section_placement(items: list) -> list:
+	"""Rebuild report sidebar sections so categories and report links stay stable."""
+	known_report_names = {
+		report_name for report_names in SIDEBAR_REPORT_SECTION_ORDER.values() for report_name in report_names
+	}
+	report_section_labels = {REPORTS_SECTION_LABEL, *SIDEBAR_REPORT_SECTION_ORDER.keys()}
+	unmapped_report_links = []
+	non_report_items = []
+
+	for item in items:
+		item_dict = item if isinstance(item, dict) else item.as_dict()
+		item_type = (item_dict.get("type") or "").strip()
+		label = (item_dict.get("label") or "").strip()
+		link_type = (item_dict.get("link_type") or "").strip()
+		link_to = (item_dict.get("link_to") or "").strip()
+
+		if item_type == "Section Break" and label in report_section_labels:
+			continue
+
+		if item_type == "Link" and link_type == "Report":
+			if link_to in known_report_names:
+				continue
+			unmapped_report_links.append(
+				{
+					"type": "Link",
+					"label": label or link_to,
+					"link_type": "Report",
+					"link_to": link_to,
+					"child": item_dict.get("child", 1),
+					"collapsible": item_dict.get("collapsible", 1),
+					"keep_closed": item_dict.get("keep_closed", 0),
+					"indent": item_dict.get("indent", 0),
+					"show_arrow": item_dict.get("show_arrow", 0),
+					"icon": item_dict.get("icon") or SIDEBAR_ICON_BY_LABEL.get(label or "", ""),
+				}
+			)
+			continue
+
+		non_report_items.append(item_dict)
+
+	report_block = [
+		{
+			"type": "Section Break",
+			"label": REPORTS_SECTION_LABEL,
+			"link_type": "Report",
+			"child": 0,
+			"collapsible": 1,
+			"keep_closed": 1,
+			"indent": 1,
+			"show_arrow": 0,
+			"icon": SIDEBAR_ICON_BY_LABEL.get(REPORTS_SECTION_LABEL, ""),
+		}
+	]
+
+	if unmapped_report_links:
+		report_block.extend(unmapped_report_links)
+
+	module_reports = set(
+		frappe.get_all("Report", filters={"module": "Cold Storage", "disabled": 0}, pluck="name") or []
+	)
+	module_reports -= known_report_names
+	module_reports -= {row.get("link_to") for row in unmapped_report_links}
+	for report_name in sorted(module_reports):
+		label = report_name.replace("Cold Storage ", "").strip() or report_name
+		report_block.append(
+			{
+				"type": "Link",
+				"label": label,
+				"link_type": "Report",
+				"link_to": report_name,
+				"child": 1,
+				"collapsible": 1,
+				"keep_closed": 0,
+				"indent": 0,
+				"show_arrow": 0,
+				"icon": SIDEBAR_ICON_BY_LABEL.get(label, ""),
+			}
+		)
+
+	for section_label, report_names in SIDEBAR_REPORT_SECTION_ORDER.items():
+		section_links = []
+		for report_name in report_names:
+			if not frappe.db.exists("Report", report_name):
+				continue
+			label = SIDEBAR_REPORT_LABEL_BY_LINK.get(report_name, report_name)
+			section_links.append(
+				{
+					"type": "Link",
+					"label": label,
+					"link_type": "Report",
+					"link_to": report_name,
+					"child": 1,
+					"collapsible": 1,
+					"keep_closed": 0,
+					"indent": 0,
+					"show_arrow": 0,
+					"icon": SIDEBAR_ICON_BY_LABEL.get(label, ""),
+				}
+			)
+		if not section_links:
+			continue
+		report_block.append(
+			{
+				"type": "Section Break",
+				"label": section_label,
+				"link_type": "Report",
+				"child": 0,
+				"collapsible": 1,
+				"keep_closed": 1,
+				"indent": 1,
+				"show_arrow": 0,
+				"icon": SIDEBAR_ICON_BY_LABEL.get(section_label, ""),
+			}
+		)
+		report_block.extend(section_links)
+
+	setup_index = next(
+		(
+			idx
+			for idx, item in enumerate(non_report_items)
+			if (item.get("type") or "").strip() == "Section Break"
+			and (item.get("label") or "").strip() == SETUP_SECTION_LABEL
+		),
+		None,
+	)
+	if setup_index is None:
+		return non_report_items + report_block
+
+	return non_report_items[:setup_index] + report_block + non_report_items[setup_index:]
 
 def _ensure_sidebar_link_under_section(
 	items: list, *, section_label: str, link_type: str, link_to: str, label: str
