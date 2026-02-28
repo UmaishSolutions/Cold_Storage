@@ -71,6 +71,8 @@ LEGACY_AUDIT_TRAIL_REPORT = "Cold Storage Audit Trail & Compliance Pack"
 AUDIT_TRAIL_REPORT = "Cold Storage Audit Trail Compliance Pack"
 AUDIT_TRAIL_SHORTCUT_LABEL = "Audit Trail & Compliance Pack"
 REPORTS_SECTION_LABEL = "Reports"
+INVENTORY_MOVEMENT_SECTION_LABEL = "Inventory & Movement"
+COMPLIANCE_ACTIVITY_SECTION_LABEL = "Compliance & Activity"
 SETUP_SECTION_LABEL = "Setup"
 MASTERS_SECTION_LABEL = "Masters"
 PEOPLE_OPS_SECTION_LABEL = "People Ops"
@@ -798,102 +800,39 @@ def _ensure_workspace_sidebar_assets() -> None:
 			continue
 		cleaned_items.append(item)
 	items = cleaned_items
-	existing_live_items = [
-		item
-		for item in items
-		if item.type == "Link" and item.link_type == "Report" and item.link_to == LIVE_BATCH_STOCK_REPORT
-	]
-	items_without_live = [item for item in items if item not in existing_live_items]
 	items_without_legacy_audit = [
 		item
-		for item in items_without_live
+		for item in items
 		if not (
 			item.get("type") == "Link"
 			and (item.get("link_type") or "").strip() == "Report"
 			and (item.get("link_to") or "").strip() == LEGACY_AUDIT_TRAIL_REPORT
 		)
 	]
-
-	live_item = {
-		"type": "Link",
-		"label": LIVE_BATCH_STOCK_SHORTCUT_LABEL,
-		"link_type": "Report",
-		"link_to": LIVE_BATCH_STOCK_REPORT,
-		"child": 1,
-		"collapsible": 1,
-		"keep_closed": 0,
-		"indent": 0,
-		"show_arrow": 0,
-		"icon": SIDEBAR_ICON_BY_LABEL.get(LIVE_BATCH_STOCK_SHORTCUT_LABEL, ""),
-	}
-	if existing_live_items:
-		source = existing_live_items[0]
-		live_item.update(
-			{
-				"label": source.get("label") or LIVE_BATCH_STOCK_SHORTCUT_LABEL,
-				"child": source.get("child", 1),
-				"collapsible": source.get("collapsible", 1),
-				"keep_closed": source.get("keep_closed", 0),
-				"indent": source.get("indent", 0),
-				"show_arrow": source.get("show_arrow", 0),
-				"icon": source.get("icon") or "",
-			}
-		)
-
-	reports_section_index = next(
-		(
-			idx
-			for idx, item in enumerate(items_without_legacy_audit)
-			if item.get("type") == "Section Break"
-			and (item.get("label") or "").strip() == REPORTS_SECTION_LABEL
-		),
-		None,
-	)
-	setup_section_index = next(
-		(
-			idx
-			for idx, item in enumerate(items_without_legacy_audit)
-			if item.get("type") == "Section Break"
-			and (item.get("label") or "").strip() == SETUP_SECTION_LABEL
-		),
-		None,
-	)
-	insert_at = len(items_without_legacy_audit)
-	if reports_section_index is not None:
-		next_section_after_reports = next(
-			(
-				idx
-				for idx in range(reports_section_index + 1, len(items_without_legacy_audit))
-				if items_without_legacy_audit[idx].get("type") == "Section Break"
-			),
-			None,
-		)
-		insert_at = (
-			next_section_after_reports
-			if next_section_after_reports is not None
-			else len(items_without_legacy_audit)
-		)
-	elif setup_section_index is not None:
-		insert_at = setup_section_index
-
-	items_without_legacy_audit.insert(insert_at, live_item)
 	items_with_required_reports = _ensure_sidebar_link_under_section(
 		items_without_legacy_audit,
-		section_label=REPORTS_SECTION_LABEL,
+		section_label=INVENTORY_MOVEMENT_SECTION_LABEL,
+		link_type="Report",
+		link_to=LIVE_BATCH_STOCK_REPORT,
+		label=LIVE_BATCH_STOCK_SHORTCUT_LABEL,
+	)
+	items_with_required_reports = _ensure_sidebar_link_under_section(
+		items_with_required_reports,
+		section_label=COMPLIANCE_ACTIVITY_SECTION_LABEL,
 		link_type="Report",
 		link_to=AUDIT_TRAIL_REPORT,
 		label=AUDIT_TRAIL_SHORTCUT_LABEL,
 	)
 	items_with_required_reports = _ensure_sidebar_link_under_section(
 		items_with_required_reports,
-		section_label=REPORTS_SECTION_LABEL,
+		section_label=COMPLIANCE_ACTIVITY_SECTION_LABEL,
 		link_type="Report",
 		link_to=LOGIN_ACTIVITY_LOG_REPORT,
 		label=LOGIN_ACTIVITY_LOG_SHORTCUT_LABEL,
 	)
 	items_with_required_reports = _ensure_sidebar_link_under_section(
 		items_with_required_reports,
-		section_label=REPORTS_SECTION_LABEL,
+		section_label=COMPLIANCE_ACTIVITY_SECTION_LABEL,
 		link_type="Report",
 		link_to=CLIENT_PORTAL_ACCESS_LOG_REPORT,
 		label=CLIENT_PORTAL_ACCESS_LOG_SHORTCUT_LABEL,
