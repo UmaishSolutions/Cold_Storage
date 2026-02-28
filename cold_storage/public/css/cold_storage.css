@@ -1,0 +1,64 @@
+.body-sidebar[data-title="Cold Storage"] {
+	--cs-home: #0284c7;
+	--cs-operations: #059669;
+	--cs-reports: #0ea5e9;
+	--cs-registers: #2563eb;
+	--cs-inventory: #0891b2;
+	--cs-billing: #7c3aed;
+	--cs-compliance: #dc2626;
+	--cs-setup: #d97706;
+	--cs-masters: #475569;
+}
+
+.body-sidebar[data-title="Cold Storage"] .sidebar-header .sidebar-item-icon {
+	background: linear-gradient(135deg, #0ea5e9, #0284c7) !important;
+	box-shadow: 0 6px 16px rgba(2, 132, 199, 0.35);
+}
+
+.body-sidebar[data-title="Cold Storage"] .sidebar-header .header-logo svg {
+	color: #ffffff !important;
+	stroke: #ffffff !important;
+}
+
+.body-sidebar[data-title="Cold Storage"] .sidebar-item-container[item-name="Home"] .sidebar-item-icon {
+	color: var(--cs-home) !important;
+}
+
+.body-sidebar[data-title="Cold Storage"] .sidebar-item-container[item-name="Operations"] .sidebar-item-icon,
+.body-sidebar[data-title="Cold Storage"] .sidebar-item-container[item-name="Operations"] .nested-container .sidebar-item-icon {
+	color: var(--cs-operations) !important;
+}
+
+.body-sidebar[data-title="Cold Storage"] .sidebar-item-container[item-name="Reports"] .sidebar-item-icon {
+	color: var(--cs-reports) !important;
+}
+
+.body-sidebar[data-title="Cold Storage"] .sidebar-item-container[item-name="Registers"] .sidebar-item-icon,
+.body-sidebar[data-title="Cold Storage"] .sidebar-item-container[item-name="Registers"] .nested-container .sidebar-item-icon {
+	color: var(--cs-registers) !important;
+}
+
+.body-sidebar[data-title="Cold Storage"] .sidebar-item-container[item-name="Inventory & Movement"] .sidebar-item-icon,
+.body-sidebar[data-title="Cold Storage"] .sidebar-item-container[item-name="Inventory & Movement"] .nested-container .sidebar-item-icon {
+	color: var(--cs-inventory) !important;
+}
+
+.body-sidebar[data-title="Cold Storage"] .sidebar-item-container[item-name="Customer & Billing"] .sidebar-item-icon,
+.body-sidebar[data-title="Cold Storage"] .sidebar-item-container[item-name="Customer & Billing"] .nested-container .sidebar-item-icon {
+	color: var(--cs-billing) !important;
+}
+
+.body-sidebar[data-title="Cold Storage"] .sidebar-item-container[item-name="Compliance & Activity"] .sidebar-item-icon,
+.body-sidebar[data-title="Cold Storage"] .sidebar-item-container[item-name="Compliance & Activity"] .nested-container .sidebar-item-icon {
+	color: var(--cs-compliance) !important;
+}
+
+.body-sidebar[data-title="Cold Storage"] .sidebar-item-container[item-name="Setup"] .sidebar-item-icon,
+.body-sidebar[data-title="Cold Storage"] .sidebar-item-container[item-name="Setup"] .nested-container .sidebar-item-icon {
+	color: var(--cs-setup) !important;
+}
+
+.body-sidebar[data-title="Cold Storage"] .sidebar-item-container[item-name="Masters"] .sidebar-item-icon,
+.body-sidebar[data-title="Cold Storage"] .sidebar-item-container[item-name="Masters"] .nested-container .sidebar-item-icon {
+	color: var(--cs-masters) !important;
+}

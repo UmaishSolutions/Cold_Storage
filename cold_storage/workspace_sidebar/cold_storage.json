@@ -9,7 +9,7 @@
   {
    "child": 0,
    "collapsible": 1,
-   "icon": "\ud83c\udfe0",
+   "icon": "house",
    "indent": 0,
    "keep_closed": 0,
    "label": "Home",
@@ -21,7 +21,7 @@
   {
    "child": 0,
    "collapsible": 1,
-   "icon": "\ud83e\uddf0",
+   "icon": "workflow",
    "indent": 1,
    "keep_closed": 1,
    "label": "Operations",
@@ -32,7 +32,7 @@
   {
    "child": 1,
    "collapsible": 1,
-   "icon": "\ud83d\udce5",
+   "icon": "arrow-down-to-line",
    "indent": 0,
    "keep_closed": 0,
    "label": "Inward Receipt",
@@ -44,7 +44,7 @@
   {
    "child": 1,
    "collapsible": 1,
-   "icon": "\ud83d\udce4",
+   "icon": "arrow-up-from-line",
    "indent": 0,
    "keep_closed": 0,
    "label": "Outward Dispatch",
@@ -56,7 +56,7 @@
   {
    "child": 1,
    "collapsible": 1,
-   "icon": "\ud83d\udd04",
+   "icon": "repeat",
    "indent": 0,
    "keep_closed": 0,
    "label": "Transfer",
@@ -68,7 +68,7 @@
   {
    "child": 0,
    "collapsible": 1,
-   "icon": "\ud83d\udcca",
+   "icon": "chart-bar",
    "indent": 1,
    "keep_closed": 1,
    "label": "Reports",
@@ -79,7 +79,7 @@
   {
    "child": 0,
    "collapsible": 1,
-   "icon": "",
+   "icon": "book-copy",
    "indent": 1,
    "keep_closed": 1,
    "label": "Registers",
@@ -90,7 +90,7 @@
   {
    "child": 1,
    "collapsible": 1,
-   "icon": "\ud83e\uddfe",
+   "icon": "clipboard-list",
    "indent": 0,
    "keep_closed": 0,
    "label": "Inward Register",
@@ -102,7 +102,7 @@
   {
    "child": 1,
    "collapsible": 1,
-   "icon": "\ud83d\ude9a",
+   "icon": "truck",
    "indent": 0,
    "keep_closed": 0,
    "label": "Outward Register",
@@ -114,7 +114,7 @@
   {
    "child": 1,
    "collapsible": 1,
-   "icon": "\ud83d\udd01",
+   "icon": "repeat",
    "indent": 0,
    "keep_closed": 0,
    "label": "Transfer Register",
@@ -126,7 +126,7 @@
   {
    "child": 1,
    "collapsible": 1,
-   "icon": "\ud83d\udc65",
+   "icon": "users",
    "indent": 0,
    "keep_closed": 0,
    "label": "Customer Register",
@@ -138,7 +138,7 @@
   {
    "child": 0,
    "collapsible": 1,
-   "icon": "",
+   "icon": "boxes",
    "indent": 1,
    "keep_closed": 1,
    "label": "Inventory & Movement",
@@ -149,7 +149,7 @@
   {
    "child": 1,
    "collapsible": 1,
-   "icon": "\u2744\ufe0f",
+   "icon": "snowflake",
    "indent": 0,
    "keep_closed": 0,
    "label": "Live Batch Stock",
@@ -161,7 +161,7 @@
   {
    "child": 1,
    "collapsible": 1,
-   "icon": "",
+   "icon": "move-right",
    "indent": 0,
    "keep_closed": 0,
    "label": "Item Movement",
@@ -173,7 +173,7 @@
   {
    "child": 1,
    "collapsible": 1,
-   "icon": "",
+   "icon": "git-branch-plus",
    "indent": 0,
    "keep_closed": 0,
    "label": "Stock Flow",
@@ -185,7 +185,7 @@
   {
    "child": 1,
    "collapsible": 1,
-   "icon": "",
+   "icon": "network",
    "indent": 0,
    "keep_closed": 0,
    "label": "Lot Traceability Graph",
@@ -197,7 +197,7 @@
   {
    "child": 1,
    "collapsible": 1,
-   "icon": "\ud83d\udcc8",
+   "icon": "chart-column-big",
    "indent": 0,
    "keep_closed": 0,
    "label": "Warehouse Utilization",
@@ -209,7 +209,7 @@
   {
    "child": 1,
    "collapsible": 1,
-   "icon": "",
+   "icon": "calendar-range",
    "indent": 0,
    "keep_closed": 0,
    "label": "Occupancy Timeline",
@@ -221,7 +221,7 @@
   {
    "child": 1,
    "collapsible": 1,
-   "icon": "",
+   "icon": "chart-line",
    "indent": 0,
    "keep_closed": 0,
    "label": "Yearly IO Trend",
@@ -233,7 +233,7 @@
   {
    "child": 1,
    "collapsible": 1,
-   "icon": "",
+   "icon": "chart-bar-stacked",
    "indent": 0,
    "keep_closed": 0,
    "label": "Net Movement",
@@ -245,7 +245,7 @@
   {
    "child": 0,
    "collapsible": 1,
-   "icon": "",
+   "icon": "receipt-text",
    "indent": 1,
    "keep_closed": 1,
    "label": "Customer & Billing",
@@ -256,7 +256,7 @@
   {
    "child": 1,
    "collapsible": 1,
-   "icon": "",
+   "icon": "receipt-text",
    "indent": 0,
    "keep_closed": 0,
    "label": "Billing Summary",
@@ -268,7 +268,7 @@
   {
    "child": 1,
    "collapsible": 1,
-   "icon": "",
+   "icon": "timer",
    "indent": 0,
    "keep_closed": 0,
    "label": "Outstanding Aging",
@@ -280,7 +280,7 @@
   {
    "child": 1,
    "collapsible": 1,
-   "icon": "",
+   "icon": "bell-ring",
    "indent": 0,
    "keep_closed": 0,
    "label": "Payment Follow-up",
@@ -292,7 +292,7 @@
   {
    "child": 1,
    "collapsible": 1,
-   "icon": "",
+   "icon": "waves",
    "indent": 0,
    "keep_closed": 0,
    "label": "AR Waterfall",
@@ -304,7 +304,7 @@
   {
    "child": 0,
    "collapsible": 1,
-   "icon": "",
+   "icon": "shield-check",
    "indent": 1,
    "keep_closed": 1,
    "label": "Compliance & Activity",
@@ -315,7 +315,7 @@
   {
    "child": 1,
    "collapsible": 1,
-   "icon": "",
+   "icon": "shield",
    "indent": 0,
    "keep_closed": 0,
    "label": "Audit & Compliance",
@@ -327,7 +327,7 @@
   {
    "child": 1,
    "collapsible": 1,
-   "icon": "\ud83d\udd10",
+   "icon": "log-in",
    "indent": 0,
    "keep_closed": 0,
    "label": "Login Activity Log",
@@ -339,7 +339,7 @@
   {
    "child": 1,
    "collapsible": 1,
-   "icon": "",
+   "icon": "monitor",
    "indent": 0,
    "keep_closed": 0,
    "label": "Portal Access Log",
@@ -351,7 +351,7 @@
   {
    "child": 0,
    "collapsible": 1,
-   "icon": "\u2699\ufe0f",
+   "icon": "settings",
    "indent": 1,
    "keep_closed": 1,
    "label": "Setup",
@@ -362,7 +362,7 @@
   {
    "child": 1,
    "collapsible": 1,
-   "icon": "\ud83d\udee0\ufe0f",
+   "icon": "sliders-horizontal",
    "indent": 0,
    "keep_closed": 0,
    "label": "Cold Storage Settings",
@@ -374,7 +374,7 @@
   {
    "child": 0,
    "collapsible": 1,
-   "icon": "\ud83d\uddc2\ufe0f",
+   "icon": "folder-tree",
    "indent": 1,
    "keep_closed": 1,
    "label": "Masters",
@@ -385,7 +385,7 @@
   {
    "child": 1,
    "collapsible": 1,
-   "icon": "\ud83c\udfec",
+   "icon": "warehouse",
    "indent": 0,
    "keep_closed": 0,
    "label": "Warehouse",
@@ -397,7 +397,7 @@
   {
    "child": 1,
    "collapsible": 1,
-   "icon": "\ud83d\udce6",
+   "icon": "package",
    "indent": 0,
    "keep_closed": 0,
    "label": "Batch",
@@ -409,7 +409,7 @@
   {
    "child": 1,
    "collapsible": 1,
-   "icon": "\ud83c\udff7\ufe0f",
+   "icon": "tag",
    "indent": 0,
    "keep_closed": 0,
    "label": "Item",
@@ -421,7 +421,7 @@
   {
    "child": 1,
    "collapsible": 1,
-   "icon": "\ud83e\udd1d",
+   "icon": "handshake",
    "indent": 0,
    "keep_closed": 0,
    "label": "Customer",
@@ -431,7 +431,7 @@
    "type": "Link"
   }
  ],
- "modified": "2026-02-28 18:07:04.679933",
+ "modified": "2026-02-28 18:33:56.850443",
  "modified_by": "Administrator",
  "module": "Cold Storage",
  "name": "Cold Storage",

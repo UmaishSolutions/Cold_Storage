@@ -7,6 +7,20 @@
 	const AUDIT_REPORT_NAME = "Cold Storage Audit Trail Compliance Pack";
 	const LEGACY_AUDIT_REPORT_ROUTE = `query-report/${LEGACY_AUDIT_REPORT_NAME}`;
 	const AUDIT_REPORT_ROUTE = `query-report/${AUDIT_REPORT_NAME}`;
+	const SIDEBAR_ROOT_SELECTOR = ".body-sidebar";
+	const SIDEBAR_SECTION_COLORS = {
+		Operations: "#059669",
+		Reports: "#0ea5e9",
+		Registers: "#2563eb",
+		"Inventory & Movement": "#0891b2",
+		"Customer & Billing": "#7c3aed",
+		"Compliance & Activity": "#dc2626",
+		Setup: "#d97706",
+		Masters: "#475569",
+	};
+	const SIDEBAR_ITEM_COLORS = {
+		Home: "#0284c7",
+	};
 
 	let hydrateInProgress = false;
 
@@ -287,25 +301,82 @@
 		setTimeout(() => ensurePatchedEventually(attempt + 1), 1000);
 	};
 
+	const isColdStorageSidebar = (sidebar) => {
+		if (!sidebar) return false;
+		const title = (sidebar.getAttribute("data-title") || "").trim().toLowerCase();
+		return (
+			title === "cold storage" ||
+			title === "cold-storage" ||
+			title === "cold_storage" ||
+			title.includes("cold storage")
+		);
+	};
+
+	const paintIcon = (element, color) => {
+		if (!element || !color) return;
+		element.style.setProperty("color", color, "important");
+		element.style.setProperty("stroke", color, "important");
+	};
+
+	const applyColoredSidebarIcons = () => {
+		const sidebar = document.querySelector(SIDEBAR_ROOT_SELECTOR);
+		if (!isColdStorageSidebar(sidebar)) return;
+
+		const allItems = sidebar.querySelectorAll(".sidebar-item-container");
+		allItems.forEach((item) => {
+			const label = (item.getAttribute("item-name") || "").trim();
+			const icon = item.querySelector(".item-anchor > .sidebar-item-icon");
+			if (!icon) return;
+
+			if (SIDEBAR_ITEM_COLORS[label]) {
+				paintIcon(icon, SIDEBAR_ITEM_COLORS[label]);
+			}
+		});
+
+		Object.entries(SIDEBAR_SECTION_COLORS).forEach(([sectionLabel, color]) => {
+			const section = sidebar.querySelector(
+				`.sidebar-item-container[item-name="${sectionLabel}"]`
+			);
+			if (!section) return;
+
+			paintIcon(section.querySelector(".item-anchor > .sidebar-item-icon"), color);
+			section
+				.querySelectorAll(".nested-container .sidebar-item-icon")
+				.forEach((nestedIcon) => paintIcon(nestedIcon, color));
+		});
+	};
+
+	const scheduleSidebarIconColoring = () => {
+		[0, 300, 900].forEach((delay) => {
+			setTimeout(applyColoredSidebarIcons, delay);
+		});
+	};
+
 	const bootstrap = () => {
 		registerLegacyAuditRoute();
 		redirectLegacyAuditReportRoute();
 		injectStyles();
 		ensurePatchedEventually();
+		scheduleSidebarIconColoring();
 		setTimeout(hydrateCurrentPageWidget, 1200);
 
 		if (frappe.router?.on) {
 			frappe.router.on("change", () => {
 				redirectLegacyAuditReportRoute();
+				scheduleSidebarIconColoring();
 			});
 		}
 
 		if (typeof $ !== "undefined") {
+			$(document).on("sidebar_setup", () => {
+				scheduleSidebarIconColoring();
+			});
 			$(document).on("page-change", () => {
 				redirectLegacyAuditReportRoute();
 				setTimeout(() => {
 					ensurePatchedEventually();
 					hydrateCurrentPageWidget();
+					scheduleSidebarIconColoring();
 				}, 800);
 			});
 		}
