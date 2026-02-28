@@ -8,18 +8,18 @@
 	const LEGACY_AUDIT_REPORT_ROUTE = `query-report/${LEGACY_AUDIT_REPORT_NAME}`;
 	const AUDIT_REPORT_ROUTE = `query-report/${AUDIT_REPORT_NAME}`;
 	const SIDEBAR_ROOT_SELECTOR = ".body-sidebar";
-	const SIDEBAR_SECTION_COLORS = {
-		Operations: "#059669",
-		Reports: "#0ea5e9",
-		Registers: "#2563eb",
-		"Inventory & Movement": "#0891b2",
-		"Customer & Billing": "#7c3aed",
-		"Compliance & Activity": "#dc2626",
-		Setup: "#d97706",
-		Masters: "#475569",
+	const SIDEBAR_SECTION_COLOR_VARS = {
+		Operations: "--cs-operations",
+		Reports: "--cs-reports",
+		Registers: "--cs-registers",
+		"Inventory & Movement": "--cs-inventory",
+		"Customer & Billing": "--cs-billing",
+		"Compliance & Activity": "--cs-compliance",
+		Setup: "--cs-setup",
+		Masters: "--cs-masters",
 	};
-	const SIDEBAR_ITEM_COLORS = {
-		Home: "#0284c7",
+	const SIDEBAR_ITEM_COLOR_VARS = {
+		Home: "--cs-home",
 	};
 
 	let hydrateInProgress = false;
@@ -318,6 +318,11 @@
 		element.style.setProperty("stroke", color, "important");
 	};
 
+	const resolveColorFromVar = (sidebar, variableName, fallback) => {
+		const value = getComputedStyle(sidebar).getPropertyValue(variableName).trim();
+		return value || fallback;
+	};
+
 	const applyColoredSidebarIcons = () => {
 		const sidebar = document.querySelector(SIDEBAR_ROOT_SELECTOR);
 		if (!isColdStorageSidebar(sidebar)) return;
@@ -328,16 +333,18 @@
 			const icon = item.querySelector(".item-anchor > .sidebar-item-icon");
 			if (!icon) return;
 
-			if (SIDEBAR_ITEM_COLORS[label]) {
-				paintIcon(icon, SIDEBAR_ITEM_COLORS[label]);
+			if (SIDEBAR_ITEM_COLOR_VARS[label]) {
+				const color = resolveColorFromVar(sidebar, SIDEBAR_ITEM_COLOR_VARS[label], "#0284c7");
+				paintIcon(icon, color);
 			}
 		});
 
-		Object.entries(SIDEBAR_SECTION_COLORS).forEach(([sectionLabel, color]) => {
+		Object.entries(SIDEBAR_SECTION_COLOR_VARS).forEach(([sectionLabel, colorVar]) => {
 			const section = sidebar.querySelector(
 				`.sidebar-item-container[item-name="${sectionLabel}"]`
 			);
 			if (!section) return;
+			const color = resolveColorFromVar(sidebar, colorVar, "#0ea5e9");
 
 			paintIcon(section.querySelector(".item-anchor > .sidebar-item-icon"), color);
 			section
