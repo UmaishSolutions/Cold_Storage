@@ -125,7 +125,7 @@
    "type": "Link"
   },
   {
-   "child": 1,
+   "child": 0,
    "collapsible": 1,
    "icon": "\ud83d\uddc2\ufe0f",
    "indent": 1,
@@ -184,7 +184,7 @@
    "type": "Link"
   },
   {
-   "child": 1,
+   "child": 0,
    "collapsible": 1,
    "icon": "\ud83d\udce6",
    "indent": 1,
@@ -279,7 +279,7 @@
    "type": "Link"
   },
   {
-   "child": 1,
+   "child": 0,
    "collapsible": 1,
    "icon": "\ud83d\udcb3",
    "indent": 1,
@@ -338,7 +338,7 @@
    "type": "Link"
   },
   {
-   "child": 1,
+   "child": 0,
    "collapsible": 1,
    "icon": "\ud83d\udee1\ufe0f",
    "indent": 1,

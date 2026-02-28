@@ -913,6 +913,7 @@ def _ensure_workspace_sidebar_assets() -> None:
 		label="Customer",
 	)
 	items_with_required_masters = _apply_sidebar_icons(items_with_required_masters)
+	items_with_required_masters = _normalize_sidebar_sections(items_with_required_masters)
 
 	sidebar.set("items", items_with_required_masters)
 	for idx, item in enumerate(sidebar.get("items", []), start=1):
@@ -1000,6 +1001,20 @@ def _apply_sidebar_icons(items: list) -> list:
 			item["icon"] = desired_icon
 		else:
 			item.icon = desired_icon
+
+	return items
+
+
+def _normalize_sidebar_sections(items: list) -> list:
+	"""Ensure section headers remain top-level for stable sidebar rendering."""
+	for item in items:
+		if (item.get("type") or "").strip() != "Section Break":
+			continue
+
+		if isinstance(item, dict):
+			item["child"] = 0
+		else:
+			item.child = 0
 
 	return items
 
