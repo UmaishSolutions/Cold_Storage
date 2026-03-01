@@ -93,7 +93,7 @@
    "label": "Dispatch Charges"
   },
   {
-   "default": "1",
+   "default": "0",
    "description": "Enable to apply dispatch GST for this dispatch.",
    "fieldname": "apply_dispatch_gst",
    "fieldtype": "Check",
@@ -106,7 +106,7 @@
    "read_only": 1
   },
   {
-   "default": "1",
+   "default": "0",
    "description": "Enable to apply dispatch extra charges for this dispatch.",
    "fieldname": "apply_dispatch_extra_charges",
    "fieldtype": "Check",
