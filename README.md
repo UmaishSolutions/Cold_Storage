@@ -1,45 +1,45 @@
 # Cold Storage
 
-Service-based cold storage operations app for Frappe/ERPNext.
+A comprehensive, service-based cold storage and warehouse operations application built natively for the Frappe and ERPNext ecosystem.
 
-This app is built for warehouses that store goods on behalf of customers, run inward/outward/transfer operations, and bill for storage/handling services.
+This application is purpose-built for third-party logistics (3PL) businesses and warehouse operators who store goods securely on behalf of multiple clients. It provides a seamless, end-to-end workflow to manage daily inward, outward, and transfer movements, while effortlessly automating the complex billing cycles associated with handling and ongoing storage services.
 
-## Features
+## Core Features
 
-### 1. Operations & Inventory Management
-* **Cold Storage Inward**: Formalize the receipt of customer-owned goods into specific warehouses and racks.
-* **Cold Storage Outward**: Dispatch goods, strictly checking batch availability for the respective customer.
-* **Cold Storage Transfer**: Internal movement of stock between warehouses or racks.
-* **Granular Ownership Control**: ERPNext batch masters are heavily utilized; `Batch.custom_customer` ensures absolute isolation of client stock.
+### 1. Advanced Operations & Inventory Management
+* **Cold Storage Inward**: Formalize and streamline the receipt of customer-owned goods. Easily record incoming items, quantities, and precisely assign them to designated warehouses and specific physical racks.
+* **Cold Storage Outward**: Dispatch goods with absolute confidence. The outward process enforces strict, automated batch-level validation, ensuring that dispatchers only select and move inventory that definitively belongs to the requesting customer.
+* **Cold Storage Transfer**: Facilitate the internal relocation of stock. Move items smoothly between different warehouses or specific rack locations without losing tracking history or disrupting client visibility.
+* **Granular Ownership Control**: Leveraging ERPNext's robust batch masters, the app introduces rigid ownership tracking. The custom `Batch.custom_customer` link ensures absolute isolation of client stock, preventing the accidental mixing or dispatching of other clients' goods.
 
-### 2. Space & Rack Management
-* **Storage Capacity**: Track storage limits at the warehouse level (`Warehouse.custom_storage_capacity`).
-* **Rack Tracking**: Hierarchical rack allocation per warehouse via the `Cold Storage Rack` doctype. Rack selection is mandatory in Inward, Outward and Transfer item rows.
+### 2. Intelligent Space & Rack Management
+* **Storage Capacity Tracking**: Gain real-time visibility into your facility's utilization. Set, monitor, and enforce physical storage limits at the individual warehouse level using `Warehouse.custom_storage_capacity`.
+* **Precision Rack Tracking**: Organize your floor space logically with hierarchical rack allocation via the `Cold Storage Rack` doctype. To maintain absolute operational accuracy, precise rack selection is mandatory across all Inward, Outward, and Transfer item rows.
 
-### 3. Automated Billing & Pricing
-* **Charge Configurations**: Define item-group level service/storage rates using the `Charge Configuration` table.
-* **Automated Invoicing**: Generation of ERPNext Sales Invoices dynamically calculated against Inward, Outward or ongoing storage services.
-* **Payment Link Generation**: Built-in support to extract and send payment links for linked Sales Invoices directly to clients.
-* **Financial Settings**: Configurable default income, labour, and transfer expense accounts in `Cold Storage Settings`.
+### 3. Automated Billing & Flexible Pricing
+* **Charge Configurations**: Define highly adaptable, item-group level service and storage rates using the `Charge Configuration` table, catering to diverse client agreements.
+* **Automated Invoicing**: Eliminate manual data entry. The system dynamically generates and calculates ERPNext Sales Invoices for transaction handling (Inward/Outward) and recurring ongoing storage services.
+* **Integrated Payment Links**: Accelerate your revenue cycle with built-in support to extract and seamlessly send payment links for linked Sales Invoices directly to your clients.
+* **Financial Settings**: Simplify accounting by configuring default income, labour, and transfer expense accounts directly within `Cold Storage Settings`.
 
-### 4. Client Portal
-* **Dedicated SPA Portal (`/cs-portal`)**: Real-time read-only view tailored for clients.
-* **Visibility**: Customers can view available batches, item snapshots, dashboards, statements and invoices.
-* **Actionable**: Option to download stock CSVs, statement of accounts, create service requests, and retrieve invoice payment links.
-* **Permission Sync**: Seamless server-side script linking Portal Users directly to ERPNext User Permissions by Customer.
+### 4. Dedicated Client Portal
+* **Real-Time Client Dashboard (`/cs-portal`)**: Provide your customers with a modern, read-only Single Page Application (SPA) tailored specifically for their needs.
+* **Unprecedented Visibility**: Allow customers to independently view available batches, item snapshots, visual dashboards, account statements, and past invoices at any time.
+* **Self-Service Actions**: Empower clients to download stock CSVs, generate statement of accounts, initiate new service requests, and directly retrieve invoice payment links.
+* **Seamless Permission Sync**: Maintain strict data security with automated, server-side scripts that transparently link Portal Users directly to ERPNext User Permissions filtered by Customer.
 
 ### 5. Multi-Channel Communication
-* **WhatsApp Meta API Integration**: Automated alerts to clients for Inward/Outward state changes.
-* **Specialized Print Formats**: QR-code supported custom print formats (e.g., *Outward Dispatch QR*, *Inward Half A4*, *Transfer QR*).
-* provisions `Cold Storage Branded Letter Head` from templates during install/migrate.
+* **WhatsApp Meta API Integration**: Keep your clients informed with automated, real-time alerts dispatched directly to their WhatsApp for critical Inward and Outward state changes.
+* **Specialized Print Formats**: Utilize highly functional, QR-code supported custom print formats engineered for warehouse floors (e.g., *Outward Dispatch QR*, *Inward Half A4*, *Transfer QR*).
+* **Professional Branding**: Automatically provisions a `Cold Storage Branded Letter Head` from beautiful templates during the installation or migration process.
 
-## How it Works (Workflow)
+## How it Works (The Operational Workflow)
 
-1. **Initial Setup**: Administrator sets up `Cold Storage Settings` (accounts, templates), configures capacities and racks in Warehouses, and establishes standard `Charge Configuration` pricing structures. Customer portal users are generated and assigned the `Cold Storage Client Portal User` role.
-2. **Receiving Stock (Inward)**: Customer delivers goods. An operator creates a `Cold Storage Inward` record documenting item, quantity, and designated destination (Warehouse/Rack). System creates the stock batches flagged with the exact customer's ownership details, and triggers any setup inward processing charges into a new Sales Invoice.
-3. **Tracking & Movement (Transfer)**: Stock safely sits in racks. Planners can review the *Live Batch Stock* and *Warehouse Occupancy Timeline*. Using `Cold Storage Transfer`, stock can be flexibly relocated within the premises without interrupting the customer's remote view.
-4. **Dispatching Stock (Outward)**: Customer requests items out. A `Cold Storage Outward` requires batch-level validation ensuring the agent only selects goods owned by that specific customer. Once completed, it generates an outward handling invoice, reduces the stock levels, and optionally WhatsApp-notifies the client.
-5. **Transparency & Portals**: Throughout the lifecycle, the remote client logs into `/cs-portal`, seeing their real-time snapshot and transaction history without needing an internal ERPNext desk user role.
+1. **Initial Setup & Configuration**: The system administrator defines `Cold Storage Settings` (accounts, letterheads), configures physical capacities and racks within Warehouses, and establishes standard pricing structures via `Charge Configuration`. Dedicated customer portal users are then generated and securely assigned the `Cold Storage Client Portal User` role.
+2. **Receiving Stock (The Inward Process)**: A customer delivers goods to the facility. An operator rapidly creates a `Cold Storage Inward` record, documenting the specific items, quantities, and their designated physical destination (Warehouse/Rack). The system automatically generates new stock batches flagged with the exact customer's ownership details, and instantly triggers any agreed-upon inward processing charges into a new Sales Invoice.
+3. **Tracking & Movement (The Transfer Process)**: Stock is safely stored within its assigned racks. Facility planners can continuously review the *Live Batch Stock* and *Warehouse Occupancy Timeline*. If reorganization is needed, stock can be flexibly relocated within the premises using `Cold Storage Transfer`, updating internal records without interrupting the customer's remote, real-time view.
+4. **Dispatching Stock (The Outward Process)**: A customer requests the retrieval of their items. A `Cold Storage Outward` transaction is initiated, which mandates strict batch-level validation—guaranteeing the local agent only selects goods owned by that specific customer. Once completed and verified, it generates an outward handling invoice, permanently reduces the stock levels, and optionally sends a WhatsApp notification to the client confirming the dispatch.
+5. **Transparency & Portals (The Client Experience)**: Throughout the entire lifecycle of their inventory, the remote client can securely log into `/cs-portal`. Here, they experience a real-time snapshot of their holdings and full transaction history, all without requiring a dedicated internal ERPNext desk user role or manual reporting from the warehouse staff.
 
 ## Dashboard (Cold Storage workspace)
 
