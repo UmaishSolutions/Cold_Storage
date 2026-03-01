@@ -37,6 +37,7 @@ class ColdStorageSettings(Document):
 
 		charge_configurations: DF.Table[ChargeConfiguration]
 		company: DF.Link
+		cost_center: DF.Link | None
 		default_income_account: DF.Link
 		default_uom: DF.Link
 		dispatch_extra_charges: DF.Table[ColdStorageDispatchExtraCharge]
