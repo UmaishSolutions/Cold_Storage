@@ -46,6 +46,23 @@ frappe.ui.form.on("Cold Storage Outward", {
 
 	        return { filters };
 	    });
+
+		frm.set_query("rack", "items", (doc, cdt, cdn) => {
+			const row = locals[cdt] && locals[cdt][cdn];
+			if (!row || !row.warehouse) {
+				return {
+					filters: {
+						name: "__no_rack__",
+					},
+				};
+			}
+			return {
+				filters: {
+					warehouse: row.warehouse,
+					is_active: 1,
+				},
+			};
+		});
 	},
 
 	company(frm) {

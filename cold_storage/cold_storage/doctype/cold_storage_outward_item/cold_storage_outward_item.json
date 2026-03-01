@@ -65,10 +65,12 @@
         },
         {
             "fieldname": "rack",
-            "fieldtype": "Data",
+            "fieldtype": "Link",
             "in_list_view": 1,
             "label": "Rack",
-            "description": "Optional rack/location placeholder inside the selected warehouse."
+            "options": "Cold Storage Rack",
+            "reqd": 1,
+            "description": "Specify rack/location inside the selected warehouse."
         },
         {
             "fieldname": "column_break_item",

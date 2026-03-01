@@ -68,7 +68,8 @@
             "in_list_view": 1,
             "label": "Rack",
             "options": "Cold Storage Rack",
-            "description": "Optional rack/location placeholder inside the selected warehouse."
+            "reqd": 1,
+            "description": "Specify rack/location inside the selected warehouse."
         },
         {
             "fieldname": "column_break_item",

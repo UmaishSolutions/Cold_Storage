@@ -95,19 +95,20 @@ class ColdStorageTransfer(Document):
 		)
 
 		for row in self.items:
-			if row.source_rack:
-				source_rack_warehouse = frappe.db.get_value("Cold Storage Rack", row.source_rack, "warehouse")
-				if not source_rack_warehouse:
-					frappe.throw(_("Row {0}: Source Rack {1} does not exist").format(row.idx, row.source_rack))
-				if source_rack_warehouse != row.source_warehouse:
-					frappe.throw(
-						_("Row {0}: Source Rack {1} does not belong to Source Warehouse {2}").format(
-							row.idx, row.source_rack, row.source_warehouse
-						)
+			if not row.source_rack:
+				frappe.throw(_("Row {0}: Source Rack is mandatory").format(row.idx))
+			source_rack_warehouse = frappe.db.get_value("Cold Storage Rack", row.source_rack, "warehouse")
+			if not source_rack_warehouse:
+				frappe.throw(_("Row {0}: Source Rack {1} does not exist").format(row.idx, row.source_rack))
+			if source_rack_warehouse != row.source_warehouse:
+				frappe.throw(
+					_("Row {0}: Source Rack {1} does not belong to Source Warehouse {2}").format(
+						row.idx, row.source_rack, row.source_warehouse
 					)
-				source_rack_active = frappe.db.get_value("Cold Storage Rack", row.source_rack, "is_active")
-				if not source_rack_active:
-					frappe.throw(_("Row {0}: Source Rack {1} is inactive").format(row.idx, row.source_rack))
+				)
+			source_rack_active = frappe.db.get_value("Cold Storage Rack", row.source_rack, "is_active")
+			if not source_rack_active:
+				frappe.throw(_("Row {0}: Source Rack {1} is inactive").format(row.idx, row.source_rack))
 
 			if self.transfer_type == "Ownership Transfer":
 				if not row.source_warehouse:
@@ -144,6 +145,9 @@ class ColdStorageTransfer(Document):
 			if self.transfer_type == "Intra-Warehouse Transfer":
 				# In intra-warehouse transfer, target is always the same warehouse.
 				row.target_warehouse = row.source_warehouse
+
+			if self.transfer_type != "Ownership Transfer" and not row.target_rack:
+				frappe.throw(_("Row {0}: Target Rack is mandatory").format(row.idx))
 
 			if row.target_rack and self.transfer_type != "Ownership Transfer":
 				target_rack_warehouse = frappe.db.get_value("Cold Storage Rack", row.target_rack, "warehouse")

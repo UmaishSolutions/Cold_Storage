@@ -14,7 +14,7 @@ This app is built for warehouses that store goods on behalf of customers, run in
 
 ### 2. Space & Rack Management
 * **Storage Capacity**: Track storage limits at the warehouse level (`Warehouse.custom_storage_capacity`).
-* **Rack Tracking**: Hierarchical rack allocation per warehouse via the `Cold Storage Rack` doctype. Allocate precise rack locations for stored items in inward transactions.
+* **Rack Tracking**: Hierarchical rack allocation per warehouse via the `Cold Storage Rack` doctype. Rack selection is mandatory in Inward, Outward and Transfer item rows.
 
 ### 3. Automated Billing & Pricing
 * **Charge Configurations**: Define item-group level service/storage rates using the `Charge Configuration` table.

@@ -438,9 +438,11 @@ function apply_transfer_type_ui(frm) {
 		grid.update_docfield_property("source_warehouse", "hidden", 0);
 		grid.update_docfield_property("source_rack", "hidden", 0);
 		grid.update_docfield_property("source_warehouse", "reqd", 1);
+		grid.update_docfield_property("source_rack", "reqd", 1);
 		grid.update_docfield_property("target_warehouse", "hidden", 1);
 		grid.update_docfield_property("target_rack", "hidden", 1);
 		grid.update_docfield_property("target_warehouse", "reqd", 0);
+		grid.update_docfield_property("target_rack", "reqd", 0);
 		grid.update_docfield_property("target_warehouse", "read_only", 0);
 		frm.set_df_property("total_transfer_charges", "hidden", 1);
 		return;
@@ -453,7 +455,9 @@ function apply_transfer_type_ui(frm) {
 	grid.update_docfield_property("target_warehouse", "hidden", 0);
 	grid.update_docfield_property("target_rack", "hidden", 0);
 	grid.update_docfield_property("source_warehouse", "reqd", 1);
+	grid.update_docfield_property("source_rack", "reqd", 1);
 	grid.update_docfield_property("target_warehouse", "reqd", is_intra ? 0 : 1);
+	grid.update_docfield_property("target_rack", "reqd", 1);
 	grid.update_docfield_property("target_warehouse", "read_only", is_intra ? 1 : 0);
 	frm.set_df_property("total_transfer_charges", "hidden", 0);
 }

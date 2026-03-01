@@ -70,7 +70,8 @@
             "in_list_view": 1,
             "label": "Source Rack",
             "options": "Cold Storage Rack",
-            "description": "Optional source rack/location placeholder."
+            "reqd": 1,
+            "description": "Specify source rack/location."
         },
         {
             "fieldname": "target_warehouse",
@@ -86,7 +87,7 @@
             "in_list_view": 1,
             "label": "Target Rack",
             "options": "Cold Storage Rack",
-            "description": "Optional target rack/location placeholder."
+            "description": "Specify target rack/location."
         },
         {
             "fieldname": "column_break_item",
