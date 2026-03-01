@@ -371,13 +371,14 @@ class ColdStorageTransfer(Document):
 		je.posting_date = self.posting_date or nowdate()
 		je.company = settings.company
 		je.user_remark = _("{0} — {1}").format(self.transfer_type, self.name)
+		company_cost_center = frappe.get_cached_value("Company", settings.company, "cost_center")
 
 		je.append(
 			"accounts",
 			{
 				"account": settings.transfer_expense_account,
 				"debit_in_account_currency": amount,
-				"cost_center": settings.cost_center,
+				"cost_center": company_cost_center,
 				**debit_party,
 			},
 		)
@@ -386,7 +387,7 @@ class ColdStorageTransfer(Document):
 			{
 				"account": settings.default_income_account,
 				"credit_in_account_currency": amount,
-				"cost_center": settings.cost_center,
+				"cost_center": company_cost_center,
 				**credit_party,
 			},
 		)

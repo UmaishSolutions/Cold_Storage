@@ -193,6 +193,7 @@ class ColdStorageInward(Document):
 		si.posting_date = self.posting_date or nowdate()
 		si.due_date = si.posting_date
 		si.set_posting_time = 1
+		company_cost_center = frappe.get_cached_value("Company", settings.company, "cost_center")
 
 		for row in self.items:
 			si.append(
@@ -206,13 +207,9 @@ class ColdStorageInward(Document):
 					"rate": row.unloading_rate,
 					"uom": row.uom or invoice_uom,
 					"income_account": settings.default_income_account,
-					"cost_center": settings.cost_center,
+					"cost_center": company_cost_center,
 				},
 			)
-
-		if settings.gst_template:
-			si.taxes_and_charges = settings.gst_template
-			si.set_taxes()
 
 		si.flags.ignore_permissions = True
 		si.insert()
@@ -253,13 +250,14 @@ class ColdStorageInward(Document):
 		je.posting_date = self.posting_date or nowdate()
 		je.company = settings.company
 		je.user_remark = _("Labour charges for Inward {0}").format(self.name)
+		company_cost_center = frappe.get_cached_value("Company", settings.company, "cost_center")
 
 		je.append(
 			"accounts",
 			{
 				"account": settings.labour_account,
 				"debit_in_account_currency": amount,
-				"cost_center": settings.cost_center,
+				"cost_center": company_cost_center,
 				**debit_party,
 			},
 		)
@@ -268,7 +266,7 @@ class ColdStorageInward(Document):
 			{
 				"account": settings.labour_manager_account,
 				"credit_in_account_currency": amount,
-				"cost_center": settings.cost_center,
+				"cost_center": company_cost_center,
 				**credit_party,
 			},
 		)

@@ -7,7 +7,7 @@ import re
 import frappe
 from frappe import _
 from frappe.model.document import Document
-from frappe.utils import cint
+from frappe.utils import cint, flt
 from frappe.utils.jinja import validate_template
 
 DEFAULT_INWARD_TEMPLATE_BODY_PARAMS: tuple[str, ...] = (
@@ -36,10 +36,11 @@ class ColdStorageSettings(Document):
 
 		charge_configurations: DF.Table[ChargeConfiguration]
 		company: DF.Link
-		cost_center: DF.Link | None
 		default_income_account: DF.Link
 		default_uom: DF.Link
-		gst_template: DF.Link | None
+		dispatch_gst_account: DF.Link | None
+		dispatch_gst_rate: DF.Percent
+		enable_dispatch_gst_on_handling: DF.Check
 		labour_account: DF.Link
 		labour_manager_account: DF.Link
 		portal_announcement: DF.SmallText | None
@@ -64,8 +65,7 @@ class ColdStorageSettings(Document):
 	def validate(self) -> None:
 		self._ensure_default_uom()
 		self._validate_accounts_belong_to_company()
-		self._validate_cost_center_belongs_to_company()
-		self._validate_gst_template_company()
+		self._validate_dispatch_gst_configuration()
 		self._set_default_whatsapp_template_body_params()
 		self._validate_whatsapp_configuration()
 
@@ -108,31 +108,23 @@ class ColdStorageSettings(Document):
 					frappe._("{0} ({1}) does not belong to Company {2}").format(label, account, self.company)
 				)
 
-	def _validate_cost_center_belongs_to_company(self) -> None:
-		"""Ensure default cost center belongs to the selected company."""
-		if not self.cost_center:
+	def _validate_dispatch_gst_configuration(self) -> None:
+		"""Validate dispatch GST settings used for outward handling-only taxation."""
+		if not cint(self.enable_dispatch_gst_on_handling):
 			return
 
-		cost_center_company = frappe.db.get_value("Cost Center", self.cost_center, "company")
-		if cost_center_company != self.company:
+		if not self.dispatch_gst_account:
+			frappe.throw(_("Dispatch GST Account is mandatory when Charge GST on Dispatch Handling is enabled"))
+
+		dispatch_gst_rate = flt(self.dispatch_gst_rate)
+		if dispatch_gst_rate <= 0:
+			frappe.throw(_("Dispatch GST Rate must be greater than 0 when dispatch GST is enabled"))
+
+		account_company = frappe.db.get_value("Account", self.dispatch_gst_account, "company")
+		if account_company != self.company:
 			frappe.throw(
 				_("{0} ({1}) does not belong to Company {2}").format(
-					_("Default Cost Center"), self.cost_center, self.company
-				)
-			)
-
-	def _validate_gst_template_company(self) -> None:
-		"""Ensure GST template belongs to the selected company."""
-		if not self.gst_template:
-			return
-
-		template_company = frappe.db.get_value(
-			"Sales Taxes and Charges Template", self.gst_template, "company"
-		)
-		if template_company and template_company != self.company:
-			frappe.throw(
-				_("{0} ({1}) does not belong to Company {2}").format(
-					_("GST Template"), self.gst_template, self.company
+					_("Dispatch GST Account"), self.dispatch_gst_account, self.company
 				)
 			)
 

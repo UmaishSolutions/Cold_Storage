@@ -6,7 +6,7 @@ from collections import defaultdict
 import frappe
 from frappe import _
 from frappe.model.document import Document
-from frappe.utils import flt, nowdate
+from frappe.utils import cint, flt, nowdate
 
 
 class ColdStorageOutward(Document):
@@ -219,6 +219,7 @@ class ColdStorageOutward(Document):
 		si.posting_date = self.posting_date or nowdate()
 		si.due_date = si.posting_date
 		si.set_posting_time = 1
+		company_cost_center = frappe.get_cached_value("Company", settings.company, "cost_center")
 
 		for row in self.items:
 			if flt(row.handling_rate):
@@ -235,7 +236,7 @@ class ColdStorageOutward(Document):
 						"rate": row.handling_rate,
 						"uom": row.uom or invoice_uom,
 						"income_account": settings.default_income_account,
-						"cost_center": settings.cost_center,
+						"cost_center": company_cost_center,
 					},
 				)
 			if flt(row.loading_rate):
@@ -250,13 +251,12 @@ class ColdStorageOutward(Document):
 						"rate": row.loading_rate,
 						"uom": row.uom or invoice_uom,
 						"income_account": settings.default_income_account,
-						"cost_center": settings.cost_center,
+						"cost_center": company_cost_center,
 					},
 				)
 
-		if settings.gst_template:
-			si.taxes_and_charges = settings.gst_template
-			si.set_taxes()
+		if cint(getattr(settings, "enable_dispatch_gst_on_handling", 0)):
+			self._append_dispatch_gst_tax(si, settings)
 
 		si.flags.ignore_permissions = True
 		si.insert()
@@ -268,6 +268,33 @@ class ColdStorageOutward(Document):
 				frappe.utils.get_link_to_form("Sales Invoice", si.name)
 			),
 			alert=True,
+		)
+
+	def _append_dispatch_gst_tax(self, si, settings) -> None:
+		"""Apply GST only on dispatch handling charges as an explicit tax row."""
+		dispatch_gst_account = getattr(settings, "dispatch_gst_account", None)
+		dispatch_gst_rate = flt(getattr(settings, "dispatch_gst_rate", 0))
+		if not dispatch_gst_account:
+			frappe.throw(_("Please set Dispatch GST Account in Cold Storage Settings"))
+		if dispatch_gst_rate <= 0:
+			frappe.throw(_("Please set Dispatch GST Rate greater than 0 in Cold Storage Settings"))
+
+		handling_charges = sum(
+			flt(row.qty) * flt(row.handling_rate) for row in self.items if flt(row.handling_rate)
+		)
+		if handling_charges <= 0:
+			return
+
+		gst_amount = flt(handling_charges * dispatch_gst_rate / 100.0)
+		si.append(
+			"taxes",
+			{
+				"charge_type": "Actual",
+				"account_head": dispatch_gst_account,
+				"description": _("GST ({0}%) on Handling Charges").format(dispatch_gst_rate),
+				"tax_amount": gst_amount,
+				"cost_center": frappe.get_cached_value("Company", settings.company, "cost_center"),
+			},
 		)
 
 	# ── Cancellation ─────────────────────────────────────────────

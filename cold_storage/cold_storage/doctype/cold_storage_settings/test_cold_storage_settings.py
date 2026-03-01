@@ -9,6 +9,7 @@ from unittest.mock import patch
 import frappe
 
 from cold_storage.cold_storage.doctype.cold_storage_settings.cold_storage_settings import (
+	ColdStorageSettings,
 	get_default_company,
 	get_default_whatsapp_template_body_params_json,
 	get_item_group_rates,
@@ -222,3 +223,51 @@ class TestColdStorageSettingsHelpers(TestCase):
 			json.loads(data["outward_template_body_params"]),
 			["{{ voucher_no }}", "{{ customer }}", "{{ posting_date }}", "{{ total_qty }}"],
 		)
+
+	def test_validate_dispatch_gst_configuration_requires_account(self):
+		doc = SimpleNamespace(
+			enable_dispatch_gst_on_handling=1,
+			dispatch_gst_account=None,
+			dispatch_gst_rate=18,
+			company="Default Co",
+		)
+		with patch(
+			"cold_storage.cold_storage.doctype.cold_storage_settings.cold_storage_settings.frappe.throw",
+			side_effect=frappe.ValidationError("validation failed"),
+		):
+			with self.assertRaises(frappe.ValidationError):
+				ColdStorageSettings._validate_dispatch_gst_configuration(doc)
+
+	def test_validate_dispatch_gst_configuration_requires_positive_rate(self):
+		doc = SimpleNamespace(
+			enable_dispatch_gst_on_handling=1,
+			dispatch_gst_account="GST Output - CO",
+			dispatch_gst_rate=0,
+			company="Default Co",
+		)
+		with patch(
+			"cold_storage.cold_storage.doctype.cold_storage_settings.cold_storage_settings.frappe.throw",
+			side_effect=frappe.ValidationError("validation failed"),
+		):
+			with self.assertRaises(frappe.ValidationError):
+				ColdStorageSettings._validate_dispatch_gst_configuration(doc)
+
+	def test_validate_dispatch_gst_configuration_checks_company(self):
+		doc = SimpleNamespace(
+			enable_dispatch_gst_on_handling=1,
+			dispatch_gst_account="GST Output - OTH",
+			dispatch_gst_rate=18,
+			company="Default Co",
+		)
+		with (
+			patch(
+				"cold_storage.cold_storage.doctype.cold_storage_settings.cold_storage_settings.frappe.db.get_value",
+				return_value="Other Co",
+			),
+			patch(
+				"cold_storage.cold_storage.doctype.cold_storage_settings.cold_storage_settings.frappe.throw",
+				side_effect=frappe.ValidationError("validation failed"),
+			),
+		):
+			with self.assertRaises(frappe.ValidationError):
+				ColdStorageSettings._validate_dispatch_gst_configuration(doc)

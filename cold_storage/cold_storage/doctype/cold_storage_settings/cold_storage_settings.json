@@ -7,10 +7,8 @@
  "field_order": [
   "company_section",
   "company",
-  "default_uom",
   "column_break_company",
-  "cost_center",
-  "gst_template",
+  "default_uom",
   "accounts_section",
   "default_income_account",
   "labour_account",
@@ -19,6 +17,10 @@
   "transfer_expense_account",
   "charge_configuration_section",
   "charge_configurations",
+  "section_break_zvau",
+  "storage_terms_and_conditions",
+  "portal_section",
+  "portal_announcement",
   "whatsapp_section",
   "whatsapp_enabled",
   "whatsapp_api_version",
@@ -36,10 +38,11 @@
   "whatsapp_outward_template_name",
   "whatsapp_outward_template_body_params",
   "whatsapp_outward_text_template",
-  "portal_section",
-  "portal_announcement",
-  "section_break_zvau",
-  "storage_terms_and_conditions"
+  "dispatch_tax_section",
+  "enable_dispatch_gst_on_handling",
+  "dispatch_gst_rate",
+  "column_break_dispatch_tax",
+  "dispatch_gst_account"
  ],
  "fields": [
   {
@@ -72,18 +75,36 @@
    "fieldtype": "Column Break"
   },
   {
-   "description": "Specify default cost center.",
-   "fieldname": "cost_center",
-   "fieldtype": "Link",
-   "label": "Default Cost Center",
-   "options": "Cost Center"
+   "description": "Configure dispatch GST to be charged only on handling lines.",
+   "fieldname": "dispatch_tax_section",
+   "fieldtype": "Section Break",
+   "label": "Dispatch GST"
   },
   {
-   "description": "Specify gst template.",
-   "fieldname": "gst_template",
+   "default": "0",
+   "description": "If enabled, GST is applied only on dispatch handling charges (not loading charges).",
+   "fieldname": "enable_dispatch_gst_on_handling",
+   "fieldtype": "Check",
+   "label": "Charge GST on Dispatch Handling"
+  },
+  {
+   "depends_on": "eval:doc.enable_dispatch_gst_on_handling",
+   "description": "GST percentage to apply on handling charges for dispatch invoices.",
+   "fieldname": "dispatch_gst_rate",
+   "fieldtype": "Percent",
+   "label": "Dispatch GST Rate (%)"
+  },
+  {
+   "fieldname": "column_break_dispatch_tax",
+   "fieldtype": "Column Break"
+  },
+  {
+   "depends_on": "eval:doc.enable_dispatch_gst_on_handling",
+   "description": "Tax account used for GST charged on dispatch handling invoices.",
+   "fieldname": "dispatch_gst_account",
    "fieldtype": "Link",
-   "label": "GST Template",
-   "options": "Sales Taxes and Charges Template"
+   "label": "Dispatch GST Account",
+   "options": "Account"
   },
   {
    "description": "Section for accounting mappings details.",
@@ -288,7 +309,7 @@
  ],
  "issingle": 1,
  "links": [],
- "modified": "2026-03-01 14:07:11.108325",
+ "modified": "2026-03-01 14:24:16.232824",
  "modified_by": "Administrator",
  "module": "Cold Storage",
  "name": "Cold Storage Settings",

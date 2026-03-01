@@ -115,3 +115,30 @@ class TestColdStorageOutward(TestCase):
 		):
 			with self.assertRaises(frappe.ValidationError):
 				ColdStorageOutward._validate_items(doc)
+
+	def test_append_dispatch_gst_tax_applies_only_on_handling(self):
+		si = Mock()
+		doc = SimpleNamespace(
+			items=[
+				SimpleNamespace(qty=2, handling_rate=100, loading_rate=50),
+				SimpleNamespace(qty=1, handling_rate=40, loading_rate=20),
+			]
+		)
+		settings = SimpleNamespace(dispatch_gst_account="GST Output - CO", dispatch_gst_rate=18, cost_center=None)
+
+		ColdStorageOutward._append_dispatch_gst_tax(doc, si, settings)
+
+		si.append.assert_called_once()
+		_append_field, tax_row = si.append.call_args.args
+		self.assertEqual(_append_field, "taxes")
+		self.assertEqual(tax_row["account_head"], "GST Output - CO")
+		self.assertEqual(tax_row["tax_amount"], 43.2)
+
+	def test_append_dispatch_gst_tax_skips_when_no_handling_charges(self):
+		si = Mock()
+		doc = SimpleNamespace(items=[SimpleNamespace(qty=2, handling_rate=0, loading_rate=60)])
+		settings = SimpleNamespace(dispatch_gst_account="GST Output - CO", dispatch_gst_rate=18, cost_center=None)
+
+		ColdStorageOutward._append_dispatch_gst_tax(doc, si, settings)
+
+		si.append.assert_not_called()
