@@ -11,8 +11,8 @@
 }
 
 .body-sidebar[data-title="Cold Storage"] .sidebar-header .sidebar-item-icon {
-	background: linear-gradient(135deg, #0ea5e9, #0284c7) !important;
-	box-shadow: 0 6px 16px rgba(2, 132, 199, 0.35);
+	background: transparent !important;
+	box-shadow: none !important;
 }
 
 .body-sidebar[data-title="Cold Storage"] .sidebar-header .header-logo svg {

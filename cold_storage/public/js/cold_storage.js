@@ -8,6 +8,7 @@
 	const LEGACY_AUDIT_REPORT_ROUTE = `query-report/${LEGACY_AUDIT_REPORT_NAME}`;
 	const AUDIT_REPORT_ROUTE = `query-report/${AUDIT_REPORT_NAME}`;
 	const SIDEBAR_ROOT_SELECTOR = ".body-sidebar";
+	const SIDEBAR_HEADER_LOGO_PATH = "/assets/cold_storage/images/cold-storage-logo.svg";
 	const SIDEBAR_SECTION_COLOR_VARS = {
 		Operations: "--cs-operations",
 		Reports: "--cs-reports",
@@ -353,9 +354,24 @@
 		});
 	};
 
+	const applyColoredSidebarHeaderIcon = () => {
+		const sidebar = document.querySelector(SIDEBAR_ROOT_SELECTOR);
+		if (!isColdStorageSidebar(sidebar)) return;
+
+		const headerLogo = sidebar.querySelector(".sidebar-header .header-logo");
+		if (!headerLogo) return;
+
+		if (!headerLogo.querySelector("img[data-cs-header-logo='1']")) {
+			headerLogo.innerHTML = `<img data-cs-header-logo="1" src="${SIDEBAR_HEADER_LOGO_PATH}" alt="Cold Storage" style="width: 18px; height: 18px; object-fit: contain;" />`;
+		}
+	};
+
 	const scheduleSidebarIconColoring = () => {
 		[0, 300, 900].forEach((delay) => {
-			setTimeout(applyColoredSidebarIcons, delay);
+			setTimeout(() => {
+				applyColoredSidebarIcons();
+				applyColoredSidebarHeaderIcon();
+			}, delay);
 		});
 	};
 
