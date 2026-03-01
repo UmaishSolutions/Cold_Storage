@@ -12,36 +12,33 @@ from frappe.utils import cint, flt, nowdate
 
 class ColdStorageOutward(Document):
 	# begin: auto-generated types
+	# This code is auto-generated. Do not modify anything in this block.
+
 	from typing import TYPE_CHECKING
 
 	if TYPE_CHECKING:
+		from cold_storage.cold_storage.doctype.cold_storage_outward_item.cold_storage_outward_item import ColdStorageOutwardItem
 		from frappe.types import DF
-
-		from cold_storage.cold_storage.doctype.cold_storage_dispatch_extra_charge.cold_storage_dispatch_extra_charge import (
-			ColdStorageDispatchExtraCharge,
-		)
-		from cold_storage.cold_storage.doctype.cold_storage_outward_item.cold_storage_outward_item import (
-			ColdStorageOutwardItem,
-		)
 
 		amended_from: DF.Link | None
 		apply_dispatch_extra_charges: DF.Check
 		apply_dispatch_gst: DF.Check
-		customer: DF.Link | None
+		company: DF.Link
+		customer: DF.Link
 		dispatch_selected_extra_charges_json: DF.LongText | None
 		items: DF.Table[ColdStorageOutwardItem]
 		journal_entry: DF.Link | None
 		naming_series: DF.Literal["CS-OUT-.YYYY.-"]
-		posting_date: DF.Date | None
+		posting_date: DF.Date
+		remarks: DF.SmallText | None
 		sales_invoice: DF.Link | None
 		selected_dispatch_extra_charges: DF.SmallText | None
-		select_dispatch_extra_charges: DF.Button | None
 		stock_entry: DF.Link | None
 		submitted_qr_code_data_uri: DF.SmallText | None
-		total_gst_charges: DF.Currency
-		total_selected_extra_charges: DF.Currency
 		total_charges: DF.Currency
+		total_gst_charges: DF.Currency
 		total_qty: DF.Float
+		total_selected_extra_charges: DF.Currency
 	# end: auto-generated types
 
 	def before_naming(self) -> None:

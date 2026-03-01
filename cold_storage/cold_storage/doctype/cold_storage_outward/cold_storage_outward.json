@@ -6,14 +6,15 @@
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
+  "posting_date",
+  "customer",
+  "column_break_main",
   "naming_series",
   "company",
-  "customer",
-  "posting_date",
-  "column_break_main",
-  "total_qty",
-  "total_charges",
+  "items_section",
+  "items",
   "dispatch_charges_section",
+  "total_qty",
   "apply_dispatch_gst",
   "total_gst_charges",
   "apply_dispatch_extra_charges",
@@ -21,16 +22,15 @@
   "selected_dispatch_extra_charges",
   "total_selected_extra_charges",
   "dispatch_selected_extra_charges_json",
-  "items_section",
-  "items",
-  "remarks_section",
-  "remarks",
-  "references_section",
+  "total_charges",
+  "column_break_ljpb",
   "sales_invoice",
   "stock_entry",
   "journal_entry",
   "amended_from",
-  "submitted_qr_code_data_uri"
+  "submitted_qr_code_data_uri",
+  "remarks_section",
+  "remarks"
  ],
  "fields": [
   {
@@ -166,12 +166,6 @@
    "label": "Remarks"
   },
   {
-   "description": "Section for references details.",
-   "fieldname": "references_section",
-   "fieldtype": "Section Break",
-   "label": "References"
-  },
-  {
    "description": "Displays sales invoice.",
    "fieldname": "sales_invoice",
    "fieldtype": "Link",
@@ -216,11 +210,15 @@
    "label": "Submitted QR Code Data URI",
    "no_copy": 1,
    "read_only": 1
+  },
+  {
+   "fieldname": "column_break_ljpb",
+   "fieldtype": "Column Break"
   }
  ],
  "is_submittable": 1,
  "links": [],
- "modified": "2026-03-01 14:07:11.064267",
+ "modified": "2026-03-01 21:25:32.211661",
  "modified_by": "Administrator",
  "module": "Cold Storage",
  "name": "Cold Storage Outward",
