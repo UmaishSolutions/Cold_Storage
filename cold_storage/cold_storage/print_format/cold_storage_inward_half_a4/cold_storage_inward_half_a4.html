@@ -632,7 +632,9 @@
 			</div>
 		</div>
 
-		<div class="cs-note"><strong>Remarks:</strong> {{ doc.remarks or "-" }}</div>
+		{% if doc.remarks %}
+		<div class="cs-note"><strong>Remarks:</strong> {{ doc.remarks }}</div>
+		{% endif %}
 
 		<div class="cs-note">
 			<strong class="cs-terms-label" lang="ur" dir="rtl">شرائط و ضوابط:</strong>

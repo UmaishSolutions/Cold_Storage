@@ -202,10 +202,12 @@
 			</table>
 
 			<div class="cs-foot">
+				{% if doc.remarks %}
 				<div>
 					<span class="cs-label">Remarks</span>
-					<div class="cs-muted">{{ doc.remarks or "-" }}</div>
+					<div class="cs-muted">{{ doc.remarks }}</div>
 				</div>
+				{% endif %}
 				<div class="cs-total">
 					<div><strong>Total Quantity:</strong> {{ doc.get_formatted("total_qty", doc) }}</div>
 					<div><strong>Total Charges:</strong> {{ doc.get_formatted("total_charges", doc) }}</div>
