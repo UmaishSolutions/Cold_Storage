@@ -32,12 +32,14 @@ class ColdStorageSettings(Document):
 
 	if TYPE_CHECKING:
 		from cold_storage.cold_storage.doctype.charge_configuration.charge_configuration import ChargeConfiguration
+		from cold_storage.cold_storage.doctype.cold_storage_dispatch_extra_charge.cold_storage_dispatch_extra_charge import ColdStorageDispatchExtraCharge
 		from frappe.types import DF
 
 		charge_configurations: DF.Table[ChargeConfiguration]
 		company: DF.Link
 		default_income_account: DF.Link
 		default_uom: DF.Link
+		dispatch_extra_charges: DF.Table[ColdStorageDispatchExtraCharge]
 		dispatch_gst_account: DF.Link | None
 		dispatch_gst_rate: DF.Percent
 		enable_dispatch_gst_on_handling: DF.Check
@@ -66,6 +68,7 @@ class ColdStorageSettings(Document):
 		self._ensure_default_uom()
 		self._validate_accounts_belong_to_company()
 		self._validate_dispatch_gst_configuration()
+		self._validate_dispatch_extra_charges_configuration()
 		self._set_default_whatsapp_template_body_params()
 		self._validate_whatsapp_configuration()
 
@@ -127,6 +130,36 @@ class ColdStorageSettings(Document):
 					_("Dispatch GST Account"), self.dispatch_gst_account, self.company
 				)
 			)
+
+	def _validate_dispatch_extra_charges_configuration(self) -> None:
+		"""Validate outward dispatch extra charge rows."""
+		for row in self.dispatch_extra_charges or []:
+			if not cint(row.is_active):
+				continue
+
+			charge_name = (row.charge_name or "").strip()
+			if not charge_name:
+				frappe.throw(_("Row {0}: Extra Charge Name is mandatory for active dispatch extra charge").format(row.idx))
+			row.charge_name = charge_name
+
+			description = (row.charge_description or "").strip()
+			if not description:
+				frappe.throw(_("Row {0}: Charge Description is mandatory for active dispatch extra charge").format(row.idx))
+			row.charge_description = description
+
+			if flt(row.charge_rate) <= 0:
+				frappe.throw(_("Row {0}: Charge Rate (Per Qty) must be greater than 0").format(row.idx))
+
+			if not row.credit_account:
+				frappe.throw(_("Row {0}: Credit Account is mandatory for active dispatch extra charge").format(row.idx))
+
+			credit_company = frappe.db.get_value("Account", row.credit_account, "company")
+			if credit_company != self.company:
+				frappe.throw(
+					_("Row {0}: Credit Account {1} does not belong to Company {2}").format(
+						row.idx, row.credit_account, self.company
+					)
+				)
 
 	def _validate_whatsapp_configuration(self) -> None:
 		"""Validate Meta WhatsApp configuration when integration is enabled."""
@@ -348,3 +381,23 @@ def get_item_group_rates(item_group: str) -> dict[str, float]:
 		"inter_warehouse_transfer_rate": get_charge_rate(item_group, "inter_warehouse_transfer_rate"),
 		"intra_warehouse_transfer_rate": get_charge_rate(item_group, "intra_warehouse_transfer_rate"),
 	}
+
+
+@frappe.whitelist()
+def get_active_dispatch_extra_charges() -> list[dict[str, str | float | int]]:
+	"""Return active dispatch extra charge rows from Cold Storage Settings."""
+	settings = get_settings()
+	rows: list[dict[str, str | float | int]] = []
+	for row in settings.dispatch_extra_charges or []:
+		if not cint(row.is_active):
+			continue
+		rows.append(
+			{
+				"is_active": 1,
+				"charge_name": (row.charge_name or "").strip(),
+				"charge_description": (row.charge_description or "").strip(),
+				"charge_rate": float(row.charge_rate or 0),
+				"credit_account": row.credit_account or "",
+			}
+		)
+	return rows

@@ -98,6 +98,24 @@ custom_fields = {
 			"description": "Maximum storable quantity in this warehouse.",
 		},
 	],
+	"Customer": [
+		{
+			"fieldname": "custom_apply_dispatch_gst",
+			"fieldtype": "Check",
+			"label": "Apply Dispatch GST",
+			"insert_after": "customer_type",
+			"default": "1",
+			"description": "If unchecked, dispatch GST will not be applied for this customer.",
+		},
+		{
+			"fieldname": "custom_apply_dispatch_extra_charges",
+			"fieldtype": "Check",
+			"label": "Apply Dispatch Extra Charges",
+			"insert_after": "custom_apply_dispatch_gst",
+			"default": "1",
+			"description": "If unchecked, dispatch extra charges will not be applied for this customer.",
+		},
+	],
 }
 
 # ── Document Events ─────────────────────────────────────────────
@@ -121,6 +139,9 @@ doc_events = {
 		"autoname": "cold_storage.events.naming.autoname_cold_storage_child_doctype",
 	},
 	"Charge Configuration": {
+		"autoname": "cold_storage.events.naming.autoname_cold_storage_child_doctype",
+	},
+	"Cold Storage Dispatch Extra Charge": {
 		"autoname": "cold_storage.events.naming.autoname_cold_storage_child_doctype",
 	},
 }

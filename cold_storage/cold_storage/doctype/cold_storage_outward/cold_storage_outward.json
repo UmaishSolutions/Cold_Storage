@@ -2,7 +2,6 @@
  "actions": [],
  "autoname": "naming_series:",
  "creation": "2026-02-13 07:00:00",
- "default_print_format": "Cold Storage Outward Half A4",
  "description": "Dispatch goods with zero margin for error. The outward process utilizes a strict, system-enforced batch-level validation matrix, absolutely ensuring that your floor staff only picks, packs, and dispatches inventory that definitively belongs to the requesting customer.",
  "doctype": "DocType",
  "engine": "InnoDB",
@@ -14,6 +13,14 @@
   "column_break_main",
   "total_qty",
   "total_charges",
+  "dispatch_charges_section",
+  "apply_dispatch_gst",
+  "total_gst_charges",
+  "apply_dispatch_extra_charges",
+  "select_dispatch_extra_charges",
+  "selected_dispatch_extra_charges",
+  "total_selected_extra_charges",
+  "dispatch_selected_extra_charges_json",
   "items_section",
   "items",
   "remarks_section",
@@ -78,6 +85,58 @@
    "fieldtype": "Currency",
    "label": "Total Charges",
    "read_only": 1
+  },
+  {
+   "fieldname": "dispatch_charges_section",
+   "fieldtype": "Section Break",
+   "label": "Dispatch Charges"
+  },
+  {
+   "default": "1",
+   "description": "Enable to apply dispatch GST for this dispatch.",
+   "fieldname": "apply_dispatch_gst",
+   "fieldtype": "Check",
+   "label": "Apply Dispatch GST"
+  },
+  {
+   "fieldname": "total_gst_charges",
+   "fieldtype": "Currency",
+   "label": "Total GST Charges",
+   "read_only": 1
+  },
+  {
+   "default": "1",
+   "description": "Enable to apply dispatch extra charges for this dispatch.",
+   "fieldname": "apply_dispatch_extra_charges",
+   "fieldtype": "Check",
+   "label": "Apply Dispatch Extra Charges"
+  },
+  {
+   "depends_on": "eval:doc.apply_dispatch_extra_charges==1",
+   "fieldname": "select_dispatch_extra_charges",
+   "fieldtype": "Button",
+   "label": "Select Extra Charges"
+  },
+  {
+   "depends_on": "eval:doc.apply_dispatch_extra_charges==1",
+   "fieldname": "selected_dispatch_extra_charges",
+   "fieldtype": "Small Text",
+   "label": "Selected Extra Charges",
+   "read_only": 1
+  },
+  {
+   "depends_on": "eval:doc.apply_dispatch_extra_charges==1",
+   "fieldname": "total_selected_extra_charges",
+   "fieldtype": "Currency",
+   "label": "Total Extra Charges",
+   "read_only": 1
+  },
+  {
+   "fieldname": "dispatch_selected_extra_charges_json",
+   "fieldtype": "Long Text",
+   "hidden": 1,
+   "label": "Dispatch Selected Extra Charges JSON",
+   "no_copy": 1
   },
   {
    "description": "Section for items details.",

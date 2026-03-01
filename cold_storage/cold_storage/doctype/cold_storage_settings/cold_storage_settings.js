@@ -26,11 +26,11 @@ frappe.ui.form.on("Cold Storage Settings", {
 	refresh(frm) {
 		render_whatsapp_intro(frm);
 		add_whatsapp_buttons(frm);
-		style_urdu_terms_input(frm);
+		style_urdu_text_inputs(frm);
 	},
 
 	onload_post_render(frm) {
-		style_urdu_terms_input(frm);
+		style_urdu_text_inputs(frm);
 	},
 
 	validate(frm) {
@@ -89,8 +89,13 @@ function render_whatsapp_intro(frm) {
 	);
 }
 
-function style_urdu_terms_input(frm) {
-	const field = frm.get_field("storage_terms_and_conditions");
+function style_urdu_text_inputs(frm) {
+	apply_urdu_textarea_style(frm, "storage_terms_and_conditions", "شرائط و ضوابط اردو میں درج کریں");
+	apply_urdu_textarea_style(frm, "portal_announcement", "پورٹل بینر اعلان اردو میں درج کریں");
+}
+
+function apply_urdu_textarea_style(frm, fieldname, placeholderText) {
+	const field = frm.get_field(fieldname);
 	if (!field || !field.$wrapper) {
 		return;
 	}
@@ -103,7 +108,7 @@ function style_urdu_terms_input(frm) {
 	$textarea
 		.attr("dir", "rtl")
 		.attr("lang", "ur")
-		.attr("placeholder", "شرائط و ضوابط اردو میں درج کریں")
+		.attr("placeholder", placeholderText)
 		.css({
 			"text-align": "right",
 			"font-family":

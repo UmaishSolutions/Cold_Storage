@@ -271,3 +271,64 @@ class TestColdStorageSettingsHelpers(TestCase):
 		):
 			with self.assertRaises(frappe.ValidationError):
 				ColdStorageSettings._validate_dispatch_gst_configuration(doc)
+
+	def test_validate_dispatch_extra_charges_configuration_requires_positive_rate(self):
+		doc = SimpleNamespace(
+			dispatch_extra_charges=[
+				SimpleNamespace(
+					idx=1,
+					is_active=1,
+					charge_name="Handling Surcharge",
+					charge_description="Cold handling surcharge",
+					charge_rate=0,
+					credit_account="Income - CO",
+				)
+			]
+		)
+		with patch(
+			"cold_storage.cold_storage.doctype.cold_storage_settings.cold_storage_settings.frappe.throw",
+			side_effect=frappe.ValidationError("validation failed"),
+		):
+			with self.assertRaises(frappe.ValidationError):
+				ColdStorageSettings._validate_dispatch_extra_charges_configuration(doc)
+
+	def test_validate_dispatch_extra_charges_configuration_requires_description(self):
+		doc = SimpleNamespace(
+			dispatch_extra_charges=[
+				SimpleNamespace(
+					idx=1,
+					is_active=1,
+					charge_name="Handling Surcharge",
+					charge_description="",
+					charge_rate=10,
+					credit_account="Income - CO",
+				)
+			]
+		)
+		with patch(
+			"cold_storage.cold_storage.doctype.cold_storage_settings.cold_storage_settings.frappe.throw",
+			side_effect=frappe.ValidationError("validation failed"),
+		):
+			with self.assertRaises(frappe.ValidationError):
+				ColdStorageSettings._validate_dispatch_extra_charges_configuration(doc)
+
+	def test_validate_dispatch_extra_charges_configuration_requires_credit_account(self):
+		doc = SimpleNamespace(
+			dispatch_extra_charges=[
+				SimpleNamespace(
+					idx=1,
+					is_active=1,
+					charge_name="Handling Surcharge",
+					charge_description="Cold handling",
+					charge_rate=10,
+					credit_account=None,
+				)
+			],
+			company="Default Co",
+		)
+		with patch(
+			"cold_storage.cold_storage.doctype.cold_storage_settings.cold_storage_settings.frappe.throw",
+			side_effect=frappe.ValidationError("validation failed"),
+		):
+			with self.assertRaises(frappe.ValidationError):
+				ColdStorageSettings._validate_dispatch_extra_charges_configuration(doc)

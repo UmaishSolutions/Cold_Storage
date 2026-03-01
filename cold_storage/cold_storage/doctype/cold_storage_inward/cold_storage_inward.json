@@ -2,7 +2,6 @@
  "actions": [],
  "autoname": "naming_series:",
  "creation": "2026-02-13 07:00:00",
- "default_print_format": "Cold Storage Inward Half A4",
  "description": "Formalize and accelerate the receipt of massive inbound shipments. Swiftly document arriving items, assess quantities, and instantly allocate them to designated physical warehouses and specific, highly-optimized rack locations to maximize spatial efficiency.",
  "doctype": "DocType",
  "engine": "InnoDB",

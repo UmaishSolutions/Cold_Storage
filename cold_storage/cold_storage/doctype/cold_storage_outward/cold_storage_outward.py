@@ -1,6 +1,7 @@
 # Copyright (c) 2026, Umaish Solutions and contributors
 # For license information, please see license.txt
 
+import json
 from collections import defaultdict
 
 import frappe
@@ -16,18 +17,28 @@ class ColdStorageOutward(Document):
 	if TYPE_CHECKING:
 		from frappe.types import DF
 
+		from cold_storage.cold_storage.doctype.cold_storage_dispatch_extra_charge.cold_storage_dispatch_extra_charge import (
+			ColdStorageDispatchExtraCharge,
+		)
 		from cold_storage.cold_storage.doctype.cold_storage_outward_item.cold_storage_outward_item import (
 			ColdStorageOutwardItem,
 		)
 
 		amended_from: DF.Link | None
+		apply_dispatch_extra_charges: DF.Check
+		apply_dispatch_gst: DF.Check
 		customer: DF.Link | None
+		dispatch_selected_extra_charges_json: DF.LongText | None
 		items: DF.Table[ColdStorageOutwardItem]
 		naming_series: DF.Literal["CS-OUT-.YYYY.-"]
 		posting_date: DF.Date | None
 		sales_invoice: DF.Link | None
+		selected_dispatch_extra_charges: DF.SmallText | None
+		select_dispatch_extra_charges: DF.Button | None
 		stock_entry: DF.Link | None
 		submitted_qr_code_data_uri: DF.SmallText | None
+		total_gst_charges: DF.Currency
+		total_selected_extra_charges: DF.Currency
 		total_charges: DF.Currency
 		total_qty: DF.Float
 	# end: auto-generated types
@@ -154,6 +165,32 @@ class ColdStorageOutward(Document):
 	def _compute_totals(self) -> None:
 		self.total_qty = sum(flt(row.qty) for row in self.items)
 		self.total_charges = sum(flt(row.amount) for row in self.items)
+		self.total_gst_charges = self._calculate_total_gst_charges()
+
+	def _calculate_total_gst_charges(self) -> float:
+		"""Calculate GST amount on handling charges for display on dispatch."""
+		if not cint(getattr(self, "apply_dispatch_gst", 1) or 1):
+			return 0.0
+
+		from cold_storage.cold_storage.doctype.cold_storage_settings import (
+			cold_storage_settings as cs_settings,
+		)
+
+		settings = cs_settings.get_settings()
+		if not cint(getattr(settings, "enable_dispatch_gst_on_handling", 0)):
+			return 0.0
+
+		dispatch_gst_rate = flt(getattr(settings, "dispatch_gst_rate", 0))
+		if dispatch_gst_rate <= 0:
+			return 0.0
+
+		handling_charges = sum(
+			flt(row.qty) * flt(row.handling_rate) for row in self.items if flt(row.handling_rate)
+		)
+		if handling_charges <= 0:
+			return 0.0
+
+		return flt(handling_charges * dispatch_gst_rate / 100.0)
 
 	# ── Stock Entry Creation ────────────────────────────────────
 
@@ -220,6 +257,7 @@ class ColdStorageOutward(Document):
 		si.due_date = si.posting_date
 		si.set_posting_time = 1
 		company_cost_center = frappe.get_cached_value("Company", settings.company, "cost_center")
+		attach_dispatch_gst, attach_dispatch_extra_charges = self._get_dispatch_charge_flags()
 
 		for row in self.items:
 			if flt(row.handling_rate):
@@ -255,7 +293,10 @@ class ColdStorageOutward(Document):
 					},
 				)
 
-		if cint(getattr(settings, "enable_dispatch_gst_on_handling", 0)):
+		if attach_dispatch_extra_charges:
+			self._append_dispatch_extra_charges(si, settings, invoice_uom, company_cost_center)
+
+		if attach_dispatch_gst and cint(getattr(settings, "enable_dispatch_gst_on_handling", 0)):
 			self._append_dispatch_gst_tax(si, settings)
 
 		si.flags.ignore_permissions = True
@@ -269,6 +310,86 @@ class ColdStorageOutward(Document):
 			),
 			alert=True,
 		)
+
+	def _append_dispatch_extra_charges(self, si, settings, invoice_uom: str, company_cost_center: str | None):
+		"""Append quantity-based extra dispatch charge lines from settings."""
+		total_qty = sum(flt(row.qty) for row in self.items)
+		if total_qty <= 0:
+			return
+
+		for charge_row in self._get_dispatch_extra_charge_rows(settings):
+			if isinstance(charge_row, dict):
+				row_get = charge_row.get
+			else:
+				row_get = lambda fieldname, default=None: getattr(charge_row, fieldname, default)
+
+			if not cint(row_get("is_active", 0)):
+				continue
+
+			extra_rate = flt(row_get("charge_rate", 0))
+			if extra_rate <= 0:
+				continue
+
+			extra_name = (row_get("charge_name", "") or "").strip()
+			extra_description = (row_get("charge_description", "") or "").strip()
+			if not extra_name and not extra_description:
+				continue
+			credit_account = row_get("credit_account", None)
+			if not credit_account:
+				continue
+
+			label = extra_name or _("Extra Dispatch Charges")
+			si.append(
+				"items",
+				{
+					"item_name": label,
+					"description": _("{0}{1} (Qty {2})").format(
+						label,
+						f" - {extra_description}" if extra_description else "",
+						total_qty,
+					),
+					"qty": total_qty,
+					"rate": extra_rate,
+					"uom": invoice_uom,
+					"income_account": credit_account,
+					"cost_center": company_cost_center,
+				},
+			)
+
+	def _get_dispatch_extra_charge_rows(self, settings):
+		"""Return dispatch-specific selected rows, fallback to settings rows."""
+		payload = (getattr(self, "dispatch_selected_extra_charges_json", None) or "").strip()
+		if payload:
+			try:
+				rows = json.loads(payload)
+			except json.JSONDecodeError:
+				rows = []
+			if isinstance(rows, list):
+				return rows
+
+		# Backward compatibility for older drafts where table field may exist.
+		selected_rows = getattr(self, "dispatch_extra_charge_rows", None) or []
+		return selected_rows or (getattr(settings, "dispatch_extra_charges", None) or [])
+
+	def _get_dispatch_charge_flags(self) -> tuple[bool, bool]:
+		"""Return (attach_gst, attach_extra_charges) flags for this dispatch."""
+		if hasattr(self, "apply_dispatch_gst") and hasattr(self, "apply_dispatch_extra_charges"):
+			return (
+				cint(getattr(self, "apply_dispatch_gst", 1) or 1) == 1,
+				cint(getattr(self, "apply_dispatch_extra_charges", 1) or 1) == 1,
+			)
+
+		# Backward compatibility fallback: derive from Customer if dispatch fields are unavailable.
+		if not self.customer:
+			return True, True
+
+		apply_dispatch_gst, apply_dispatch_extra_charges = frappe.db.get_value(
+			"Customer",
+			self.customer,
+			["custom_apply_dispatch_gst", "custom_apply_dispatch_extra_charges"],
+		) or (None, None)
+
+		return cint(apply_dispatch_gst) == 1, cint(apply_dispatch_extra_charges) == 1
 
 	def _append_dispatch_gst_tax(self, si, settings) -> None:
 		"""Apply GST only on dispatch handling charges as an explicit tax row."""

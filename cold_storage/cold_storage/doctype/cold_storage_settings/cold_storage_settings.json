@@ -17,6 +17,8 @@
   "transfer_expense_account",
   "charge_configuration_section",
   "charge_configurations",
+  "dispatch_extra_charges_section",
+  "dispatch_extra_charges",
   "section_break_zvau",
   "storage_terms_and_conditions",
   "portal_section",
@@ -107,6 +109,19 @@
    "options": "Account"
   },
   {
+   "description": "Configure extra dispatch charges to be applied by quantity in outward invoices.",
+   "fieldname": "dispatch_extra_charges_section",
+   "fieldtype": "Section Break",
+   "label": "Dispatch Extra Charges"
+  },
+  {
+   "description": "Define multiple dispatch extra charges. Each active row is applied as Qty x Rate in outward invoices.",
+   "fieldname": "dispatch_extra_charges",
+   "fieldtype": "Table",
+   "label": "Dispatch Extra Charges",
+   "options": "Cold Storage Dispatch Extra Charge"
+  },
+  {
    "description": "Section for accounting mappings details.",
    "fieldname": "accounts_section",
    "fieldtype": "Section Break",
@@ -157,10 +172,11 @@
    "label": "Client Portal"
   },
   {
-   "description": "Message to display on the top of the client portal dashboard.",
+   "description": "Write this banner message in Urdu for the client portal dashboard.",
    "fieldname": "portal_announcement",
    "fieldtype": "Small Text",
-   "label": "Portal Announcement (Banner)"
+   "label": "Portal Announcement (Banner)",
+   "placeholder": "\u067e\u0648\u0631\u0679\u0644 \u0628\u06cc\u0646\u0631 \u0627\u0639\u0644\u0627\u0646 \u0627\u0631\u062f\u0648 \u0645\u06cc\u06ba \u062f\u0631\u062c \u06a9\u0631\u06cc\u06ba"
   },
   {
    "description": "Write these terms in Urdu. They are printed in Nastaliq style on Cold Storage print formats.",
@@ -309,7 +325,7 @@
  ],
  "issingle": 1,
  "links": [],
- "modified": "2026-03-01 14:24:16.232824",
+ "modified": "2026-03-01 16:15:32.115430",
  "modified_by": "Administrator",
  "module": "Cold Storage",
  "name": "Cold Storage Settings",

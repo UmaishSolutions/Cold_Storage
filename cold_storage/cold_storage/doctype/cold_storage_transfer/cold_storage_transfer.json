@@ -2,7 +2,6 @@
  "actions": [],
  "autoname": "naming_series:",
  "creation": "2026-02-13 07:00:00",
- "default_print_format": "Cold Storage Transfer QR",
  "description": "Facilitate the seamless internal relocation of stock. Swiftly pivot operations by moving items between varying temperature zones, different warehouses, or strategic rack locations without ever losing the audit trail or disrupting your client's real-time visibility.",
  "doctype": "DocType",
  "engine": "InnoDB",
