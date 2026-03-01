@@ -42,6 +42,33 @@ frappe.ui.form.on("Cold Storage Transfer", {
 	        return { filters };
 	    });
 
+		frm.set_query("source_rack", "items", (doc, cdt, cdn) => {
+			const row = locals[cdt] && locals[cdt][cdn];
+			if (!row || !row.source_warehouse) {
+				return { filters: { name: "__no_rack__" } };
+			}
+			return {
+				filters: {
+					warehouse: row.source_warehouse,
+					is_active: 1,
+				},
+			};
+		});
+
+		frm.set_query("target_rack", "items", (doc, cdt, cdn) => {
+			const row = locals[cdt] && locals[cdt][cdn];
+			const warehouse = row && (row.target_warehouse || row.source_warehouse);
+			if (!warehouse) {
+				return { filters: { name: "__no_rack__" } };
+			}
+			return {
+				filters: {
+					warehouse,
+					is_active: 1,
+				},
+			};
+		});
+
 	    frm.set_query("batch_no", "items", (doc, cdt, cdn) => {
 	        const row = locals[cdt] && locals[cdt][cdn];
 	        const customer =
@@ -314,6 +341,7 @@ frappe.ui.form.on("Cold Storage Transfer Item", {
 			if ((row.target_warehouse || "") !== next_target) {
 				frappe.model.set_value(cdt, cdn, "target_warehouse", next_target);
 			}
+			frappe.model.set_value(cdt, cdn, "target_rack", "");
 		}
 		fetch_transfer_available_qty(cdt, cdn);
 	},

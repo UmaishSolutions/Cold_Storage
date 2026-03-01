@@ -1331,6 +1331,10 @@ def _ensure_cold_storage_letter_head() -> None:
 
 
 def after_install() -> None:
+	from cold_storage.cold_storage.doctype.cold_storage_rack.cold_storage_rack import (
+		normalize_rack_document_names,
+	)
+
 	_ensure_default_uom_setting(create_uom_if_missing=True)
 	_ensure_cold_storage_letter_head()
 	_ensure_website_view_tracking_enabled()
@@ -1345,10 +1349,15 @@ def after_install() -> None:
 	_ensure_audit_trail_report_roles()
 	_ensure_workspace_assets()
 	_ensure_workspace_sidebar_assets()
+	normalize_rack_document_names()
 	_sync_role_based_access()
 
 
 def after_migrate() -> None:
+	from cold_storage.cold_storage.doctype.cold_storage_rack.cold_storage_rack import (
+		normalize_rack_document_names,
+	)
+
 	_ensure_default_uom_setting(create_uom_if_missing=True)
 	_ensure_cold_storage_letter_head()
 	_ensure_website_view_tracking_enabled()
@@ -1363,6 +1372,7 @@ def after_migrate() -> None:
 	_ensure_audit_trail_report_roles()
 	_ensure_workspace_assets()
 	_ensure_workspace_sidebar_assets()
+	normalize_rack_document_names()
 	_sync_role_based_access()
 
 

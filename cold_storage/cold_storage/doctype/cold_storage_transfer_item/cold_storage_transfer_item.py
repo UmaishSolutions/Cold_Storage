@@ -20,9 +20,9 @@ class ColdStorageTransferItem(Document):
 		parentfield: DF.Data
 		parenttype: DF.Data
 		qty: DF.Float
-		source_rack: DF.Data | None
+		source_rack: DF.Link | None
 		source_warehouse: DF.Link | None
-		target_rack: DF.Data | None
+		target_rack: DF.Link | None
 		target_warehouse: DF.Link | None
 		transfer_rate: DF.Currency
 		uom: DF.Link | None

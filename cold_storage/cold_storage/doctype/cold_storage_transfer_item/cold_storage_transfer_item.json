@@ -66,9 +66,10 @@
         },
         {
             "fieldname": "source_rack",
-            "fieldtype": "Data",
+            "fieldtype": "Link",
             "in_list_view": 1,
             "label": "Source Rack",
+            "options": "Cold Storage Rack",
             "description": "Optional source rack/location placeholder."
         },
         {
@@ -81,9 +82,10 @@
         },
         {
             "fieldname": "target_rack",
-            "fieldtype": "Data",
+            "fieldtype": "Link",
             "in_list_view": 1,
             "label": "Target Rack",
+            "options": "Cold Storage Rack",
             "description": "Optional target rack/location placeholder."
         },
         {

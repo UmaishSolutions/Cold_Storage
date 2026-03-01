@@ -28,6 +28,45 @@ class ColdStorageRack(Document):
 
 
 @frappe.whitelist()
+@frappe.validate_and_sanitize_search_inputs
+def search_active_racks_for_warehouse(
+	doctype: str,
+	txt: str,
+	searchfield: str,
+	start: int,
+	page_len: int,
+	filters: dict | None = None,
+) -> list[tuple[str]]:
+	"""Search active racks by warehouse and rack code."""
+	del doctype, searchfield
+	filters = filters or {}
+	warehouse = cstr(filters.get("warehouse")).strip()
+	if not warehouse:
+		return []
+
+	return frappe.db.sql(
+		"""
+		select csr.name
+		from `tabCold Storage Rack` csr
+		where csr.warehouse = %(warehouse)s
+			and ifnull(csr.is_active, 0) = 1
+			and (
+				csr.name like %(txt)s
+				or ifnull(csr.rack_code, '') like %(txt)s
+			)
+		order by ifnull(csr.rack_code, csr.name), csr.name
+		limit %(start)s, %(page_len)s
+		""",
+		{
+			"warehouse": warehouse,
+			"txt": f"%{cstr(txt).strip()}%",
+			"start": cint(start or 0),
+			"page_len": cint(page_len or 20),
+		},
+	)
+
+
+@frappe.whitelist()
 def create_racks_for_warehouse(
 	warehouse: str,
 	count: int,
@@ -55,8 +94,7 @@ def create_racks_for_warehouse(
 	for offset in range(count):
 		number = start_from + offset
 		rack_code = f"{prefix}{number:0{digits}d}"
-		name = f"{warehouse}-{rack_code}"
-		if frappe.db.exists("Cold Storage Rack", name):
+		if frappe.db.exists("Cold Storage Rack", rack_code):
 			skipped_existing += 1
 			continue
 
@@ -77,3 +115,32 @@ def create_racks_for_warehouse(
 		"skipped_existing_count": skipped_existing,
 		"created": created,
 	}
+
+
+def normalize_rack_document_names() -> dict[str, int]:
+	"""Rename legacy rack documents so name is exactly rack_code."""
+	if not frappe.db.exists("DocType", "Cold Storage Rack"):
+		return {"renamed": 0, "skipped": 0}
+
+	rows = frappe.get_all(
+		"Cold Storage Rack",
+		fields=["name", "rack_code"],
+		limit_page_length=0,
+	)
+
+	renamed = 0
+	skipped = 0
+	for row in rows:
+		current_name = cstr(row.get("name")).strip()
+		rack_code = cstr(row.get("rack_code")).strip().upper()
+		if not current_name or not rack_code or current_name == rack_code:
+			continue
+
+		if frappe.db.exists("Cold Storage Rack", rack_code):
+			skipped += 1
+			continue
+
+		frappe.rename_doc("Cold Storage Rack", current_name, rack_code, force=True)
+		renamed += 1
+
+	return {"renamed": renamed, "skipped": skipped}
