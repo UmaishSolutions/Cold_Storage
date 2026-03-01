@@ -7,20 +7,43 @@ This application is purpose-built from the ground up to empower third-party logi
 ## Core Features & Capabilities
 
 ### 1. Advanced Operations & Total Inventory Control
-* **Cold Storage Inward**: Formalize and accelerate the receipt of massive inbound shipments. Swiftly document arriving items, assess quantities, and instantly allocate them to designated physical warehouses and specific, highly-optimized rack locations to maximize spatial efficiency.
-* **Cold Storage Outward**: Dispatch goods with zero margin for error. The outward process utilizes a strict, system-enforced batch-level validation matrix, absolutely ensuring that your floor staff only picks, packs, and dispatches inventory that definitively belongs to the requesting customer.
-* **Cold Storage Transfer**: Facilitate the seamless internal relocation of stock. Swiftly pivot operations by moving items between varying temperature zones, different warehouses, or strategic rack locations without ever losing the audit trail or disrupting your client's real-time visibility.
-* **Uncompromising Ownership Tracking**: Leveraging ERPNext's robust batch masters, the app introduces an ironclad ownership paradigm. By rigidly linking `Batch.custom_customer` at the database level, it guarantees total isolation of client stock, completely eliminating the catastrophic risk of accidentally mixing or misdispatching neighboring clients' inventory.
+The core operations are driven by three primary Doctypes, each meticulously designed to capture every necessary logistical data point:
+
+**Cold Storage Inward**
+Formalize and accelerate the receipt of massive inbound shipments. Swiftly document arriving items, assess quantities, and instantly allocate them to designated physical warehouses and specific, highly-optimized rack locations.
+* **Key Fields & Tracking Params:**
+  * `customer`: Identifies the absolute owner of the inbound stock.
+  * `posting_date` & `posting_time`: Precise timestamping for billing calculations.
+  * `warehouse`: The overarching storage facility receiving the goods.
+  * `items`: Child table detailing exact SKUs, quantities, and specific `Cold Storage Rack` allocations.
+  * `total_inward_charges`: Automatically calculated handling fees aggregated from the charge configurations.
+  * *Automations:* Generates custom `Batch` records linked directly via `Batch.custom_customer` to ensure absolute stock isolation.
+
+**Cold Storage Outward**
+Dispatch goods with zero margin for error. The outward process utilizes a strict, system-enforced batch-level validation matrix, absolutely ensuring that your floor staff only picks, packs, and dispatches inventory that definitively belongs to the requesting customer.
+* **Key Fields & Tracking Params:**
+  * `customer` & `dispatch_address`: Defines who the goods belong to and their final outbound destination.
+  * `driver_name` & `vehicle_no`: Critical logistical data for gate-pass verification and trucking manifests.
+  * `items`: Child table enforcing strict exact-batch selection, preventing the dispatch of unauthorized goods.
+  * `total_outward_charges`: Calculates the final outbound handling and loading fees.
+  * *Automations:* Seamlessly links to generated `Sales Invoice` records and depletes live ERPNext stock via `Stock Entry`.
+
+**Cold Storage Transfer**
+Facilitate the seamless internal relocation of stock. Swiftly pivot operations by moving items between varying temperature zones, different warehouses, or strategic rack locations without ever losing the audit trail or disrupting your client's real-time visibility.
+* **Key Fields & Tracking Params:**
+  * `transfer_type`: Defines whether this is a "Location to Location" physical move or an "Ownership to Ownership" logical transfer.
+  * `from_customer` & `to_customer`: Used during Ownership transfers to officially re-assign stock liability and billing without physically moving the pallet.
+  * `total_transfer_charges`: Captures internal operational costs or administrative fees for executing the transfer.
 
 ### 2. Intelligent Space & Rack Management
 * **Dynamic Storage Capacity Tracking**: Gain unprecedented, real-time visibility into your facility's physical utilization. Define, monitor, and strictly enforce storage volume limits at the individual warehouse level using the native `Warehouse.custom_storage_capacity` integration.
-* **Precision Floor Mapping & Rack Tracking**: Digitally map your entire warehouse floor with intuitive, hierarchical rack allocations via the `Cold Storage Rack` architecture. To maintain absolute operational integrity and picking speed, accurate rack selection is strictly mandated across all Inward, Outward, and Transfer item rows.
+* **Precision Floor Mapping & Rack Tracking (`Cold Storage Rack`)**: Digitally map your entire warehouse floor with intuitive, hierarchical rack allocations. Contains fields for mapping hierarchical `parent_rack` structures, linking directly back to the physical `warehouse`. To maintain absolute operational integrity and picking speed, accurate rack selection is strictly mandated across all Inward, Outward, and Transfer item rows.
 
 ### 3. Automated Financials & Highly Flexible Billing
-* **Dynamic Charge Configurations**: Empower your sales team to negotiate diverse contracts. Define highly adaptable, item-group level service rates and recurring storage fees using the versatile `Charge Configuration` engine.
+* **Dynamic Charge Configurations (`Charge Configuration`)**: Empower your sales team to negotiate diverse contracts. Captures `item_group`, `charge_type` (Inward vs Outward vs Storage), and the exact `rate`.
 * **Frictionless Invoicing Engine**: Eliminate days of manual data entry and human mathematical errors. The system dynamically generates native ERPNext Sales Invoices, calculating exact totals for point-in-time transaction handling (Inward/Outward movements) and recurring, time-based storage services.
 * **Integrated Payment Acceleration**: Dramatically accelerate your revenue cycle. The app features built-in support to instantly extract and seamlessly dispatch secure payment links for generated Sales Invoices directly to your clients' inboxes or phones.
-* **Simplified General Ledger Mapping**: Maintain pristine accounting records by centrally configuring default income streams, direct labour costs, and internal transfer expense mapping directly within the `Cold Storage Settings` console.
+* **Simplified General Ledger Mapping (`Cold Storage Settings`)**: Maintain pristine accounting records by centrally configuring defaults fields: `default_income_account`, `labour_account`, `labour_manager_account`, and `transfer_expense_account`.
 
 ### 4. Dedicated Next-Generation Client Portal
 * **Real-Time Client Dashboard (`/cs-portal`)**: Elevate your customer service by providing clients with a stunning, modern, ultra-responsive Single Page Application (SPA) dashboard tailored uniquely to their daily needs.
@@ -29,7 +52,7 @@ This application is purpose-built from the ground up to empower third-party logi
 * **Zero-Touch Security Sync**: Maintain military-grade data partitioning with automated, invisible server-side scripts that transparently link external Portal Users directly to ERPNext User Permissions, rigidly filtered by Customer ID.
 
 ### 5. Multi-Channel Automated Communication
-* **WhatsApp Meta API Integration**: Keep your clients continuously in the loop with zero manual effort. The system triggers automated, real-time alerts dispatched directly to their WhatsApp accounts the moment critical Inward receipts or Outward dispatches are finalized on the floor.
+* **WhatsApp Meta API Integration**: Keep your clients continuously in the loop with zero manual effort. Configure API keys directly in `Cold Storage Settings` to trigger automated, real-time alerts dispatched directly to their WhatsApp accounts the moment critical Inward receipts or Outward dispatches are finalized on the floor.
 * **Specialized Industrial Print Formats**: Equip your floor staff with highly functional, QR-code supported custom print formats engineered specifically to withstand the rigors of warehouse floors (e.g., scannable *Outward Dispatch QR*, *Inward Half A4* slips, and *Transfer QR* manifests).
 * **Corporate Branding Automation**: The application automatically provisions a unified, professional `Cold Storage Branded Letter Head` from beautiful templates during the installation or database migration process, ensuring all outward-facing PDFs look immaculate.
 
@@ -59,34 +82,34 @@ Transform raw operational data into actionable, high-level intelligence with the
 
 ## Comprehensive Intelligence Reports
 
-Empower your management decision-making, survive rigorous compliance auditing, and guarantee total operational transparency with a robust suite of **19 meticulously crafted standard reports**. These are specifically designed from the ground up to address the unique logistical, trace-and-track, and financial needs of modern 3PL and cold storage operators:
+Empower your management decision-making, survive rigorous compliance auditing, and guarantee total operational transparency with a robust suite of **19 meticulously crafted standard reports**, driven by powerful server-side script logic bridging ERPNext's stock ledgers with the custom Cold Storage transactions:
 
 ### Core Operational Registers
-1. **Cold Storage Inward Register**: Highly detailed, granular logs of absolutely all received goods, permanently capturing arrival timestamps, handling quantities, and immutable client associations.
-2. **Cold Storage Outward Register**: An irrefutable, time-stamped record of all final dispatches, legally proving exactly what left the building, when, and for whom.
-3. **Cold Storage Transfer Register**: A complete internal audit trail logging the exact physical relocation of pallets between different racks and separate warehouses.
+1. **Cold Storage Inward Register**: Highly detailed, granular logs of absolutely all received goods, permanently capturing `posting_date`, `warehouse`, item arrays, and immutable client associations.
+2. **Cold Storage Outward Register**: An irrefutable, time-stamped record of all final dispatches. Filters explicitly by `customer` and `date_range` to physically prove exactly what left the building, via which `vehicle_no`, and for whom.
+3. **Cold Storage Transfer Register**: A complete internal audit trail logging the exact physical relocation of pallets between different racks and separate warehouses. Tracks the `transfer_type` specifically.
 4. **Cold Storage Customer Register**: A centralized, easily searchable directory of the active clients you securely manage inventory for.
 
 ### Deep Inventory & Space Analytics
-5. **Cold Storage Live Batch Stock**: An up-to-the-millisecond, real-time snapshot of precisely what inventory is presently sitting in which exact rack, partitioned aggressively by client ownership.
-6. **Cold Storage Warehouse Utilization**: Intelligently analyze how effectively your physical, temperature-controlled volume is actually being monetized.
-7. **Cold Storage Warehouse Occupancy Timeline**: Track historical capacity and space trends to proactively prepare your sales staff for impending seasonal surges.
-8. **Cold Storage Item Movement Summary**: High-level aggregate reporting analyzing the velocity and rapid turnover rates of specific, highly volatile item groups.
-9. **Cold Storage Net Movement Waterfall Monthly**: A sequential, highly visual analysis of monthly inventory accumulation changes and overarching stock flow dynamics.
-10. **Cold Storage Stock Flow Sankey**: Trace the sprawling, overarching movement dynamics of your stock from end to end across your entire enterprise.
-11. **Cold Storage Yearly Inward Outward Trend**: A smooth, 12-month trailing view highlighting your overarching operational tempo and identifying long-term business growth.
+5. **Cold Storage Live Batch Stock**: An up-to-the-millisecond, real-time snapshot of precisely what inventory is presently sitting in which exact rack. Analyzes the live `tabBin` and `tabBatch` tables, partitioned aggressively by `Batch.custom_customer` ownership matrix.
+6. **Cold Storage Warehouse Utilization**: Intelligently analyze how effectively your physical, temperature-controlled volume is actually being monetized by calculating active volumes against `Warehouse.custom_storage_capacity`.
+7. **Cold Storage Warehouse Occupancy Timeline**: Track historical capacity and space trends across standard timeframes to proactively prepare your sales staff for impending seasonal surges.
+8. **Cold Storage Item Movement Summary**: High-level aggregate reporting tracking total inward (`total_qty`) vs outward flows of specific, highly volatile item groups.
+9. **Cold Storage Net Movement Waterfall Monthly**: A sequential, highly visual data extraction tracking monthly inventory accumulation changes and overarching stock flow dynamics.
+10. **Cold Storage Stock Flow Sankey**: Aggregates comprehensive ledger routing to trace the sprawling, overarching movement dynamics of your stock from end to end across your entire enterprise.
+11. **Cold Storage Yearly Inward Outward Trend**: A smooth, 12-month trailing script highlighting your overarching operational tempo, aggregating document counts and total quantities processed.
 
 ### Complete Traceability, Food Safety Compliance & Auditing
-12. **Cold Storage Lot Traceability Graph**: A profoundly powerful visual tool engineered to trace the complete, unbroken lineage and physical journey of a specific batch from the moment it arrived at the dock to its final outbound dispatch.
-13. **Cold Storage Audit Trail Compliance Pack**: Critical, automated heavy-duty reporting designed specifically to satisfy incredibly strict government regulatory bodies, food safety inspectors, and internal compliance officers.
-14. **Cold Storage Client Portal Access Log**: An irrefutable, timestamped log proving precisely when and how frequently specific clients are actively reviewing their holdings online.
-15. **Cold Storage Login Activity Log**: Monitor broader, enterprise-wide system access for comprehensive IT security, user auditing, and internal accountability.
+12. **Cold Storage Lot Traceability Graph**: A profoundly powerful visual tool. You input a single `batch_id`, and the script recursively queries all linked `Stock Ledger Entries`, tracing the unbroken lineage from the dock `Inward` document to the `Outward` dispatch.
+13. **Cold Storage Audit Trail Compliance Pack**: Critical, automated heavy-duty reporting aggregating all modified transaction records, designed specifically to satisfy strict regulatory and food safety compliance officers.
+14. **Cold Storage Client Portal Access Log**: An irrefutable, timestamped Python log proving precisely when and how frequently specific portal users (`customer`) are hitting the `/cs-portal` endpoints.
+15. **Cold Storage Login Activity Log**: Monitor broader, enterprise-wide standard ERPNext system access for comprehensive IT security and accountability.
 
 ### Precision Financials & Billing Management
-16. **Cold Storage Customer Billing Summary**: A flawlessly clean aggregation of all handling, cross-docking, tracking, and deep-storage fees accrued by individual clients during any specified fiscal period.
-17. **Cold Storage Receivables Aging Waterfall**: Visually highlight severely overdue payments across specific time buckets to drastically accelerate your finance team's cash recovery efforts.
+16. **Cold Storage Customer Billing Summary**: A flawlessly clean script aggregation of all handling (`total_inward_charges`, `total_outward_charges`), cross-docking, and deep-storage fees generated as `Sales Invoices` accrued by individual clients during any specified fiscal period.
+17. **Cold Storage Receivables Aging Waterfall**: Visually highlight severely overdue payments across specific 30-60-90+ day buckets, querying outstanding `Sales Invoice` balances to drastically accelerate your finance team's cash recovery efforts.
 18. **Cold Storage Customer Outstanding Aging**: Exhaustively detailed, client-by-client breakdowns of all unpaid invoices distinctly categorized by the exact age of the debt.
-19. **Cold Storage Customer Payment Follow-up Queue**: Highly actionable, prioritized lists directly guiding your accounts receivable team on exactly who to contact today regarding critically outstanding balances.
+19. **Cold Storage Customer Payment Follow-up Queue**: Highly actionable, prioritized lists directly guiding your accounts receivable team on exactly who to contact today regarding critically outstanding balances based on due-date proximity.
 
 ## Industrial-Grade Print Formats
 
