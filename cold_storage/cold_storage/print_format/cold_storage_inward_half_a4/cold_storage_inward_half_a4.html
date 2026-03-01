@@ -580,31 +580,21 @@
 
 	<div class="cs-body">
 		<div class="cs-grid">
-			<div class="cs-meta-card cs-meta-card-inline">
-				<div class="cs-inline-meta-row">
-					<div class="cs-inline-meta-group">
-						<span class="cs-label">Customer</span>
-						<span class="cs-value">{{ doc.customer or "-" }}</span>
-					</div>
-					<div class="cs-inline-separator"></div>
-					<div class="cs-inline-meta-group">
-						<span class="cs-label">Posting Date</span>
-						<span class="cs-value">{{ frappe.utils.format_date(doc.posting_date) if doc.posting_date else "-" }}</span>
-					</div>
-				</div>
+			<div class="cs-meta-card">
+				<span class="cs-label">Customer</span>
+				<span class="cs-value">{{ doc.customer or "-" }}</span>
 			</div>
-			<div class="cs-meta-card cs-meta-card-inline">
-				<div class="cs-inline-meta-row">
-					<div class="cs-inline-meta-group">
-						<span class="cs-label">Territory</span>
-						<span class="cs-value">{{ customer_territory or "-" }}</span>
-					</div>
-					<div class="cs-inline-separator"></div>
-					<div class="cs-inline-meta-group">
-						<span class="cs-label">Receipt</span>
-						<span class="cs-value">{{ doc.receipt_no or "-" }}</span>
-					</div>
-				</div>
+			<div class="cs-meta-card">
+				<span class="cs-label">Posting Date</span>
+				<span class="cs-value">{{ frappe.utils.format_date(doc.posting_date) if doc.posting_date else "-" }}</span>
+			</div>
+			<div class="cs-meta-card">
+				<span class="cs-label">Territory</span>
+				<span class="cs-value">{{ customer_territory or "-" }}</span>
+			</div>
+			<div class="cs-meta-card">
+				<span class="cs-label">Receipt</span>
+				<span class="cs-value">{{ doc.receipt_no or "-" }}</span>
 			</div>
 		</div>
 
