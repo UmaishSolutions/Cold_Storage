@@ -37,7 +37,7 @@ def get_series_for_company(series_key: str, company: str) -> str:
 	if not series_token:
 		frappe.throw(_("Unsupported naming series key: {0}").format(series_key))
 
-	return f"{get_company_abbreviation(company)}-{series_token}-.YYYY.-"
+	return f"{get_company_abbreviation(company)}-{series_token}-.YYYY.-.####"
 
 
 def is_cold_storage_prefixed_voucher(voucher_no: str, company: str) -> bool:

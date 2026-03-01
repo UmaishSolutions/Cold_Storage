@@ -41,7 +41,7 @@
    "fieldname": "naming_series",
    "fieldtype": "Select",
    "label": "Naming Series",
-   "options": "CS-IN-.YYYY.-",
+   "options": "CS-IN-.YYYY.-.####",
    "reqd": 1,
    "set_only_once": 1
   },

@@ -28,7 +28,7 @@ class ColdStorageOutward(Document):
 		dispatch_selected_extra_charges_json: DF.LongText | None
 		items: DF.Table[ColdStorageOutwardItem]
 		journal_entry: DF.Link | None
-		naming_series: DF.Literal["CS-OUT-.YYYY.-"]
+		naming_series: DF.Literal["CS-OUT-.YYYY.-.####"]
 		posting_date: DF.Date
 		remarks: DF.SmallText | None
 		sales_invoice: DF.Link | None

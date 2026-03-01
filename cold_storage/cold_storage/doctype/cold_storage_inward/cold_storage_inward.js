@@ -210,7 +210,7 @@ function set_company_prefixed_series(frm) {
 			.toString()
 			.replace(/[^A-Za-z0-9]/g, "")
 			.toUpperCase() || "CO";
-		const series = `${abbr}-CS-IN-.YYYY.-`;
+		const series = `${abbr}-CS-IN-.YYYY.-.####`;
 		frm.set_df_property("naming_series", "options", series);
 		if (frm.doc.naming_series !== series) {
 			frm.set_value("naming_series", series);

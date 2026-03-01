@@ -38,7 +38,10 @@ class TestColdStorageNaming(TestCase):
 			"cold_storage.cold_storage.naming.frappe.get_cached_value",
 			return_value="SCS",
 		):
-			self.assertEqual(get_series_for_company("inward", "Siddique Cold Storage"), "SCS-CS-IN-.YYYY.-")
+			self.assertEqual(
+				get_series_for_company("inward", "Siddique Cold Storage"),
+				"SCS-CS-IN-.YYYY.-.####",
+			)
 
 	def test_is_cold_storage_prefixed_voucher(self):
 		with patch(
@@ -64,7 +67,7 @@ class TestColdStorageNaming(TestCase):
 			),
 			patch(
 				"cold_storage.events.naming.get_series_for_company",
-				return_value="SCS-CS-GLE-.YYYY.-",
+				return_value="SCS-CS-GLE-.YYYY.-.####",
 			),
 			patch(
 				"cold_storage.events.naming.make_autoname",
@@ -74,7 +77,7 @@ class TestColdStorageNaming(TestCase):
 			autoname_cold_storage_gl_entry(doc)
 
 		self.assertEqual(doc.name, "SCS-CS-GLE-2026-00001")
-		make_name.assert_called_once_with("SCS-CS-GLE-.YYYY.-.#####", doc=doc)
+		make_name.assert_called_once_with("SCS-CS-GLE-.YYYY.-.####", doc=doc)
 
 	def test_autoname_cold_storage_gl_entry_skips_non_cold_storage_voucher(self):
 		doc = DummyDoc(

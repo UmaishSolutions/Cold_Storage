@@ -175,9 +175,9 @@ def create_service_request(request_type: str, customer: str, items: list[dict], 
 
 	# Set Naming Series based on type
 	if request_type == "Inward":
-		doc.naming_series = "CS-IN-.YYYY.-"
+		doc.naming_series = "CS-IN-.YYYY.-.####"
 	else:
-		doc.naming_series = "CS-OUT-.YYYY.-"
+		doc.naming_series = "CS-OUT-.YYYY.-.####"
 
 	for idx, item in enumerate(items, start=1):
 		item_code = cstr(item.get("item_code")).strip()

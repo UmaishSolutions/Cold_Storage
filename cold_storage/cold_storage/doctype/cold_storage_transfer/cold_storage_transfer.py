@@ -25,7 +25,7 @@ class ColdStorageTransfer(Document):
 		from_customer: DF.Link | None
 		items: DF.Table[ColdStorageTransferItem]
 		journal_entry: DF.Link | None
-		naming_series: DF.Literal["CS-TR-.YYYY.-"]
+		naming_series: DF.Literal["CS-TR-.YYYY.-.####"]
 		posting_date: DF.Date
 		remarks: DF.SmallText | None
 		stock_entry: DF.Link | None

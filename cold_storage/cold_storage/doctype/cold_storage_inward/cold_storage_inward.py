@@ -22,7 +22,7 @@ class ColdStorageInward(Document):
 		customer: DF.Link
 		items: DF.Table[ColdStorageInwardItem]
 		journal_entry: DF.Link | None
-		naming_series: DF.Literal["CS-IN-.YYYY.-"]
+		naming_series: DF.Literal["CS-IN-.YYYY.-.####"]
 		posting_date: DF.Date
 		receipt_no: DF.Data | None
 		remarks: DF.SmallText | None

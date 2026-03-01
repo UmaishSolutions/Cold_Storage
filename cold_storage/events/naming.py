@@ -33,7 +33,7 @@ def autoname_cold_storage_gl_entry(doc, method: str | None = None) -> None:
 	if not is_cold_storage_prefixed_voucher(voucher_no, company):
 		return
 
-	doc.name = make_autoname(f"{get_series_for_company('gl_entry', company)}.#####", doc=doc)
+	doc.name = make_autoname(get_series_for_company("gl_entry", company), doc=doc)
 
 
 CHILD_DOCTYPE_TOKEN = {

@@ -145,7 +145,7 @@ class TestColdStorageIntegration(IntegrationTestCase):
 		return frappe.get_doc(
 			{
 				"doctype": "Cold Storage Outward",
-				"naming_series": "CS-OUT-.YYYY.-",
+				"naming_series": "CS-OUT-.YYYY.-.####",
 				"company": self.company,
 				"customer": customer,
 				"posting_date": nowdate(),
@@ -182,7 +182,7 @@ class TestColdStorageIntegration(IntegrationTestCase):
 		return frappe.get_doc(
 			{
 				"doctype": "Cold Storage Transfer",
-				"naming_series": "CS-TR-.YYYY.-",
+				"naming_series": "CS-TR-.YYYY.-.####",
 				"company": self.company,
 				"transfer_type": transfer_type,
 				"posting_date": nowdate(),
