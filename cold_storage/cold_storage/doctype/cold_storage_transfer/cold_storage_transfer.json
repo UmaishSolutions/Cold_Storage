@@ -6,13 +6,11 @@
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
+  "posting_date",
+  "transfer_type",
+  "column_break_header",
   "naming_series",
   "company",
-  "transfer_type",
-  "posting_date",
-  "column_break_header",
-  "total_qty",
-  "total_transfer_charges",
   "ownership_section",
   "from_customer",
   "column_break_ownership",
@@ -21,12 +19,15 @@
   "customer",
   "items_section",
   "items",
-  "remarks_section",
-  "remarks",
   "references_section",
+  "total_qty",
+  "total_transfer_charges",
+  "column_break_wjmt",
   "journal_entry",
   "stock_entry",
-  "amended_from"
+  "amended_from",
+  "remarks_section",
+  "remarks"
  ],
  "fields": [
   {
@@ -189,11 +190,15 @@
    "options": "Cold Storage Transfer",
    "print_hide": 1,
    "read_only": 1
+  },
+  {
+   "fieldname": "column_break_wjmt",
+   "fieldtype": "Column Break"
   }
  ],
  "is_submittable": 1,
  "links": [],
- "modified": "2026-03-01 14:07:11.078274",
+ "modified": "2026-03-01 21:18:45.382538",
  "modified_by": "Administrator",
  "module": "Cold Storage",
  "name": "Cold Storage Transfer",

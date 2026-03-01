@@ -30,6 +30,7 @@ class ColdStorageOutward(Document):
 		customer: DF.Link | None
 		dispatch_selected_extra_charges_json: DF.LongText | None
 		items: DF.Table[ColdStorageOutwardItem]
+		journal_entry: DF.Link | None
 		naming_series: DF.Literal["CS-OUT-.YYYY.-"]
 		posting_date: DF.Date | None
 		sales_invoice: DF.Link | None
@@ -75,6 +76,7 @@ class ColdStorageOutward(Document):
 		self._store_submitted_qr_code_data_uri()
 		self._create_stock_entry()
 		self._create_sales_invoice()
+		self._create_loading_labour_journal_entry()
 		self._enqueue_whatsapp_notification()
 
 	def on_cancel(self) -> None:
@@ -163,13 +165,49 @@ class ColdStorageOutward(Document):
 			row.amount = flt(row.qty) * (flt(row.handling_rate) + flt(row.loading_rate))
 
 	def _compute_totals(self) -> None:
+		base_charges = sum(flt(row.amount) for row in self.items)
 		self.total_qty = sum(flt(row.qty) for row in self.items)
-		self.total_charges = sum(flt(row.amount) for row in self.items)
+		self.total_selected_extra_charges = self._calculate_total_selected_extra_charges()
 		self.total_gst_charges = self._calculate_total_gst_charges()
+		self.total_charges = flt(base_charges) + flt(self.total_selected_extra_charges) + flt(self.total_gst_charges)
+
+	def _calculate_total_selected_extra_charges(self) -> float:
+		"""Calculate selected extra charges (Qty x Rate) for dispatch total display."""
+		if cint(getattr(self, "apply_dispatch_extra_charges", 0)) != 1:
+			return 0.0
+
+		from cold_storage.cold_storage.doctype.cold_storage_settings import (
+			cold_storage_settings as cs_settings,
+		)
+
+		total_qty = sum(flt(row.qty) for row in self.items)
+		if total_qty <= 0:
+			return 0.0
+
+		settings = cs_settings.get_settings()
+		total_extra = 0.0
+		for charge_row in self._get_dispatch_extra_charge_rows(settings):
+			if isinstance(charge_row, dict):
+				row_get = charge_row.get
+			else:
+				row_get = lambda fieldname, default=None: getattr(charge_row, fieldname, default)
+
+			if not cint(row_get("is_active", 0)):
+				continue
+			if not row_get("credit_account", None):
+				continue
+
+			extra_rate = flt(row_get("charge_rate", 0))
+			if extra_rate <= 0:
+				continue
+
+			total_extra += flt(total_qty * extra_rate)
+
+		return flt(total_extra)
 
 	def _calculate_total_gst_charges(self) -> float:
 		"""Calculate GST amount on handling charges for display on dispatch."""
-		if not cint(getattr(self, "apply_dispatch_gst", 1) or 1):
+		if cint(getattr(self, "apply_dispatch_gst", 0)) != 1:
 			return 0.0
 
 		from cold_storage.cold_storage.doctype.cold_storage_settings import (
@@ -375,21 +413,12 @@ class ColdStorageOutward(Document):
 		"""Return (attach_gst, attach_extra_charges) flags for this dispatch."""
 		if hasattr(self, "apply_dispatch_gst") and hasattr(self, "apply_dispatch_extra_charges"):
 			return (
-				cint(getattr(self, "apply_dispatch_gst", 1) or 1) == 1,
-				cint(getattr(self, "apply_dispatch_extra_charges", 1) or 1) == 1,
+				cint(getattr(self, "apply_dispatch_gst", 0)) == 1,
+				cint(getattr(self, "apply_dispatch_extra_charges", 0)) == 1,
 			)
 
-		# Backward compatibility fallback: derive from Customer if dispatch fields are unavailable.
-		if not self.customer:
-			return True, True
-
-		apply_dispatch_gst, apply_dispatch_extra_charges = frappe.db.get_value(
-			"Customer",
-			self.customer,
-			["custom_apply_dispatch_gst", "custom_apply_dispatch_extra_charges"],
-		) or (None, None)
-
-		return cint(apply_dispatch_gst) == 1, cint(apply_dispatch_extra_charges) == 1
+		# Safe fallback for older documents without explicit dispatch flags.
+		return True, True
 
 	def _append_dispatch_gst_tax(self, si, settings) -> None:
 		"""Apply GST only on dispatch handling charges as an explicit tax row."""
@@ -418,19 +447,142 @@ class ColdStorageOutward(Document):
 			},
 		)
 
+	# ── Labour Journal Entry ─────────────────────────────────────
+
+	def _create_loading_labour_journal_entry(self) -> None:
+		"""Create a Journal Entry for outward loading charges."""
+		from cold_storage.cold_storage.doctype.cold_storage_settings.cold_storage_settings import (
+			get_settings,
+		)
+
+		settings = get_settings()
+		amount = sum(flt(row.qty) * flt(row.loading_rate) for row in self.items if flt(row.loading_rate))
+		amount = flt(amount)
+		if not amount:
+			return
+
+		debit_party = self._get_party_details_for_account(settings.labour_account, settings.company)
+		credit_party = self._get_party_details_for_account(
+			settings.labour_manager_account, settings.company
+		)
+
+		je = frappe.new_doc("Journal Entry")
+		from cold_storage.cold_storage.naming import get_series_for_company
+
+		je.naming_series = get_series_for_company("journal_entry", settings.company)
+		je.posting_date = self.posting_date or nowdate()
+		je.company = settings.company
+		je.user_remark = _("Loading charges for Outward {0}").format(self.name)
+		company_cost_center = frappe.get_cached_value("Company", settings.company, "cost_center")
+
+		je.append(
+			"accounts",
+			{
+				"account": settings.labour_account,
+				"debit_in_account_currency": amount,
+				"cost_center": company_cost_center,
+				**debit_party,
+			},
+		)
+		je.append(
+			"accounts",
+			{
+				"account": settings.labour_manager_account,
+				"credit_in_account_currency": amount,
+				"cost_center": company_cost_center,
+				**credit_party,
+			},
+		)
+
+		je.flags.ignore_permissions = True
+		je.insert()
+		je.submit()
+
+		self.db_set("journal_entry", je.name)
+		frappe.msgprint(
+			_("Journal Entry {0} created for loading charges").format(
+				frappe.utils.get_link_to_form("Journal Entry", je.name)
+			),
+			alert=True,
+		)
+
+	def _get_party_details_for_account(self, account: str | None, company: str | None = None) -> dict:
+		"""Return party fields required for receivable/payable accounts."""
+		if not account:
+			return {}
+
+		account_type = frappe.db.get_value("Account", account, "account_type")
+		if account_type == "Receivable":
+			if not self.customer:
+				frappe.throw(_("Customer is required for receivable account {0}").format(account))
+			return {"party_type": "Customer", "party": self.customer}
+
+		if account_type == "Payable":
+			supplier = self._resolve_supplier_for_payable_account(account, company)
+			if supplier:
+				return {"party_type": "Supplier", "party": supplier}
+			frappe.throw(
+				_(
+					"Account {0} is Payable and needs Supplier party mapping. "
+					"Map this account in Supplier > Accounts for company {1}, "
+					"or configure a non-Payable account in Cold Storage Settings"
+				).format(account, company or _("(Not Set)"))
+			)
+
+		return {}
+
+	def _resolve_supplier_for_payable_account(self, account: str, company: str | None = None) -> str | None:
+		"""Resolve Supplier for a payable account using Supplier > Accounts mapping."""
+		filters: dict[str, str] = {"parenttype": "Supplier", "account": account}
+		if company:
+			filters["company"] = company
+
+		suppliers = sorted(
+			{
+				supplier
+				for supplier in frappe.get_all("Party Account", filters=filters, pluck="parent")
+				if supplier
+			}
+		)
+		if len(suppliers) == 1:
+			return suppliers[0]
+		if len(suppliers) > 1:
+			frappe.throw(
+				_(
+					"Account {0} is mapped to multiple Suppliers in company {1}: {2}. "
+					"Please keep a unique mapping or use a non-Payable account"
+				).format(account, company or _("(Not Set)"), ", ".join(suppliers))
+			)
+
+		candidate_name = account.rsplit(" - ", 1)[0].strip()
+		if candidate_name and frappe.db.exists("Supplier", candidate_name):
+			return candidate_name
+
+		if candidate_name:
+			candidates = frappe.get_all("Supplier", filters={"supplier_name": candidate_name}, pluck="name")
+			if len(candidates) == 1:
+				return candidates[0]
+
+		return None
+
 	# ── Cancellation ─────────────────────────────────────────────
 
 	def _cancel_linked_docs(self) -> None:
 		if ColdStorageOutward._get_stock_utils().cancel_stock_entry_if_submitted(self.stock_entry):
 			frappe.msgprint(_("Stock Entry {0} cancelled").format(self.stock_entry), alert=True)
 
-		if not self.sales_invoice:
-			return
-		si = frappe.get_doc("Sales Invoice", self.sales_invoice)
-		if si.docstatus == 1:
-			si.flags.ignore_permissions = True
-			si.cancel()
-			frappe.msgprint(_("Sales Invoice {0} cancelled").format(self.sales_invoice), alert=True)
+		for field, doctype in [
+			("sales_invoice", "Sales Invoice"),
+			("journal_entry", "Journal Entry"),
+		]:
+			linked_name = self.get(field)
+			if not linked_name:
+				continue
+			linked_doc = frappe.get_doc(doctype, linked_name)
+			if linked_doc.docstatus == 1:
+				linked_doc.flags.ignore_permissions = True
+				linked_doc.cancel()
+				frappe.msgprint(_("{0} {1} cancelled").format(doctype, linked_name), alert=True)
 
 	def _enqueue_whatsapp_notification(self) -> None:
 		"""Queue WhatsApp notification after submit without blocking core transaction."""

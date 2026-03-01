@@ -40,6 +40,7 @@ class ColdStorageSettings(Document):
 		cost_center: DF.Link | None
 		default_income_account: DF.Link
 		default_uom: DF.Link
+		gst_template: DF.Link | None
 		dispatch_extra_charges: DF.Table[ColdStorageDispatchExtraCharge]
 		dispatch_gst_account: DF.Link | None
 		dispatch_gst_rate: DF.Percent

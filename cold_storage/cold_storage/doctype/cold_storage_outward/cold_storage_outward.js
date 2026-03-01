@@ -112,6 +112,9 @@ frappe.ui.form.on("Cold Storage Outward", {
             if (frm.doc.stock_entry) {
                 updates.stock_entry = "";
             }
+            if (frm.doc.journal_entry) {
+                updates.journal_entry = "";
+            }
             if (Object.keys(updates).length) {
                 frm.set_value(updates);
             }
@@ -121,6 +124,7 @@ frappe.ui.form.on("Cold Storage Outward", {
 		set_company_prefixed_series(frm);
 		recompute_selected_extra_charges_total(frm);
 		recompute_dispatch_gst_total(frm);
+		ensure_outward_item_rates(frm);
 
 
         if (frm.doc.sales_invoice) {
@@ -135,6 +139,13 @@ frappe.ui.form.on("Cold Storage Outward", {
             frm.add_custom_button(
                 __("Stock Entry"),
                 () => frappe.set_route("Form", "Stock Entry", frm.doc.stock_entry),
+                __("View")
+            );
+        }
+        if (frm.doc.journal_entry) {
+            frm.add_custom_button(
+                __("Journal Entry"),
+                () => frappe.set_route("Form", "Journal Entry", frm.doc.journal_entry),
                 __("View")
             );
         }
@@ -250,18 +261,20 @@ async function load_dispatch_charge_flags_from_customer(frm) {
 	}
 
 	try {
-		const response = await frappe.db.get_value(
-			"Customer",
-			frm.doc.customer,
-			["custom_apply_dispatch_gst", "custom_apply_dispatch_extra_charges"]
-		);
-		const message = response && response.message ? response.message : {};
+		const response = await frappe.call({
+			method: "frappe.client.get",
+			args: {
+				doctype: "Customer",
+				name: frm.doc.customer,
+			},
+		});
+		const message = (response && response.message) || {};
 		await frm.set_value({
 			apply_dispatch_gst: Number(message.custom_apply_dispatch_gst || 0) ? 1 : 0,
 			apply_dispatch_extra_charges: Number(message.custom_apply_dispatch_extra_charges || 0) ? 1 : 0,
 		});
 		await handle_dispatch_extra_charge_toggle(frm);
-		recompute_dispatch_gst_total(frm);
+		recompute_dispatch_totals(frm);
 	} catch (error) {
 		console.warn("Unable to load dispatch charge flags from customer", error);
 	}
@@ -279,12 +292,12 @@ async function load_dispatch_gst_settings(frm) {
 		const doc = (response && response.message) || {};
 		frm._dispatch_gst_enabled = Number(doc.enable_dispatch_gst_on_handling || 0) === 1;
 		frm._dispatch_gst_rate = flt(doc.dispatch_gst_rate || 0);
-		recompute_dispatch_gst_total(frm);
+		recompute_dispatch_totals(frm);
 	} catch (error) {
 		console.warn("Unable to load dispatch GST settings", error);
 		frm._dispatch_gst_enabled = false;
 		frm._dispatch_gst_rate = 0;
-		recompute_dispatch_gst_total(frm);
+		recompute_dispatch_totals(frm);
 	}
 }
 
@@ -300,10 +313,11 @@ async function handle_dispatch_extra_charge_toggle(frm) {
 			selected_dispatch_extra_charges: "",
 			total_selected_extra_charges: 0,
 		});
+		recompute_dispatch_totals(frm);
 		return;
 	}
 
-	recompute_selected_extra_charges_total(frm);
+	recompute_dispatch_totals(frm);
 }
 
 async function open_dispatch_extra_charge_selector(frm) {
@@ -408,31 +422,62 @@ async function set_selected_dispatch_extra_charge_rows(frm, rows) {
 		dispatch_selected_extra_charges_json: JSON.stringify(safeRows),
 		selected_dispatch_extra_charges: summary,
 	});
-	recompute_selected_extra_charges_total(frm);
+	recompute_dispatch_totals(frm);
 }
 
 function recompute_selected_extra_charges_total(frm) {
-	const selectedRows = get_selected_dispatch_extra_charge_rows(frm);
-	const totalQty = (frm.doc.items || []).reduce((acc, row) => acc + flt(row.qty), 0);
-	const totalExtra = selectedRows.reduce((acc, row) => acc + (flt(row.charge_rate) * totalQty), 0);
-	frm.set_value("total_selected_extra_charges", totalExtra);
+	recompute_dispatch_totals(frm);
 }
 
 function recompute_dispatch_gst_total(frm) {
+	recompute_dispatch_totals(frm);
+}
+
+function get_dispatch_total_components(frm) {
+	const totalQty = (frm.doc.items || []).reduce((acc, row) => acc + flt(row.qty), 0);
+	const baseCharges = (frm.doc.items || []).reduce((acc, row) => acc + flt(row.amount), 0);
+
+	let totalExtraCharges = 0;
+	if (Number(frm.doc.apply_dispatch_extra_charges || 0) === 1) {
+		const selectedRows = get_selected_dispatch_extra_charge_rows(frm);
+		totalExtraCharges = selectedRows.reduce(
+			(acc, row) => acc + (flt(row.charge_rate) * totalQty),
+			0
+		);
+	}
+
 	const applyDispatchGst = Number(frm.doc.apply_dispatch_gst || 0) === 1;
 	const gstEnabled = Boolean(frm._dispatch_gst_enabled);
 	const gstRate = flt(frm._dispatch_gst_rate || 0);
-	if (!applyDispatchGst || !gstEnabled || gstRate <= 0) {
-		frm.set_value("total_gst_charges", 0);
-		return;
+	let totalGstCharges = 0;
+	if (applyDispatchGst && gstEnabled && gstRate > 0) {
+		const handlingCharges = (frm.doc.items || []).reduce(
+			(acc, row) => acc + (flt(row.qty) * flt(row.handling_rate)),
+			0
+		);
+		totalGstCharges = flt((handlingCharges * gstRate) / 100.0);
 	}
 
-	const handlingCharges = (frm.doc.items || []).reduce(
-		(acc, row) => acc + (flt(row.qty) * flt(row.handling_rate)),
-		0
-	);
-	const gstAmount = flt((handlingCharges * gstRate) / 100.0);
-	frm.set_value("total_gst_charges", gstAmount);
+	return {
+		totalQty,
+		totalExtraCharges: flt(totalExtraCharges),
+		totalGstCharges: flt(totalGstCharges),
+		totalCharges: flt(baseCharges + totalExtraCharges + totalGstCharges),
+	};
+}
+
+function recompute_dispatch_totals(frm) {
+	const totals = get_dispatch_total_components(frm);
+	frm.set_value({
+		total_qty: totals.totalQty,
+		total_selected_extra_charges: totals.totalExtraCharges,
+		total_gst_charges: totals.totalGstCharges,
+		total_charges: totals.totalCharges,
+	});
+}
+
+function recompute_dispatch_grand_total(frm) {
+	recompute_dispatch_totals(frm);
 }
 
 function get_extra_charge_key(row) {
@@ -512,20 +557,7 @@ frappe.ui.form.on("Cold Storage Outward Item", {
                     frappe.model.set_value(cdt, cdn, "item_name", r.item_name);
                     frappe.model.set_value(cdt, cdn, "item_group", r.item_group);
                     frappe.model.set_value(cdt, cdn, "uom", r.stock_uom);
-                    if (r.item_group) {
-                        frappe.call({
-                            method: "cold_storage.cold_storage.doctype.cold_storage_settings.cold_storage_settings.get_item_group_rates",
-                            args: {
-                                item_group: r.item_group,
-                            },
-                            callback(resp) {
-                                if (resp.message) {
-                                    frappe.model.set_value(cdt, cdn, "handling_rate", flt(resp.message.handling_rate));
-                                    frappe.model.set_value(cdt, cdn, "loading_rate", flt(resp.message.loading_rate));
-                                }
-                            },
-                        });
-                    }
+                    populate_outward_rates(cdt, cdn, r.item_group);
                 }
             });
         }
@@ -541,6 +573,8 @@ frappe.ui.form.on("Cold Storage Outward Item", {
 		frappe.db.get_value("Batch", row.batch_no, ["item", "custom_customer"], (r) => {
 			if (r && r.item) {
 				frappe.model.set_value(cdt, cdn, "item", r.item);
+				// Ensure rates are refreshed when item is derived from batch selection.
+				frappe.model.trigger("item", cdt, cdn);
 			}
 			fetch_outward_available_qty(cdt, cdn);
 		});
@@ -578,16 +612,37 @@ function compute_outward_row(frm, cdt, cdn) {
 }
 
 function compute_outward_totals(frm) {
-    let total_qty = 0;
-    let total_charges = 0;
-    (frm.doc.items || []).forEach((row) => {
-        total_qty += flt(row.qty);
-        total_charges += flt(row.amount);
-    });
-    frm.set_value("total_qty", total_qty);
-	frm.set_value("total_charges", total_charges);
-	recompute_selected_extra_charges_total(frm);
-	recompute_dispatch_gst_total(frm);
+	recompute_dispatch_totals(frm);
+}
+
+function populate_outward_rates(cdt, cdn, item_group) {
+	if (!item_group) {
+		return;
+	}
+	frappe.call({
+		method: "cold_storage.cold_storage.doctype.cold_storage_settings.cold_storage_settings.get_item_group_rates",
+		args: {
+			item_group,
+		},
+		callback(resp) {
+			if (resp.message) {
+				frappe.model.set_value(cdt, cdn, "handling_rate", flt(resp.message.handling_rate));
+				frappe.model.set_value(cdt, cdn, "loading_rate", flt(resp.message.loading_rate));
+			}
+		},
+	});
+}
+
+function ensure_outward_item_rates(frm) {
+	(frm.doc.items || []).forEach((row) => {
+		if (!row.item_group) {
+			return;
+		}
+		if (flt(row.handling_rate) || flt(row.loading_rate)) {
+			return;
+		}
+		populate_outward_rates(row.doctype, row.name, row.item_group);
+	});
 }
 
 function fetch_outward_available_qty(cdt, cdn) {

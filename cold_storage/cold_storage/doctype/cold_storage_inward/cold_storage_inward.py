@@ -9,21 +9,23 @@ from frappe.utils import flt, nowdate
 
 class ColdStorageInward(Document):
 	# begin: auto-generated types
+	# This code is auto-generated. Do not modify anything in this block.
+
 	from typing import TYPE_CHECKING
 
 	if TYPE_CHECKING:
+		from cold_storage.cold_storage.doctype.cold_storage_inward_item.cold_storage_inward_item import ColdStorageInwardItem
 		from frappe.types import DF
 
-		from cold_storage.cold_storage.doctype.cold_storage_inward_item.cold_storage_inward_item import (
-			ColdStorageInwardItem,
-		)
-
 		amended_from: DF.Link | None
-		customer: DF.Link | None
+		company: DF.Link
+		customer: DF.Link
 		items: DF.Table[ColdStorageInwardItem]
 		journal_entry: DF.Link | None
 		naming_series: DF.Literal["CS-IN-.YYYY.-"]
-		posting_date: DF.Date | None
+		posting_date: DF.Date
+		receipt_no: DF.Data | None
+		remarks: DF.SmallText | None
 		sales_invoice: DF.Link | None
 		stock_entry: DF.Link | None
 		submitted_qr_code_data_uri: DF.SmallText | None

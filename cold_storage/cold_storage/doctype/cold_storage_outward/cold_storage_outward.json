@@ -28,6 +28,7 @@
   "references_section",
   "sales_invoice",
   "stock_entry",
+  "journal_entry",
   "amended_from",
   "submitted_qr_code_data_uri"
  ],
@@ -186,6 +187,15 @@
    "label": "Stock Entry",
    "no_copy": 1,
    "options": "Stock Entry",
+   "read_only": 1
+  },
+  {
+   "description": "Displays journal entry.",
+   "fieldname": "journal_entry",
+   "fieldtype": "Link",
+   "label": "Journal Entry",
+   "no_copy": 1,
+   "options": "Journal Entry",
    "read_only": 1
   },
   {

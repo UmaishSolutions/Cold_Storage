@@ -11,29 +11,28 @@ from frappe.utils import flt, nowdate
 
 class ColdStorageTransfer(Document):
 	# begin: auto-generated types
+	# This code is auto-generated. Do not modify anything in this block.
+
 	from typing import TYPE_CHECKING
 
 	if TYPE_CHECKING:
+		from cold_storage.cold_storage.doctype.cold_storage_transfer_item.cold_storage_transfer_item import ColdStorageTransferItem
 		from frappe.types import DF
 
-		from cold_storage.cold_storage.doctype.cold_storage_transfer_item.cold_storage_transfer_item import (
-			ColdStorageTransferItem,
-		)
-
 		amended_from: DF.Link | None
+		company: DF.Link
 		customer: DF.Link | None
 		from_customer: DF.Link | None
 		items: DF.Table[ColdStorageTransferItem]
 		journal_entry: DF.Link | None
 		naming_series: DF.Literal["CS-TR-.YYYY.-"]
-		posting_date: DF.Date | None
+		posting_date: DF.Date
+		remarks: DF.SmallText | None
 		stock_entry: DF.Link | None
 		to_customer: DF.Link | None
 		total_qty: DF.Float
 		total_transfer_charges: DF.Currency
-		transfer_type: DF.Literal[
-			"", "Ownership Transfer", "Inter-Warehouse Transfer", "Intra-Warehouse Transfer"
-		]
+		transfer_type: DF.Literal["", "Ownership Transfer", "Inter-Warehouse Transfer", "Intra-Warehouse Transfer"]
 	# end: auto-generated types
 
 	def before_naming(self) -> None:

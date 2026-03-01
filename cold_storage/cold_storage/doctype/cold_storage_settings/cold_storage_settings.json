@@ -10,6 +10,7 @@
   "column_break_company",
   "default_uom",
   "cost_center",
+  "gst_template",
   "accounts_section",
   "default_income_account",
   "labour_account",
@@ -80,6 +81,14 @@
    "label": "Legacy Cost Center",
    "no_copy": 1,
    "options": "Cost Center"
+  },
+  {
+   "fieldname": "gst_template",
+   "fieldtype": "Link",
+   "hidden": 1,
+   "label": "Legacy GST Template",
+   "no_copy": 1,
+   "options": "Sales Taxes and Charges Template"
   },
   {
    "fieldname": "column_break_company",
