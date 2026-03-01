@@ -2,7 +2,7 @@
  "based_on": "modified",
  "chart_name": "Client Portal Views",
  "chart_type": "Count",
- "creation": "2026-02-27 22:27:59.094550",
+ "creation": "2026-03-01 10:13:45.760370",
  "currency": "",
  "docstatus": 0,
  "doctype": "Dashboard Chart",
@@ -13,8 +13,7 @@
  "idx": 0,
  "is_public": 0,
  "is_standard": 1,
- "last_synced_on": "2026-02-27 22:08:29.200331",
- "modified": "2026-02-27 22:31:33.742400",
+ "modified": "2026-03-01 10:13:45.775083",
  "modified_by": "Administrator",
  "module": "Cold Storage",
  "name": "Client Portal Views",
@@ -23,24 +22,6 @@
  "roles": [
   {
    "role": "System Manager"
-  },
-  {
-   "role": "Cold Storage Admin"
-  },
-  {
-   "role": "Cold Storage Warehouse Manager"
-  },
-  {
-   "role": "Cold Storage Inbound Operator"
-  },
-  {
-   "role": "Cold Storage Inventory Controller"
-  },
-  {
-   "role": "Cold Storage Billing Executive"
-  },
-  {
-   "role": "Cold Storage Dispatch Operator"
   },
   {
    "role": "Stock Manager"

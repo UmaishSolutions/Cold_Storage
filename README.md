@@ -170,6 +170,15 @@ pre-commit install
 pre-commit run --all-files
 ```
 
+If `pre-commit` fails while creating the Node hook environment, install Node first and re-run:
+
+```bash
+nvm install --lts
+nvm use --lts
+pre-commit clean
+pre-commit run --all-files
+```
+
 Run tests:
 
 ```bash
@@ -207,3 +216,22 @@ cold_storage/
 ## License
 
 MIT
+
+## GitHub Publishing Checklist
+
+Use this when publishing or transferring the repository:
+
+1. Push the default branch and set it in GitHub repository settings (`main` or `develop`).
+2. Enable branch protection for the default branch:
+   - require pull request before merge
+   - require status checks (`CI`, `Linters`)
+   - block force pushes and deletions
+3. Enable Dependabot alerts and Dependabot security updates.
+4. Enable secret scanning and push protection (if available on your plan).
+5. Add repository topics and a short description so the project is discoverable.
+6. Confirm these community files are visible in GitHub:
+   - `README.md`
+   - `LICENSE`
+   - `CONTRIBUTING.md`
+   - `SECURITY.md`
+   - `CODE_OF_CONDUCT.md`
