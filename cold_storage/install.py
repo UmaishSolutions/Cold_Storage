@@ -133,6 +133,7 @@ SIDEBAR_ICON_BY_LABEL = {
 	"Cold Storage Settings": "sliders-horizontal",
 	MASTERS_SECTION_LABEL: "folder-tree",
 	"Warehouse": "warehouse",
+	"Rack": "grid-2x2",
 	"Batch": "package",
 	"Item": "tag",
 	"Customer": "handshake",
@@ -908,6 +909,13 @@ def _ensure_workspace_sidebar_assets() -> None:
 	)
 	items_with_required_masters = _ensure_sidebar_link_under_section(
 		items_with_required_reports,
+		section_label=MASTERS_SECTION_LABEL,
+		link_type="DocType",
+		link_to="Cold Storage Rack",
+		label="Rack",
+	)
+	items_with_required_masters = _ensure_sidebar_link_under_section(
+		items_with_required_masters,
 		section_label=MASTERS_SECTION_LABEL,
 		link_type="DocType",
 		link_to="Item",

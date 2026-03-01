@@ -409,6 +409,18 @@
   {
    "child": 1,
    "collapsible": 1,
+   "icon": "grid-2x2",
+   "indent": 0,
+   "keep_closed": 0,
+   "label": "Rack",
+   "link_to": "Cold Storage Rack",
+   "link_type": "DocType",
+   "show_arrow": 0,
+   "type": "Link"
+  },
+  {
+   "child": 1,
+   "collapsible": 1,
    "icon": "tag",
    "indent": 0,
    "keep_closed": 0,
@@ -431,7 +443,7 @@
    "type": "Link"
   }
  ],
- "modified": "2026-03-01 10:43:45.269425",
+ "modified": "2026-03-01 11:47:23.023870",
  "modified_by": "Administrator",
  "module": "Cold Storage",
  "name": "Cold Storage",
