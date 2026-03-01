@@ -353,7 +353,7 @@ class TestColdStorageTransfer(TestCase):
 		settings = SimpleNamespace(
 			company="Default Co",
 			transfer_expense_account="EXP-ACC",
-			default_income_account="REC-ACC",
+			labour_manager_account="REC-ACC",
 			cost_center="Main - DC",
 		)
 		je = Mock()
@@ -404,9 +404,13 @@ class TestColdStorageTransfer(TestCase):
 				return_value="Payable",
 			),
 			patch(
+				"cold_storage.cold_storage.doctype.cold_storage_transfer.cold_storage_transfer.ColdStorageTransfer._resolve_supplier_for_payable_account",
+				return_value=None,
+			),
+			patch(
 				"cold_storage.cold_storage.doctype.cold_storage_transfer.cold_storage_transfer.frappe.throw",
 				side_effect=frappe.ValidationError("validation failed"),
 			),
 		):
 			with self.assertRaises(frappe.ValidationError):
-				ColdStorageTransfer._get_party_details_for_account(doc, "PAY-ACC")
+				ColdStorageTransfer._get_party_details_for_account(doc, "PAY-ACC", "Default Co")

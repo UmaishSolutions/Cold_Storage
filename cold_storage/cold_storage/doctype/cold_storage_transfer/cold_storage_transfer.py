@@ -357,10 +357,10 @@ class ColdStorageTransfer(Document):
 
 		settings = get_settings()
 		debit_party = ColdStorageTransfer._get_party_details_for_account(
-			self, settings.transfer_expense_account
+			self, settings.transfer_expense_account, settings.company
 		)
 		credit_party = ColdStorageTransfer._get_party_details_for_account(
-			self, settings.default_income_account
+			self, settings.labour_manager_account, settings.company
 		)
 
 		je = frappe.new_doc("Journal Entry")
@@ -384,7 +384,7 @@ class ColdStorageTransfer(Document):
 		je.append(
 			"accounts",
 			{
-				"account": settings.default_income_account,
+				"account": settings.labour_manager_account,
 				"credit_in_account_currency": amount,
 				"cost_center": company_cost_center,
 				**credit_party,
@@ -403,7 +403,7 @@ class ColdStorageTransfer(Document):
 			alert=True,
 		)
 
-	def _get_party_details_for_account(self, account: str | None) -> dict:
+	def _get_party_details_for_account(self, account: str | None, company: str | None = None) -> dict:
 		"""Return party fields required for receivable/payable accounts."""
 		if not account:
 			return {}
@@ -416,13 +416,52 @@ class ColdStorageTransfer(Document):
 			return {"party_type": "Customer", "party": customer}
 
 		if account_type == "Payable":
+			supplier = self._resolve_supplier_for_payable_account(account, company)
+			if supplier:
+				return {"party_type": "Supplier", "party": supplier}
 			frappe.throw(
 				_(
-					"Account {0} is Payable. Please configure a non-Payable account in Cold Storage Settings"
-				).format(account)
+					"Account {0} is Payable and needs Supplier party mapping. "
+					"Map this account in Supplier > Accounts for company {1}, "
+					"or configure a non-Payable account in Cold Storage Settings"
+				).format(account, company or _("(Not Set)"))
 			)
 
 		return {}
+
+	def _resolve_supplier_for_payable_account(self, account: str, company: str | None = None) -> str | None:
+		"""Resolve Supplier for a payable account using Supplier > Accounts mapping."""
+		filters: dict[str, str] = {"parenttype": "Supplier", "account": account}
+		if company:
+			filters["company"] = company
+
+		suppliers = sorted(
+			{
+				supplier
+				for supplier in frappe.get_all("Party Account", filters=filters, pluck="parent")
+				if supplier
+			}
+		)
+		if len(suppliers) == 1:
+			return suppliers[0]
+		if len(suppliers) > 1:
+			frappe.throw(
+				_(
+					"Account {0} is mapped to multiple Suppliers in company {1}: {2}. "
+					"Please keep a unique mapping or use a non-Payable account"
+				).format(account, company or _("(Not Set)"), ", ".join(suppliers))
+			)
+
+		candidate_name = account.rsplit(" - ", 1)[0].strip()
+		if candidate_name and frappe.db.exists("Supplier", candidate_name):
+			return candidate_name
+
+		if candidate_name:
+			candidates = frappe.get_all("Supplier", filters={"supplier_name": candidate_name}, pluck="name")
+			if len(candidates) == 1:
+				return candidates[0]
+
+		return None
 
 	# ── Cancellation ─────────────────────────────────────────────
 
