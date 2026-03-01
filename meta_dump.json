@@ -1,0 +1,998 @@
+{
+  "doctypes": {
+    "Cold Storage Rack": {
+      "description": null,
+      "fields": [
+        {
+          "fieldname": "warehouse",
+          "label": "Warehouse",
+          "fieldtype": "Link",
+          "description": "Warehouse this rack belongs to."
+        },
+        {
+          "fieldname": "company",
+          "label": "Company",
+          "fieldtype": "Link",
+          "description": "Company derived from selected warehouse."
+        },
+        {
+          "fieldname": "rack_code",
+          "label": "Rack Code",
+          "fieldtype": "Data",
+          "description": "Rack label inside warehouse, for example R-001."
+        },
+        {
+          "fieldname": "is_active",
+          "label": "Is Active",
+          "fieldtype": "Check",
+          "description": "Disable this if rack is not usable."
+        },
+        {
+          "fieldname": "notes",
+          "label": "Notes",
+          "fieldtype": "Small Text",
+          "description": "Optional note for this rack."
+        }
+      ]
+    },
+    "Cold Storage Settings": {
+      "description": null,
+      "fields": [
+        {
+          "fieldname": "company_section",
+          "label": "Company & Defaults",
+          "fieldtype": "Section Break",
+          "description": "Section for company & defaults details."
+        },
+        {
+          "fieldname": "company",
+          "label": "Default Company",
+          "fieldtype": "Link",
+          "description": "Specify default company."
+        },
+        {
+          "fieldname": "default_uom",
+          "label": "Default UOM",
+          "fieldtype": "Link",
+          "description": "Displays default uom."
+        },
+        {
+          "fieldname": "column_break_company",
+          "label": null,
+          "fieldtype": "Column Break",
+          "description": null
+        },
+        {
+          "fieldname": "cost_center",
+          "label": "Default Cost Center",
+          "fieldtype": "Link",
+          "description": "Specify default cost center."
+        },
+        {
+          "fieldname": "gst_template",
+          "label": "GST Template",
+          "fieldtype": "Link",
+          "description": "Specify gst template."
+        },
+        {
+          "fieldname": "accounts_section",
+          "label": "Accounting Mappings",
+          "fieldtype": "Section Break",
+          "description": "Section for accounting mappings details."
+        },
+        {
+          "fieldname": "default_income_account",
+          "label": "Default Income Account",
+          "fieldtype": "Link",
+          "description": "Specify default income account."
+        },
+        {
+          "fieldname": "labour_account",
+          "label": "Labour Account (Debit)",
+          "fieldtype": "Link",
+          "description": "Specify labour account (debit)."
+        },
+        {
+          "fieldname": "column_break_accounts",
+          "label": null,
+          "fieldtype": "Column Break",
+          "description": null
+        },
+        {
+          "fieldname": "labour_manager_account",
+          "label": "Labour Manager Account (Credit)",
+          "fieldtype": "Link",
+          "description": "Specify labour manager account (credit)."
+        },
+        {
+          "fieldname": "transfer_expense_account",
+          "label": "Transfer Expense Account",
+          "fieldtype": "Link",
+          "description": "Specify transfer expense account."
+        },
+        {
+          "fieldname": "charge_configuration_section",
+          "label": "Charge Configurations",
+          "fieldtype": "Section Break",
+          "description": "Section for charge configurations details."
+        },
+        {
+          "fieldname": "charge_configurations",
+          "label": "Charge Configurations",
+          "fieldtype": "Table",
+          "description": "Child table for charge configurations."
+        },
+        {
+          "fieldname": "whatsapp_section",
+          "label": "WhatsApp (Meta Cloud API)",
+          "fieldtype": "Section Break",
+          "description": "Setup order: 1) Enable Integration 2) Add Phone Number ID + Access Token 3) Check Setup 4) Send WhatsApp Test."
+        },
+        {
+          "fieldname": "whatsapp_enabled",
+          "label": "Enable WhatsApp Integration",
+          "fieldtype": "Check",
+          "description": "All outbound WhatsApp messages from Cold Storage are scoped to this setting's company only."
+        },
+        {
+          "fieldname": "whatsapp_api_version",
+          "label": "Meta Graph API Version",
+          "fieldtype": "Data",
+          "description": "Meta Graph API version (example: v22.0)."
+        },
+        {
+          "fieldname": "whatsapp_access_token",
+          "label": "Permanent Access Token",
+          "fieldtype": "Password",
+          "description": "Create a long-lived token in Meta Business and paste it here."
+        },
+        {
+          "fieldname": "whatsapp_default_country_code",
+          "label": "Default Country Code",
+          "fieldtype": "Data",
+          "description": "Digits only. Example: 91"
+        },
+        {
+          "fieldname": "whatsapp_phone_number_id",
+          "label": "Phone Number ID",
+          "fieldtype": "Data",
+          "description": "From Meta WhatsApp Manager > API Setup > Phone Number ID."
+        },
+        {
+          "fieldname": "whatsapp_template_language",
+          "label": "Template Language Code",
+          "fieldtype": "Data",
+          "description": "Template language code approved in Meta (example: en, en_US)."
+        },
+        {
+          "fieldname": "column_break_whatsapp",
+          "label": null,
+          "fieldtype": "Column Break",
+          "description": null
+        },
+        {
+          "fieldname": "whatsapp_send_inward_on_submit",
+          "label": "Auto Notify on Inward Submit",
+          "fieldtype": "Check",
+          "description": "Automatically send WhatsApp when Inward is submitted."
+        },
+        {
+          "fieldname": "whatsapp_inward_template_name",
+          "label": "Inward Template Name",
+          "fieldtype": "Data",
+          "description": "Optional. If set, template mode is used for inward notifications."
+        },
+        {
+          "fieldname": "whatsapp_inward_template_body_params",
+          "label": "Inward Template Body Params (JSON)",
+          "fieldtype": "Code",
+          "description": "Optional JSON array for Meta template body variables. Supports Jinja like {{ doc.name }}."
+        },
+        {
+          "fieldname": "whatsapp_inward_text_template",
+          "label": "Inward Text Message Template",
+          "fieldtype": "Code",
+          "description": "Used when Inward Template Name is blank. Supports Jinja variables like {{ doc.name }}."
+        },
+        {
+          "fieldname": "column_break_whatsapp_templates",
+          "label": null,
+          "fieldtype": "Column Break",
+          "description": null
+        },
+        {
+          "fieldname": "whatsapp_send_outward_on_submit",
+          "label": "Auto Notify on Outward Submit",
+          "fieldtype": "Check",
+          "description": "Automatically send WhatsApp when Outward is submitted."
+        },
+        {
+          "fieldname": "whatsapp_outward_template_name",
+          "label": "Outward Template Name",
+          "fieldtype": "Data",
+          "description": "Optional. If set, template mode is used for outward notifications."
+        },
+        {
+          "fieldname": "whatsapp_outward_template_body_params",
+          "label": "Outward Template Body Params (JSON)",
+          "fieldtype": "Code",
+          "description": "Optional JSON array for Meta template body variables. Supports Jinja like {{ doc.name }}."
+        },
+        {
+          "fieldname": "whatsapp_outward_text_template",
+          "label": "Outward Text Message Template",
+          "fieldtype": "Code",
+          "description": "Used when Outward Template Name is blank. Supports Jinja variables like {{ doc.name }}."
+        },
+        {
+          "fieldname": "portal_section",
+          "label": "Client Portal",
+          "fieldtype": "Section Break",
+          "description": "Section for client portal details."
+        },
+        {
+          "fieldname": "portal_announcement",
+          "label": "Portal Announcement (Banner)",
+          "fieldtype": "Small Text",
+          "description": "Message to display on the top of the client portal dashboard."
+        },
+        {
+          "fieldname": "section_break_zvau",
+          "label": null,
+          "fieldtype": "Section Break",
+          "description": "Section for section break zvau details."
+        },
+        {
+          "fieldname": "storage_terms_and_conditions",
+          "label": "Storage Terms and Conditions",
+          "fieldtype": "Small Text",
+          "description": "Write these terms in Urdu. They are printed in Nastaliq style on Cold Storage print formats."
+        }
+      ]
+    },
+    "Cold Storage Inward Item": {
+      "description": null,
+      "fields": [
+        {
+          "fieldname": "item",
+          "label": "Item",
+          "fieldtype": "Link",
+          "description": "Specify item."
+        },
+        {
+          "fieldname": "item_name",
+          "label": "Item Name",
+          "fieldtype": "Data",
+          "description": "Displays item name."
+        },
+        {
+          "fieldname": "item_group",
+          "label": "Item Group",
+          "fieldtype": "Link",
+          "description": "Displays item group."
+        },
+        {
+          "fieldname": "batch_no",
+          "label": "Batch No",
+          "fieldtype": "Link",
+          "description": "Specify batch no."
+        },
+        {
+          "fieldname": "warehouse",
+          "label": "Warehouse",
+          "fieldtype": "Link",
+          "description": "Specify warehouse."
+        },
+        {
+          "fieldname": "rack",
+          "label": "Rack",
+          "fieldtype": "Link",
+          "description": "Specify rack/location inside the selected warehouse."
+        },
+        {
+          "fieldname": "column_break_item",
+          "label": null,
+          "fieldtype": "Column Break",
+          "description": null
+        },
+        {
+          "fieldname": "available_qty",
+          "label": "Available Qty",
+          "fieldtype": "Float",
+          "description": "Displays available qty."
+        },
+        {
+          "fieldname": "qty",
+          "label": "Qty",
+          "fieldtype": "Float",
+          "description": "Specify qty."
+        },
+        {
+          "fieldname": "uom",
+          "label": "UOM",
+          "fieldtype": "Link",
+          "description": "Displays uom."
+        },
+        {
+          "fieldname": "unloading_rate",
+          "label": "Unloading Rate",
+          "fieldtype": "Currency",
+          "description": "Displays unloading rate."
+        },
+        {
+          "fieldname": "amount",
+          "label": "Amount",
+          "fieldtype": "Currency",
+          "description": "Displays amount."
+        }
+      ]
+    },
+    "Cold Storage Outward Item": {
+      "description": null,
+      "fields": [
+        {
+          "fieldname": "item",
+          "label": "Item",
+          "fieldtype": "Link",
+          "description": "Specify item."
+        },
+        {
+          "fieldname": "item_name",
+          "label": "Item Name",
+          "fieldtype": "Data",
+          "description": "Displays item name."
+        },
+        {
+          "fieldname": "item_group",
+          "label": "Item Group",
+          "fieldtype": "Link",
+          "description": "Displays item group."
+        },
+        {
+          "fieldname": "batch_no",
+          "label": "Batch No",
+          "fieldtype": "Link",
+          "description": "Specify batch no."
+        },
+        {
+          "fieldname": "warehouse",
+          "label": "Warehouse",
+          "fieldtype": "Link",
+          "description": "Specify warehouse."
+        },
+        {
+          "fieldname": "rack",
+          "label": "Rack",
+          "fieldtype": "Link",
+          "description": "Specify rack/location inside the selected warehouse."
+        },
+        {
+          "fieldname": "column_break_item",
+          "label": null,
+          "fieldtype": "Column Break",
+          "description": null
+        },
+        {
+          "fieldname": "available_qty",
+          "label": "Available Qty",
+          "fieldtype": "Float",
+          "description": "Displays available qty."
+        },
+        {
+          "fieldname": "qty",
+          "label": "Qty",
+          "fieldtype": "Float",
+          "description": "Specify qty."
+        },
+        {
+          "fieldname": "uom",
+          "label": "UOM",
+          "fieldtype": "Link",
+          "description": "Displays uom."
+        },
+        {
+          "fieldname": "handling_rate",
+          "label": "Handling Rate",
+          "fieldtype": "Currency",
+          "description": "Displays handling rate."
+        },
+        {
+          "fieldname": "loading_rate",
+          "label": "Loading Rate",
+          "fieldtype": "Currency",
+          "description": "Displays loading rate."
+        },
+        {
+          "fieldname": "amount",
+          "label": "Amount",
+          "fieldtype": "Currency",
+          "description": "Displays amount."
+        }
+      ]
+    },
+    "Cold Storage Transfer Item": {
+      "description": null,
+      "fields": [
+        {
+          "fieldname": "item",
+          "label": "Item",
+          "fieldtype": "Link",
+          "description": "Specify item."
+        },
+        {
+          "fieldname": "item_name",
+          "label": "Item Name",
+          "fieldtype": "Data",
+          "description": "Displays item name."
+        },
+        {
+          "fieldname": "item_group",
+          "label": "Item Group",
+          "fieldtype": "Link",
+          "description": "Displays item group."
+        },
+        {
+          "fieldname": "batch_no",
+          "label": "Batch No",
+          "fieldtype": "Link",
+          "description": "Specify batch no."
+        },
+        {
+          "fieldname": "source_warehouse",
+          "label": "Source Warehouse",
+          "fieldtype": "Link",
+          "description": "Specify source warehouse."
+        },
+        {
+          "fieldname": "source_rack",
+          "label": "Source Rack",
+          "fieldtype": "Link",
+          "description": "Specify source rack/location."
+        },
+        {
+          "fieldname": "target_warehouse",
+          "label": "Target Warehouse",
+          "fieldtype": "Link",
+          "description": "Specify target warehouse."
+        },
+        {
+          "fieldname": "target_rack",
+          "label": "Target Rack",
+          "fieldtype": "Link",
+          "description": "Specify target rack/location."
+        },
+        {
+          "fieldname": "column_break_item",
+          "label": null,
+          "fieldtype": "Column Break",
+          "description": null
+        },
+        {
+          "fieldname": "available_qty",
+          "label": "Available Qty",
+          "fieldtype": "Float",
+          "description": "Displays available qty."
+        },
+        {
+          "fieldname": "qty",
+          "label": "Qty",
+          "fieldtype": "Float",
+          "description": "Specify qty."
+        },
+        {
+          "fieldname": "uom",
+          "label": "UOM",
+          "fieldtype": "Link",
+          "description": "Displays uom."
+        },
+        {
+          "fieldname": "transfer_rate",
+          "label": "Transfer Rate",
+          "fieldtype": "Currency",
+          "description": "Displays transfer rate."
+        },
+        {
+          "fieldname": "amount",
+          "label": "Amount",
+          "fieldtype": "Currency",
+          "description": "Displays amount."
+        }
+      ]
+    },
+    "Cold Storage Inward": {
+      "description": null,
+      "fields": [
+        {
+          "fieldname": "naming_series",
+          "label": "Naming Series",
+          "fieldtype": "Select",
+          "description": "Specify naming series."
+        },
+        {
+          "fieldname": "company",
+          "label": "Company",
+          "fieldtype": "Link",
+          "description": "Displays company."
+        },
+        {
+          "fieldname": "customer",
+          "label": "Customer",
+          "fieldtype": "Link",
+          "description": "Specify customer."
+        },
+        {
+          "fieldname": "posting_date",
+          "label": "Posting Date",
+          "fieldtype": "Date",
+          "description": "Specify posting date."
+        },
+        {
+          "fieldname": "receipt_no",
+          "label": "Receipt #",
+          "fieldtype": "Data",
+          "description": "Specify receipt #."
+        },
+        {
+          "fieldname": "column_break_main",
+          "label": null,
+          "fieldtype": "Column Break",
+          "description": null
+        },
+        {
+          "fieldname": "total_qty",
+          "label": "Total Quantity",
+          "fieldtype": "Float",
+          "description": "Displays total quantity."
+        },
+        {
+          "fieldname": "total_unloading_charges",
+          "label": "Total Unloading Charges",
+          "fieldtype": "Currency",
+          "description": "Displays total unloading charges."
+        },
+        {
+          "fieldname": "items_section",
+          "label": "Items",
+          "fieldtype": "Section Break",
+          "description": "Section for items details."
+        },
+        {
+          "fieldname": "items",
+          "label": "Items",
+          "fieldtype": "Table",
+          "description": "Child table for items."
+        },
+        {
+          "fieldname": "remarks_section",
+          "label": "Remarks",
+          "fieldtype": "Section Break",
+          "description": "Section for remarks details."
+        },
+        {
+          "fieldname": "remarks",
+          "label": "Remarks",
+          "fieldtype": "Small Text",
+          "description": "Specify remarks."
+        },
+        {
+          "fieldname": "references_section",
+          "label": "References",
+          "fieldtype": "Section Break",
+          "description": "Section for references details."
+        },
+        {
+          "fieldname": "sales_invoice",
+          "label": "Sales Invoice",
+          "fieldtype": "Link",
+          "description": "Displays sales invoice."
+        },
+        {
+          "fieldname": "stock_entry",
+          "label": "Stock Entry",
+          "fieldtype": "Link",
+          "description": "Displays stock entry."
+        },
+        {
+          "fieldname": "column_break_refs",
+          "label": null,
+          "fieldtype": "Column Break",
+          "description": null
+        },
+        {
+          "fieldname": "journal_entry",
+          "label": "Journal Entry",
+          "fieldtype": "Link",
+          "description": "Displays journal entry."
+        },
+        {
+          "fieldname": "amended_from",
+          "label": "Amended From",
+          "fieldtype": "Link",
+          "description": "Displays amended from."
+        },
+        {
+          "fieldname": "submitted_qr_code_data_uri",
+          "label": "Submitted QR Code Data URI",
+          "fieldtype": "Small Text",
+          "description": "Displays submitted qr code data uri."
+        }
+      ]
+    },
+    "Charge Configuration": {
+      "description": null,
+      "fields": [
+        {
+          "fieldname": "item_group",
+          "label": "Item Group",
+          "fieldtype": "Link",
+          "description": "Specify item group."
+        },
+        {
+          "fieldname": "unloading_rate",
+          "label": "Unloading Rate",
+          "fieldtype": "Currency",
+          "description": "Specify unloading rate."
+        },
+        {
+          "fieldname": "handling_rate",
+          "label": "Handling Rate",
+          "fieldtype": "Currency",
+          "description": "Specify handling rate."
+        },
+        {
+          "fieldname": "loading_rate",
+          "label": "Loading Rate",
+          "fieldtype": "Currency",
+          "description": "Specify loading rate."
+        },
+        {
+          "fieldname": "column_break_rates",
+          "label": null,
+          "fieldtype": "Column Break",
+          "description": null
+        },
+        {
+          "fieldname": "inter_warehouse_transfer_rate",
+          "label": "Inter-Warehouse Transfer Rate",
+          "fieldtype": "Currency",
+          "description": "Specify inter-warehouse transfer rate."
+        },
+        {
+          "fieldname": "intra_warehouse_transfer_rate",
+          "label": "Intra-Warehouse Transfer Rate",
+          "fieldtype": "Currency",
+          "description": "Specify intra-warehouse transfer rate."
+        }
+      ]
+    },
+    "Cold Storage Outward": {
+      "description": null,
+      "fields": [
+        {
+          "fieldname": "naming_series",
+          "label": "Naming Series",
+          "fieldtype": "Select",
+          "description": "Specify naming series."
+        },
+        {
+          "fieldname": "company",
+          "label": "Company",
+          "fieldtype": "Link",
+          "description": "Displays company."
+        },
+        {
+          "fieldname": "customer",
+          "label": "Customer",
+          "fieldtype": "Link",
+          "description": "Specify customer."
+        },
+        {
+          "fieldname": "posting_date",
+          "label": "Posting Date",
+          "fieldtype": "Date",
+          "description": "Specify posting date."
+        },
+        {
+          "fieldname": "column_break_main",
+          "label": null,
+          "fieldtype": "Column Break",
+          "description": null
+        },
+        {
+          "fieldname": "total_qty",
+          "label": "Total Quantity",
+          "fieldtype": "Float",
+          "description": "Displays total quantity."
+        },
+        {
+          "fieldname": "total_charges",
+          "label": "Total Charges",
+          "fieldtype": "Currency",
+          "description": "Displays total charges."
+        },
+        {
+          "fieldname": "items_section",
+          "label": "Items",
+          "fieldtype": "Section Break",
+          "description": "Section for items details."
+        },
+        {
+          "fieldname": "items",
+          "label": "Items",
+          "fieldtype": "Table",
+          "description": "Child table for items."
+        },
+        {
+          "fieldname": "remarks_section",
+          "label": "Remarks",
+          "fieldtype": "Section Break",
+          "description": "Section for remarks details."
+        },
+        {
+          "fieldname": "remarks",
+          "label": "Remarks",
+          "fieldtype": "Small Text",
+          "description": "Specify remarks."
+        },
+        {
+          "fieldname": "references_section",
+          "label": "References",
+          "fieldtype": "Section Break",
+          "description": "Section for references details."
+        },
+        {
+          "fieldname": "sales_invoice",
+          "label": "Sales Invoice",
+          "fieldtype": "Link",
+          "description": "Displays sales invoice."
+        },
+        {
+          "fieldname": "stock_entry",
+          "label": "Stock Entry",
+          "fieldtype": "Link",
+          "description": "Displays stock entry."
+        },
+        {
+          "fieldname": "amended_from",
+          "label": "Amended From",
+          "fieldtype": "Link",
+          "description": "Displays amended from."
+        },
+        {
+          "fieldname": "submitted_qr_code_data_uri",
+          "label": "Submitted QR Code Data URI",
+          "fieldtype": "Small Text",
+          "description": "Displays submitted qr code data uri."
+        }
+      ]
+    },
+    "Cold Storage Transfer": {
+      "description": null,
+      "fields": [
+        {
+          "fieldname": "naming_series",
+          "label": "Naming Series",
+          "fieldtype": "Select",
+          "description": "Specify naming series."
+        },
+        {
+          "fieldname": "company",
+          "label": "Company",
+          "fieldtype": "Link",
+          "description": "Displays company."
+        },
+        {
+          "fieldname": "transfer_type",
+          "label": "Transfer Type",
+          "fieldtype": "Select",
+          "description": "Specify transfer type."
+        },
+        {
+          "fieldname": "posting_date",
+          "label": "Posting Date",
+          "fieldtype": "Date",
+          "description": "Specify posting date."
+        },
+        {
+          "fieldname": "column_break_header",
+          "label": null,
+          "fieldtype": "Column Break",
+          "description": null
+        },
+        {
+          "fieldname": "total_qty",
+          "label": "Total Quantity",
+          "fieldtype": "Float",
+          "description": "Displays total quantity."
+        },
+        {
+          "fieldname": "total_transfer_charges",
+          "label": "Total Transfer Charges",
+          "fieldtype": "Currency",
+          "description": "Displays total transfer charges."
+        },
+        {
+          "fieldname": "ownership_section",
+          "label": "Ownership Transfer Details",
+          "fieldtype": "Section Break",
+          "description": "Section for ownership transfer details details."
+        },
+        {
+          "fieldname": "from_customer",
+          "label": "From Customer",
+          "fieldtype": "Link",
+          "description": "Specify from customer."
+        },
+        {
+          "fieldname": "column_break_ownership",
+          "label": null,
+          "fieldtype": "Column Break",
+          "description": null
+        },
+        {
+          "fieldname": "to_customer",
+          "label": "To Customer",
+          "fieldtype": "Link",
+          "description": "Specify to customer."
+        },
+        {
+          "fieldname": "location_section",
+          "label": "Location Transfer Details",
+          "fieldtype": "Section Break",
+          "description": "Section for location transfer details details."
+        },
+        {
+          "fieldname": "customer",
+          "label": "Customer",
+          "fieldtype": "Link",
+          "description": "Specify customer."
+        },
+        {
+          "fieldname": "items_section",
+          "label": "Items",
+          "fieldtype": "Section Break",
+          "description": "Section for items details."
+        },
+        {
+          "fieldname": "items",
+          "label": "Items",
+          "fieldtype": "Table",
+          "description": "Child table for items."
+        },
+        {
+          "fieldname": "remarks_section",
+          "label": "Remarks",
+          "fieldtype": "Section Break",
+          "description": "Section for remarks details."
+        },
+        {
+          "fieldname": "remarks",
+          "label": "Remarks",
+          "fieldtype": "Small Text",
+          "description": "Specify remarks."
+        },
+        {
+          "fieldname": "references_section",
+          "label": "References",
+          "fieldtype": "Section Break",
+          "description": "Section for references details."
+        },
+        {
+          "fieldname": "journal_entry",
+          "label": "Journal Entry",
+          "fieldtype": "Link",
+          "description": "Displays journal entry."
+        },
+        {
+          "fieldname": "stock_entry",
+          "label": "Stock Entry",
+          "fieldtype": "Link",
+          "description": "Displays stock entry."
+        },
+        {
+          "fieldname": "amended_from",
+          "label": "Amended From",
+          "fieldtype": "Link",
+          "description": "Displays amended from."
+        }
+      ]
+    }
+  },
+  "reports": {
+    "Cold Storage Lot Traceability Graph": {
+      "description": "Script Report",
+      "columns": [],
+      "filters": []
+    },
+    "Cold Storage Receivables Aging Waterfall": {
+      "description": "Script Report",
+      "columns": [],
+      "filters": []
+    },
+    "Cold Storage Stock Flow Sankey": {
+      "description": "Script Report",
+      "columns": [],
+      "filters": []
+    },
+    "Cold Storage Customer Payment Follow-up Queue": {
+      "description": "Script Report",
+      "columns": [],
+      "filters": []
+    },
+    "Cold Storage Item Movement Summary": {
+      "description": "Script Report",
+      "columns": [],
+      "filters": []
+    },
+    "Cold Storage Customer Billing Summary": {
+      "description": "Script Report",
+      "columns": [],
+      "filters": []
+    },
+    "Cold Storage Customer Outstanding Aging": {
+      "description": "Script Report",
+      "columns": [],
+      "filters": []
+    },
+    "Cold Storage Login Activity Log": {
+      "description": "Script Report",
+      "columns": [],
+      "filters": []
+    },
+    "Cold Storage Client Portal Access Log": {
+      "description": "Script Report",
+      "columns": [],
+      "filters": []
+    },
+    "Cold Storage Net Movement Waterfall Monthly": {
+      "description": "Script Report",
+      "columns": [],
+      "filters": []
+    },
+    "Cold Storage Live Batch Stock": {
+      "description": "Script Report",
+      "columns": [],
+      "filters": []
+    },
+    "Cold Storage Audit Trail Compliance Pack": {
+      "description": "Script Report",
+      "columns": [],
+      "filters": []
+    },
+    "Cold Storage Customer Register": {
+      "description": "Script Report",
+      "columns": [],
+      "filters": []
+    },
+    "Cold Storage Warehouse Occupancy Timeline": {
+      "description": "Script Report",
+      "columns": [],
+      "filters": []
+    },
+    "Cold Storage Outward Register": {
+      "description": "Script Report",
+      "columns": [],
+      "filters": []
+    },
+    "Cold Storage Yearly Inward Outward Trend": {
+      "description": "Script Report",
+      "columns": [],
+      "filters": []
+    },
+    "Cold Storage Warehouse Utilization": {
+      "description": "Script Report",
+      "columns": [],
+      "filters": []
+    },
+    "Cold Storage Inward Register": {
+      "description": "Script Report",
+      "columns": [],
+      "filters": []
+    },
+    "Cold Storage Transfer Register": {
+      "description": "Script Report",
+      "columns": [],
+      "filters": []
+    }
+  }
+}

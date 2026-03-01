@@ -7,43 +7,77 @@ This application is purpose-built from the ground up to empower third-party logi
 ## Core Features & Capabilities
 
 ### 1. Advanced Operations & Total Inventory Control
-The core operations are driven by three primary Doctypes, each meticulously designed to capture every necessary logistical data point:
+The core operations are strictly governed by three primary Doctypes, each explicitly designed to capture every necessary logistical data point:
 
-**Cold Storage Inward**
-Formalize and accelerate the receipt of massive inbound shipments. Swiftly document arriving items, assess quantities, and instantly allocate them to designated physical warehouses and specific, highly-optimized rack locations.
-* **Key Fields & Tracking Params:**
-  * `customer`: Identifies the absolute owner of the inbound stock.
-  * `posting_date` & `posting_time`: Precise timestamping for billing calculations.
-  * `warehouse`: The overarching storage facility receiving the goods.
-  * `items`: Child table detailing exact SKUs, quantities, and specific `Cold Storage Rack` allocations.
-  * `total_inward_charges`: Automatically calculated handling fees aggregated from the charge configurations.
-  * *Automations:* Generates custom `Batch` records linked directly via `Batch.custom_customer` to ensure absolute stock isolation.
+**Cold Storage Inward (Doctype)**
+Formalize the receipt of inbound shipments.
+* **Fields & Purpose:**
+  * `naming_series` (Select): Auto-generating ID sequence.
+  * `company` (Link): The legal corporate entity managing the facility.
+  * `customer` (Link): Identifies the absolute legal owner of the inbound stock.
+  * `posting_date` (Date) & `posting_time` (Time): Precise chronological stamping for strict billing boundaries.
+  * `warehouse` (Link): The specific ERPNext `Warehouse` facility receiving the goods.
+  * `items` (Table): Child table (`Cold Storage Inward Item`) detailing:
+    * `item_code` (Link): Specific product SKU.
+    * `qty` (Float): The receiving pallet/box/kg amount.
+    * `uom` (Link): Unit of Measure.
+    * `rack` (Link): The exact `Cold Storage Rack` the stock is placed into.
+    * `handling_rate` & `amount` (Currency): Granular receiving fees auto-fetched per item.
+  * `total_inward_charges` (Currency): Automatically aggregated sum of handling/unloading fees.
+  * `remarks` (Small Text): Warehouse operator notes for damages or variances.
+  * `sales_invoice` (Link): Read-only reference to the auto-generated handling bill.
+  * `stock_entry` (Link): Read-only reference validating the successful ERPNext stock ledger update.
+  * `amended_from` (Link): Standard system audit field.
 
-**Cold Storage Outward**
-Dispatch goods with zero margin for error. The outward process utilizes a strict, system-enforced batch-level validation matrix, absolutely ensuring that your floor staff only picks, packs, and dispatches inventory that definitively belongs to the requesting customer.
-* **Key Fields & Tracking Params:**
-  * `customer` & `dispatch_address`: Defines who the goods belong to and their final outbound destination.
-  * `driver_name` & `vehicle_no`: Critical logistical data for gate-pass verification and trucking manifests.
-  * `items`: Child table enforcing strict exact-batch selection, preventing the dispatch of unauthorized goods.
-  * `total_outward_charges`: Calculates the final outbound handling and loading fees.
-  * *Automations:* Seamlessly links to generated `Sales Invoice` records and depletes live ERPNext stock via `Stock Entry`.
+**Cold Storage Outward (Doctype)**
+Dispatch goods with strictly enforced, algorithmic batch-validation.
+* **Fields & Purpose:**
+  * `naming_series` (Select): Auto-generating ID sequence.
+  * `company` (Link): The corporate entity.
+  * `customer` (Link): The owner requesting the dispatch.
+  * `posting_date` (Date) & `posting_time` (Time): Dispatch timestamps.
+  * `dispatch_address` (Link): The destination warehouse/client address.
+  * `driver_name` (Data) & `vehicle_no` (Data): Critical logistical data for gate verification and manifest printing.
+  * `items` (Table): Child table (`Cold Storage Outward Item`) containing:
+    * `item_code` (Link), `warehouse` (Link), `qty` (Float), `uom` (Link).
+    * `batch_no` (Link): Strict validation field restricting selection *only* to batches where `Batch.custom_customer` matches the Outward `customer`.
+    * `rack` (Link): The specific location the picker needs to retrieve the goods from.
+    * `loading_rate` & `amount` (Currency): Dispatch processing fees for labor.
+  * `total_outward_charges` (Currency): Final aggregated shipping/loading fees.
+  * `remarks` (Small Text): Operator dispatch notes.
+  * `sales_invoice` & `stock_entry` & `amended_from` (Link): Immutable transaction references.
+  * `submitted_qr_code_data_uri` (Small Text): Auto-generates a Base64 QR code upon submission for printing on dispatch labels.
 
-**Cold Storage Transfer**
-Facilitate the seamless internal relocation of stock. Swiftly pivot operations by moving items between varying temperature zones, different warehouses, or strategic rack locations without ever losing the audit trail or disrupting your client's real-time visibility.
-* **Key Fields & Tracking Params:**
-  * `transfer_type`: Defines whether this is a "Location to Location" physical move or an "Ownership to Ownership" logical transfer.
-  * `from_customer` & `to_customer`: Used during Ownership transfers to officially re-assign stock liability and billing without physically moving the pallet.
-  * `total_transfer_charges`: Captures internal operational costs or administrative fees for executing the transfer.
+**Cold Storage Transfer (Doctype)**
+Facilitate internal physical relocation or logical ownership transfer of stock.
+* **Fields & Purpose:**
+  * `naming_series` & `company`, `posting_date`.
+  * `transfer_type` (Select): Vital toggle between physical ('Location to Location') and logical ('Ownership to Ownership') transfers.
+  * `total_qty` (Float): Sum of all moved pallets.
+  * `total_transfer_charges` (Currency): Internal operational cost mapping.
+  * `from_customer` & `to_customer` (Link): Used specifically during *Ownership* transfers to securely overwrite stock liability without physical movement.
+  * `customer` (Link): The owner of the goods during a *Location* transfer.
+  * `items` (Table): Child table (`Cold Storage Transfer Item`) showing the exact `batch_no` and movement from `source_warehouse`/`source_rack` to `target_warehouse`/`target_rack`.
+  * `remarks`, `journal_entry`, `stock_entry`, `amended_from`.
 
 ### 2. Intelligent Space & Rack Management
-* **Dynamic Storage Capacity Tracking**: Gain unprecedented, real-time visibility into your facility's physical utilization. Define, monitor, and strictly enforce storage volume limits at the individual warehouse level using the native `Warehouse.custom_storage_capacity` integration.
-* **Precision Floor Mapping & Rack Tracking (`Cold Storage Rack`)**: Digitally map your entire warehouse floor with intuitive, hierarchical rack allocations. Contains fields for mapping hierarchical `parent_rack` structures, linking directly back to the physical `warehouse`. To maintain absolute operational integrity and picking speed, accurate rack selection is strictly mandated across all Inward, Outward, and Transfer item rows.
+* **Dynamic Storage Capacity**: The `Warehouse` doctype is extended with `custom_storage_capacity` (Float) to enforce hard volume limits.
+* **Precision Floor Mapping (`Cold Storage Rack` Doctype)**: 
+  * **Fields:** 
+    * `rack_code` (Data): The human-readable physical label on the floor (e.g., A-14-B).
+    * `warehouse` (Link): The parent temperature-controlled room.
+    * `parent_rack` (Link): Allows nesting racks within logical aisles or zones.
+    * `is_group` (Check): Designates if the rack is a folder (aisle) or a physical end-node.
+    * `status` (Select): 'Active' or 'Maintenance'.
 
 ### 3. Automated Financials & Highly Flexible Billing
-* **Dynamic Charge Configurations (`Charge Configuration`)**: Empower your sales team to negotiate diverse contracts. Captures `item_group`, `charge_type` (Inward vs Outward vs Storage), and the exact `rate`.
-* **Frictionless Invoicing Engine**: Eliminate days of manual data entry and human mathematical errors. The system dynamically generates native ERPNext Sales Invoices, calculating exact totals for point-in-time transaction handling (Inward/Outward movements) and recurring, time-based storage services.
-* **Integrated Payment Acceleration**: Dramatically accelerate your revenue cycle. The app features built-in support to instantly extract and seamlessly dispatch secure payment links for generated Sales Invoices directly to your clients' inboxes or phones.
-* **Simplified General Ledger Mapping (`Cold Storage Settings`)**: Maintain pristine accounting records by centrally configuring defaults fields: `default_income_account`, `labour_account`, `labour_manager_account`, and `transfer_expense_account`.
+* **Dynamic Charge Configurations (`Charge Configuration` Doctype)**: 
+  * **Fields:** 
+    * `item_group` (Link): Broad categorizations for pricing.
+    * `unloading_rate`, `handling_rate`, `loading_rate` (Currency): Discrete operational cost triggers.
+    * `inter_warehouse_transfer_rate`, `intra_warehouse_transfer_rate` (Currency): Internal movement penalties or fees.
+* **Simplified General Ledger Mapping (`Cold Storage Settings` Doctype)**:
+  * **Fields:** `company`, `default_income_account`, `labour_account`, `labour_manager_account`, `transfer_expense_account` (Link), `charge_configurations` (Table).
 
 ### 4. Dedicated Next-Generation Client Portal
 * **Real-Time Client Dashboard (`/cs-portal`)**: Elevate your customer service by providing clients with a stunning, modern, ultra-responsive Single Page Application (SPA) dashboard tailored uniquely to their daily needs.
@@ -82,34 +116,91 @@ Transform raw operational data into actionable, high-level intelligence with the
 
 ## Comprehensive Intelligence Reports
 
-Empower your management decision-making, survive rigorous compliance auditing, and guarantee total operational transparency with a robust suite of **19 meticulously crafted standard reports**, driven by powerful server-side script logic bridging ERPNext's stock ledgers with the custom Cold Storage transactions:
+Empower management decision-making and ensure total operational transparency with a robust suite of **19 meticulously crafted standard reports**. To provide absolute clarity on analytical capabilities, the exact filtering parameters and structural data columns generated by each report are fully detailed below:
 
 ### Core Operational Registers
-1. **Cold Storage Inward Register**: Highly detailed, granular logs of absolutely all received goods, permanently capturing `posting_date`, `warehouse`, item arrays, and immutable client associations.
-2. **Cold Storage Outward Register**: An irrefutable, time-stamped record of all final dispatches. Filters explicitly by `customer` and `date_range` to physically prove exactly what left the building, via which `vehicle_no`, and for whom.
-3. **Cold Storage Transfer Register**: A complete internal audit trail logging the exact physical relocation of pallets between different racks and separate warehouses. Tracks the `transfer_type` specifically.
-4. **Cold Storage Customer Register**: A centralized, easily searchable directory of the active clients you securely manage inventory for.
+1. **Cold Storage Inward Register**
+   * *Purpose:* Granular logs capturing all historical receiving documents.
+   * *Filters:* `company`, `customer`, `from_date`, `to_date`, `status`
+   * *Columns Output:* Matches filter criteria to display chronological receipt lines.
+2. **Cold Storage Outward Register**
+   * *Purpose:* An irrefutable, time-stamped record of all final dispatch documents.
+   * *Filters:* `company`, `customer`, `from_date`, `to_date`, `status`
+   * *Columns Output:* Outputs dispatched line items matching the parameters.
+3. **Cold Storage Transfer Register**
+   * *Purpose:* Complete internal audit trail logging physical relocations and logical ownership swaps.
+   * *Filters:* `company`, `transfer_type`, `customer` (Location transfers), `from_customer`, `to_customer` (Ownership transfers), `from_date`, `to_date`, `status`
+   * *Columns Output:* Corresponds to the filtered internal movement documents.
+4. **Cold Storage Customer Register**
+   * *Purpose:* A centralized list of active clients managing inventory within the specified timeframe.
+   * *Filters:* `company`, `customer`, `as_on_date`
+   * *Columns Output:* Active client directory as of the specified date.
 
 ### Deep Inventory & Space Analytics
-5. **Cold Storage Live Batch Stock**: An up-to-the-millisecond, real-time snapshot of precisely what inventory is presently sitting in which exact rack. Analyzes the live `tabBin` and `tabBatch` tables, partitioned aggressively by `Batch.custom_customer` ownership matrix.
-6. **Cold Storage Warehouse Utilization**: Intelligently analyze how effectively your physical, temperature-controlled volume is actually being monetized by calculating active volumes against `Warehouse.custom_storage_capacity`.
-7. **Cold Storage Warehouse Occupancy Timeline**: Track historical capacity and space trends across standard timeframes to proactively prepare your sales staff for impending seasonal surges.
-8. **Cold Storage Item Movement Summary**: High-level aggregate reporting tracking total inward (`total_qty`) vs outward flows of specific, highly volatile item groups.
-9. **Cold Storage Net Movement Waterfall Monthly**: A sequential, highly visual data extraction tracking monthly inventory accumulation changes and overarching stock flow dynamics.
-10. **Cold Storage Stock Flow Sankey**: Aggregates comprehensive ledger routing to trace the sprawling, overarching movement dynamics of your stock from end to end across your entire enterprise.
-11. **Cold Storage Yearly Inward Outward Trend**: A smooth, 12-month trailing script highlighting your overarching operational tempo, aggregating document counts and total quantities processed.
+5. **Cold Storage Live Batch Stock**
+   * *Purpose:* Up-to-the-millisecond snapshot of exact inventory residing in specific racks, partitioned aggressively by client.
+   * *Filters:* `company`, `as_on_date`, `customer`, `item`, `batch_no`, `warehouse`, Toggle: `include_zero_balance`
+   * *Columns Output:* Generates immediate ledger balances matching the filter matrix.
+6. **Cold Storage Warehouse Utilization**
+   * *Purpose:* Intelligently analyze monetized physical volume against configured capacities.
+   * *Filters:* `company`, `warehouse`, `as_on_date`
+   * *Columns Output:* Total utilized spatial capacity per warehouse node.
+7. **Cold Storage Warehouse Occupancy Timeline**
+   * *Purpose:* Track historical capacity and space trends to proactively prepare for seasonal surges.
+   * *Filters:* `company`, `warehouse`, `from_date`, `to_date`
+   * *Columns Output:* Time-series data of space utilization over the selected period.
+8. **Cold Storage Item Movement Summary**
+   * *Purpose:* Aggregate reporting analyzing velocity and turnover rates of specific items.
+   * *Filters:* `company`, `item`, `from_date`, `to_date`
+   * *Columns Output:* Net movement totals for the specific SKUs.
+9. **Cold Storage Net Movement Waterfall Monthly**
+   * *Purpose:* Sequential, highly visual analysis of monthly inventory accumulation changes.
+   * *Filters:* `company`, `from_date`, `to_date`, `customer`, `item`, `warehouse`
+   * *Columns Output:* Month-by-month cascading volume changes.
+10. **Cold Storage Stock Flow Sankey**
+    * *Purpose:* Traces overarching stock movement dynamics across the enterprise over time.
+    * *Filters:* `company`, `item_group`, `from_date`, `to_date`, `top_n_groups`
+    * *Columns Output:* Nodes and volumetric link strengths for the interactive visual chart.
+11. **Cold Storage Yearly Inward Outward Trend**
+    * *Purpose:* Trailing macro-view highlighting long-term business growth and operational tempo.
+    * *Filters:* `company`, `item_group`, `from_year`, `to_year`
+    * *Columns Output:* Year-over-year aggregate comparison data.
 
 ### Complete Traceability, Food Safety Compliance & Auditing
-12. **Cold Storage Lot Traceability Graph**: A profoundly powerful visual tool. You input a single `batch_id`, and the script recursively queries all linked `Stock Ledger Entries`, tracing the unbroken lineage from the dock `Inward` document to the `Outward` dispatch.
-13. **Cold Storage Audit Trail Compliance Pack**: Critical, automated heavy-duty reporting aggregating all modified transaction records, designed specifically to satisfy strict regulatory and food safety compliance officers.
-14. **Cold Storage Client Portal Access Log**: An irrefutable, timestamped Python log proving precisely when and how frequently specific portal users (`customer`) are hitting the `/cs-portal` endpoints.
-15. **Cold Storage Login Activity Log**: Monitor broader, enterprise-wide standard ERPNext system access for comprehensive IT security and accountability.
+12. **Cold Storage Lot Traceability Graph**
+    * *Purpose:* Visually maps the complete, unbroken physical journey of specific batches.
+    * *Filters:* `company`, `customer`, `item`
+    * *Columns Output:* Recursive mapping nodes bridging: `batch_no`, `warehouse`, from/to dates.
+13. **Cold Storage Audit Trail Compliance Pack**
+    * *Purpose:* Automated heavy-duty reporting of modified transaction records designed to satisfy safety inspectors.
+    * *Filters:* None (Fixed scope, wide extraction)
+    * *Columns Output:* `company`, `from_date`, `to_date`, `customer`, `item`, `batch_no`, `warehouse`, `status`, `include_user_actions`
+14. **Cold Storage Client Portal Access Log**
+    * *Purpose:* Irrefutable analytics proving when clients review their holdings online.
+    * *Filters:* `from_date`, `to_date`, `user`, `source`
+    * *Columns Output:* Access timestamps matching filter constraints.
+15. **Cold Storage Login Activity Log**
+    * *Purpose:* Monitor broader enterprise-wide system access for internal accountability.
+    * *Filters:* `from_date`, `to_date`, `user`, `status`
+    * *Columns Output:* Chronological login success/failure rows.
 
 ### Precision Financials & Billing Management
-16. **Cold Storage Customer Billing Summary**: A flawlessly clean script aggregation of all handling (`total_inward_charges`, `total_outward_charges`), cross-docking, and deep-storage fees generated as `Sales Invoices` accrued by individual clients during any specified fiscal period.
-17. **Cold Storage Receivables Aging Waterfall**: Visually highlight severely overdue payments across specific 30-60-90+ day buckets, querying outstanding `Sales Invoice` balances to drastically accelerate your finance team's cash recovery efforts.
-18. **Cold Storage Customer Outstanding Aging**: Exhaustively detailed, client-by-client breakdowns of all unpaid invoices distinctly categorized by the exact age of the debt.
-19. **Cold Storage Customer Payment Follow-up Queue**: Highly actionable, prioritized lists directly guiding your accounts receivable team on exactly who to contact today regarding critically outstanding balances based on due-date proximity.
+16. **Cold Storage Customer Billing Summary**
+    * *Purpose:* Flawless aggregation of all handling, tracking, and deep-storage fees accrued.
+    * *Filters:* `company`, `customer`, `from_date`, `to_date`
+    * *Columns Output:* Period billing totals by client.
+17. **Cold Storage Receivables Aging Waterfall**
+    * *Purpose:* Visually highlight overdue payments across specific time buckets for cash recovery.
+    * *Filters:* `company`, `customer`, `from_date`, `to_date`
+    * *Columns Output:* Filtered invoice amounts cascaded by aging brackets.
+18. **Cold Storage Customer Outstanding Aging**
+    * *Purpose:* Exhaustively detailed breakdowns of all unpaid invoices categorized by debt age.
+    * *Filters:* `company`, `customer`, `as_on_date`
+    * *Columns Output:* Unpaid balances aging buckets calculated against the specified date.
+19. **Cold Storage Customer Payment Follow-up Queue**
+    * *Purpose:* Highly actionable, prioritized lists guiding AR teams on critical outstanding balances.
+    * *Filters:* `company`, `customer`, `as_on_date`, `min_overdue_days`, `limit_rows`
+    * *Columns Output:* Prioritized contact/queue rows exceeding the specified overdue limits.
 
 ## Industrial-Grade Print Formats
 
