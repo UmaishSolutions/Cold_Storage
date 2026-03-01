@@ -29,7 +29,8 @@
 	color: var(--cs-operations) !important;
 }
 
-.body-sidebar[data-title="Cold Storage"] .sidebar-item-container[item-name="Reports"] .sidebar-item-icon {
+.body-sidebar[data-title="Cold Storage"] .sidebar-item-container[item-name="Reports"] .sidebar-item-icon,
+.body-sidebar[data-title="Cold Storage"] .sidebar-item-container[item-name="Reports"] .nested-container .sidebar-item-icon {
 	color: var(--cs-reports) !important;
 }
 

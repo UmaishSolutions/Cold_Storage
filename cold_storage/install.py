@@ -129,6 +129,7 @@ SIDEBAR_ICON_BY_LABEL = {
 	"Outstanding Aging": "timer",
 	"Payment Follow-up": "bell-ring",
 	"AR Waterfall": "waves",
+	"Payments": "circle-dollar-sign",
 	SETUP_SECTION_LABEL: "settings",
 	"Cold Storage Settings": "sliders-horizontal",
 	MASTERS_SECTION_LABEL: "folder-tree",
@@ -906,6 +907,13 @@ def _ensure_workspace_sidebar_assets() -> None:
 		link_type="Report",
 		link_to=CLIENT_PORTAL_ACCESS_LOG_REPORT,
 		label=CLIENT_PORTAL_ACCESS_LOG_SHORTCUT_LABEL,
+	)
+	items_with_required_reports = _ensure_sidebar_link_under_section(
+		items_with_required_reports,
+		section_label=CUSTOMER_BILLING_SECTION_LABEL,
+		link_type="DocType",
+		link_to="Payment Entry",
+		label="Payments",
 	)
 	items_with_required_masters = _ensure_sidebar_link_under_section(
 		items_with_required_reports,

@@ -28,6 +28,7 @@ This app is built for warehouses that store goods on behalf of customers, run in
   - 4 standard print formats (QR-focused)
   - branded letterhead setup during install/migrate
   - Meta WhatsApp integration for Inward/Outward notifications
+  - ERPNext built-in Payment Request link generation for linked Sales Invoices (from Inward/Outward forms)
 
 ## Dashboard (Cold Storage workspace)
 

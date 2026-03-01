@@ -92,6 +92,7 @@ frappe.ui.form.on("Cold Storage Outward", {
                 () => frappe.set_route("Form", "Sales Invoice", frm.doc.sales_invoice),
                 __("View")
             );
+			add_erpnext_payment_link_button(frm);
         }
         if (frm.doc.stock_entry) {
             frm.add_custom_button(
@@ -156,6 +157,36 @@ function add_whatsapp_notification_button(frm) {
 			},
 		});
 	}, __("WhatsApp"));
+}
+
+function add_erpnext_payment_link_button(frm) {
+	if (!frm.doc.sales_invoice) {
+		return;
+	}
+
+	frm.add_custom_button(
+		__("Payment Link"),
+		() => {
+			frappe.call({
+				method: "cold_storage.cold_storage.payment_link.get_or_create_payment_link",
+				args: {
+					sales_invoice: frm.doc.sales_invoice,
+				},
+				freeze: true,
+				freeze_message: __("Generating ERPNext payment link..."),
+				callback: (r) => {
+					const data = r.message || {};
+					const paymentUrl = String(data.payment_url || "").trim();
+					if (!paymentUrl) {
+						frappe.msgprint(__("Unable to generate payment link."));
+						return;
+					}
+					window.open(paymentUrl, "_blank", "noopener");
+				},
+			});
+		},
+		__("View")
+	);
 }
 
 function set_company_prefixed_series(frm) {

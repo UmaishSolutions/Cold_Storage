@@ -24,6 +24,7 @@
 	};
 
 	let hydrateInProgress = false;
+	let sidebarColorObserver = null;
 
 	const registerLegacyAuditRoute = () => {
 		if (typeof frappe === "undefined") return;
@@ -375,24 +376,44 @@
 		});
 	};
 
+	const ensureSidebarColorObserver = () => {
+		const sidebar = document.querySelector(SIDEBAR_ROOT_SELECTOR);
+		if (!isColdStorageSidebar(sidebar)) return;
+		if (sidebarColorObserver) return;
+
+		sidebarColorObserver = new MutationObserver(() => {
+			scheduleSidebarIconColoring();
+		});
+
+		sidebarColorObserver.observe(sidebar, {
+			childList: true,
+			subtree: true,
+			attributes: true,
+			attributeFilter: ["class", "style"],
+		});
+	};
+
 	const bootstrap = () => {
 		registerLegacyAuditRoute();
 		redirectLegacyAuditReportRoute();
 		injectStyles();
 		ensurePatchedEventually();
 		scheduleSidebarIconColoring();
+		ensureSidebarColorObserver();
 		setTimeout(hydrateCurrentPageWidget, 1200);
 
 		if (frappe.router?.on) {
 			frappe.router.on("change", () => {
 				redirectLegacyAuditReportRoute();
 				scheduleSidebarIconColoring();
+				ensureSidebarColorObserver();
 			});
 		}
 
 		if (typeof $ !== "undefined") {
 			$(document).on("sidebar_setup", () => {
 				scheduleSidebarIconColoring();
+				ensureSidebarColorObserver();
 			});
 			$(document).on("page-change", () => {
 				redirectLegacyAuditReportRoute();
@@ -400,6 +421,7 @@
 					ensurePatchedEventually();
 					hydrateCurrentPageWidget();
 					scheduleSidebarIconColoring();
+					ensureSidebarColorObserver();
 				}, 800);
 			});
 		}
