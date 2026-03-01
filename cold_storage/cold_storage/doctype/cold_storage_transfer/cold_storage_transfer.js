@@ -5,6 +5,24 @@ frappe.ui.form.on("Cold Storage Transfer", {
 	setup(frm) {
 		enforce_settings_company(frm);
 
+		frm.set_query("item", "items", (doc) => {
+			const customer =
+				doc.transfer_type === "Ownership Transfer" ? doc.from_customer : doc.customer;
+			if (!customer) {
+				return {
+					filters: {
+						name: "__no_item__",
+					},
+				};
+			}
+			return {
+				query: "cold_storage.cold_storage.utils.search_items_for_customer_movement",
+				filters: {
+					customer,
+				},
+			};
+		});
+
 	    frm.set_query("source_warehouse", "items", (doc, cdt, cdn) => {
 	        const row = locals[cdt] && locals[cdt][cdn];
 	        const customer =

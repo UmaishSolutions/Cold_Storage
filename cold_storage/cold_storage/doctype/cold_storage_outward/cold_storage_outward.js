@@ -5,6 +5,22 @@ frappe.ui.form.on("Cold Storage Outward", {
 	setup(frm) {
 		enforce_settings_company(frm);
 
+		frm.set_query("item", "items", (doc) => {
+			if (!doc.customer) {
+				return {
+					filters: {
+						name: "__no_item__",
+					},
+				};
+			}
+			return {
+				query: "cold_storage.cold_storage.utils.search_items_for_customer_movement",
+				filters: {
+					customer: doc.customer,
+				},
+			};
+		});
+
 	    frm.set_query("warehouse", "items", (doc, cdt, cdn) => {
 	        const row = locals[cdt] && locals[cdt][cdn];
 	        return {
