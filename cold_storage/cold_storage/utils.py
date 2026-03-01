@@ -7,7 +7,7 @@ from io import BytesIO
 import frappe
 from erpnext.stock.doctype.batch.batch import get_batch_qty
 from frappe import _
-from frappe.utils import cint, flt, nowdate
+from frappe.utils import cint, cstr, flt, nowdate
 
 
 @frappe.whitelist()
@@ -75,6 +75,112 @@ def search_batches_for_customer_warehouse(
 		group by b.name
 		having sum(sle.actual_qty) > 0
 		order by b.name
+		limit %(start)s, %(page_len)s
+		""",
+		params,
+	)
+
+
+@frappe.whitelist()
+@frappe.validate_and_sanitize_search_inputs
+def search_racks_for_batch_warehouse_item(
+	doctype: str,
+	txt: str,
+	searchfield: str,
+	start: int,
+	page_len: int,
+	filters: dict | None = None,
+) -> list[tuple[str]]:
+	"""Search active racks with positive balance for selected warehouse + batch (+ optional item)."""
+	del doctype, searchfield
+
+	filters = filters or {}
+	warehouse = cstr(filters.get("warehouse")).strip()
+	batch_no = cstr(filters.get("batch_no")).strip()
+	item = cstr(filters.get("item")).strip()
+
+	if not warehouse or not batch_no:
+		return []
+
+	params = {
+		"warehouse": warehouse,
+		"batch_no": batch_no,
+		"txt": f"%{cstr(txt).strip()}%",
+		"start": cint(start or 0),
+		"page_len": cint(page_len or 20),
+	}
+
+	item_condition = ""
+	if item:
+		item_condition = " and movement.item = %(item)s"
+		params["item"] = item
+
+	return frappe.db.sql(
+		f"""
+		select movement.rack
+		from (
+			select child.rack as rack, child.item as item, child.batch_no as batch_no,
+				child.warehouse as warehouse, sum(child.qty) as qty_delta
+			from `tabCold Storage Inward Item` child
+			inner join `tabCold Storage Inward` parent on parent.name = child.parent
+			where child.parenttype = 'Cold Storage Inward'
+				and parent.docstatus = 1
+				and ifnull(child.rack, '') != ''
+				and child.warehouse = %(warehouse)s
+				and child.batch_no = %(batch_no)s
+			group by child.rack, child.item, child.batch_no, child.warehouse
+
+			union all
+
+			select child.rack as rack, child.item as item, child.batch_no as batch_no,
+				child.warehouse as warehouse, -sum(child.qty) as qty_delta
+			from `tabCold Storage Outward Item` child
+			inner join `tabCold Storage Outward` parent on parent.name = child.parent
+			where child.parenttype = 'Cold Storage Outward'
+				and parent.docstatus = 1
+				and ifnull(child.rack, '') != ''
+				and child.warehouse = %(warehouse)s
+				and child.batch_no = %(batch_no)s
+			group by child.rack, child.item, child.batch_no, child.warehouse
+
+			union all
+
+			select child.source_rack as rack, child.item as item, child.batch_no as batch_no,
+				child.source_warehouse as warehouse, -sum(child.qty) as qty_delta
+			from `tabCold Storage Transfer Item` child
+			inner join `tabCold Storage Transfer` parent on parent.name = child.parent
+			where child.parenttype = 'Cold Storage Transfer'
+				and parent.docstatus = 1
+				and ifnull(child.source_rack, '') != ''
+				and child.source_warehouse = %(warehouse)s
+				and child.batch_no = %(batch_no)s
+			group by child.source_rack, child.item, child.batch_no, child.source_warehouse
+
+			union all
+
+			select child.target_rack as rack, child.item as item, child.batch_no as batch_no,
+				child.target_warehouse as warehouse, sum(child.qty) as qty_delta
+			from `tabCold Storage Transfer Item` child
+			inner join `tabCold Storage Transfer` parent on parent.name = child.parent
+			where child.parenttype = 'Cold Storage Transfer'
+				and parent.docstatus = 1
+				and ifnull(child.target_rack, '') != ''
+				and child.target_warehouse = %(warehouse)s
+				and child.batch_no = %(batch_no)s
+			group by child.target_rack, child.item, child.batch_no, child.target_warehouse
+		) movement
+		inner join `tabCold Storage Rack` csr on csr.name = movement.rack
+		where movement.warehouse = %(warehouse)s
+			and movement.batch_no = %(batch_no)s
+			and ifnull(csr.is_active, 0) = 1
+			and (
+				movement.rack like %(txt)s
+				or ifnull(csr.rack_code, '') like %(txt)s
+			)
+			{item_condition}
+		group by movement.rack
+		having sum(movement.qty_delta) > 0
+		order by ifnull(csr.rack_code, movement.rack), movement.rack
 		limit %(start)s, %(page_len)s
 		""",
 		params,
