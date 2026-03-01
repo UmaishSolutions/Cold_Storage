@@ -79,6 +79,19 @@ class ColdStorageInward(Document):
 
 		for row in self.items:
 			validate_warehouse_company(getattr(row, "warehouse", None), self.company, row_idx=row.idx)
+			if row.rack:
+				rack_warehouse = frappe.db.get_value("Cold Storage Rack", row.rack, "warehouse")
+				if not rack_warehouse:
+					frappe.throw(_("Row {0}: Rack {1} does not exist").format(row.idx, row.rack))
+				if rack_warehouse != row.warehouse:
+					frappe.throw(
+						_("Row {0}: Rack {1} does not belong to Warehouse {2}").format(
+							row.idx, row.rack, row.warehouse
+						)
+					)
+				rack_active = frappe.db.get_value("Cold Storage Rack", row.rack, "is_active")
+				if not rack_active:
+					frappe.throw(_("Row {0}: Rack {1} is inactive").format(row.idx, row.rack))
 
 			if not row.batch_no:
 				continue

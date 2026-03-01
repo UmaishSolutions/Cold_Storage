@@ -13,6 +13,23 @@ frappe.ui.form.on("Cold Storage Inward", {
 	        return { filters };
 	    });
 
+		frm.set_query("rack", "items", (doc, cdt, cdn) => {
+			const row = locals[cdt] && locals[cdt][cdn];
+			if (!row || !row.warehouse) {
+				return {
+					filters: {
+						name: "__no_rack__",
+					},
+				};
+			}
+			return {
+				filters: {
+					warehouse: row.warehouse,
+					is_active: 1,
+				},
+			};
+		});
+
 	    frm.set_query("batch_no", "items", (doc, cdt, cdn) => {
 	        const row = locals[cdt] && locals[cdt][cdn];
 	        const filters = {};
@@ -263,6 +280,7 @@ frappe.ui.form.on("Cold Storage Inward Item", {
 	},
 
 	warehouse(frm, cdt, cdn) {
+		frappe.model.set_value(cdt, cdn, "rack", "");
 		fetch_inward_available_qty(cdt, cdn);
 	},
 

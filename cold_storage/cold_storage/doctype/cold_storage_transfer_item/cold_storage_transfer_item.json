@@ -9,7 +9,9 @@
         "item_group",
         "batch_no",
         "source_warehouse",
+        "source_rack",
         "target_warehouse",
+        "target_rack",
         "column_break_item",
         "available_qty",
         "qty",
@@ -63,12 +65,26 @@
             "description": "Specify source warehouse."
         },
         {
+            "fieldname": "source_rack",
+            "fieldtype": "Data",
+            "in_list_view": 1,
+            "label": "Source Rack",
+            "description": "Optional source rack/location placeholder."
+        },
+        {
             "fieldname": "target_warehouse",
             "fieldtype": "Link",
             "in_list_view": 1,
             "label": "Target Warehouse",
             "options": "Warehouse",
             "description": "Specify target warehouse."
+        },
+        {
+            "fieldname": "target_rack",
+            "fieldtype": "Data",
+            "in_list_view": 1,
+            "label": "Target Rack",
+            "description": "Optional target rack/location placeholder."
         },
         {
             "fieldname": "column_break_item",

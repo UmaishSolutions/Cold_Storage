@@ -9,6 +9,7 @@
         "item_group",
         "batch_no",
         "warehouse",
+        "rack",
         "column_break_item",
         "available_qty",
         "qty",
@@ -60,6 +61,14 @@
             "options": "Warehouse",
             "reqd": 1,
             "description": "Specify warehouse."
+        },
+        {
+            "fieldname": "rack",
+            "fieldtype": "Link",
+            "in_list_view": 1,
+            "label": "Rack",
+            "options": "Cold Storage Rack",
+            "description": "Optional rack/location placeholder inside the selected warehouse."
         },
         {
             "fieldname": "column_break_item",

@@ -307,6 +307,7 @@ frappe.ui.form.on("Cold Storage Transfer Item", {
 	},
 
 	source_warehouse(frm, cdt, cdn) {
+		frappe.model.set_value(cdt, cdn, "source_rack", "");
 		if (frm.doc.transfer_type === "Intra-Warehouse Transfer") {
 			const row = locals[cdt][cdn];
 			const next_target = row.source_warehouse || "";
@@ -315,6 +316,10 @@ frappe.ui.form.on("Cold Storage Transfer Item", {
 			}
 		}
 		fetch_transfer_available_qty(cdt, cdn);
+	},
+
+	target_warehouse(frm, cdt, cdn) {
+		frappe.model.set_value(cdt, cdn, "target_rack", "");
 	},
 
     qty(frm, cdt, cdn) {
@@ -403,8 +408,10 @@ function apply_transfer_type_ui(frm) {
 		grid.update_docfield_property("transfer_rate", "hidden", 1);
 		grid.update_docfield_property("amount", "hidden", 1);
 		grid.update_docfield_property("source_warehouse", "hidden", 0);
+		grid.update_docfield_property("source_rack", "hidden", 0);
 		grid.update_docfield_property("source_warehouse", "reqd", 1);
 		grid.update_docfield_property("target_warehouse", "hidden", 1);
+		grid.update_docfield_property("target_rack", "hidden", 1);
 		grid.update_docfield_property("target_warehouse", "reqd", 0);
 		grid.update_docfield_property("target_warehouse", "read_only", 0);
 		frm.set_df_property("total_transfer_charges", "hidden", 1);
@@ -414,7 +421,9 @@ function apply_transfer_type_ui(frm) {
 	grid.update_docfield_property("transfer_rate", "hidden", 0);
 	grid.update_docfield_property("amount", "hidden", 0);
 	grid.update_docfield_property("source_warehouse", "hidden", 0);
+	grid.update_docfield_property("source_rack", "hidden", 0);
 	grid.update_docfield_property("target_warehouse", "hidden", 0);
+	grid.update_docfield_property("target_rack", "hidden", 0);
 	grid.update_docfield_property("source_warehouse", "reqd", 1);
 	grid.update_docfield_property("target_warehouse", "reqd", is_intra ? 0 : 1);
 	grid.update_docfield_property("target_warehouse", "read_only", is_intra ? 1 : 0);

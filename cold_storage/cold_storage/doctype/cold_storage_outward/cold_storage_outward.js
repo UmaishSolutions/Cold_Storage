@@ -284,6 +284,7 @@ frappe.ui.form.on("Cold Storage Outward Item", {
 	},
 
 	warehouse(frm, cdt, cdn) {
+		frappe.model.set_value(cdt, cdn, "rack", "");
 		fetch_outward_available_qty(cdt, cdn);
 	},
 

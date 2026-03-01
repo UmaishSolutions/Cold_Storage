@@ -13,7 +13,8 @@
  "idx": 0,
  "is_public": 0,
  "is_standard": 1,
- "modified": "2026-03-01 10:13:45.775083",
+ "last_synced_on": "2026-03-01 10:13:33.945778",
+ "modified": "2026-03-01 10:29:16.535730",
  "modified_by": "Administrator",
  "module": "Cold Storage",
  "name": "Client Portal Views",
@@ -22,6 +23,24 @@
  "roles": [
   {
    "role": "System Manager"
+  },
+  {
+   "role": "Cold Storage Admin"
+  },
+  {
+   "role": "Cold Storage Warehouse Manager"
+  },
+  {
+   "role": "Cold Storage Inbound Operator"
+  },
+  {
+   "role": "Cold Storage Inventory Controller"
+  },
+  {
+   "role": "Cold Storage Billing Executive"
+  },
+  {
+   "role": "Cold Storage Dispatch Operator"
   },
   {
    "role": "Stock Manager"

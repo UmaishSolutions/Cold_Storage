@@ -16,6 +16,8 @@ This app is built for warehouses that store goods on behalf of customers, run in
 - Ownership and capacity controls:
   - `Batch.custom_customer`
   - `Warehouse.custom_storage_capacity`
+  - Rack master support through `Cold Storage Rack` linked to each warehouse
+  - Inward rows can select rack only from the selected warehouse
 - Portal:
   - `/cs-portal` single-page portal UI
   - Server API in `cold_storage/api/client_portal.py`
@@ -144,9 +146,14 @@ bench --site <site-name> clear-cache
    - Transfer Expense Account
    - Charge configurations
 2. Set `Warehouse.custom_storage_capacity` for active warehouses.
-3. Assign Cold Storage role profiles to users.
-4. Configure portal users (customer-linked users/permissions).
-5. Optional: configure WhatsApp credentials and templates in settings.
+3. Create racks per warehouse from Warehouse form:
+   - **Create Cold Storage Rack** (single rack)
+   - **Create Cold Storage Racks** (bulk creation)
+   - Rack master is for in-warehouse location mapping only.
+   - Warehouse utilization and storage-capacity math remain unchanged.
+4. Assign Cold Storage role profiles to users.
+5. Configure portal users (customer-linked users/permissions).
+6. Optional: configure WhatsApp credentials and templates in settings.
 
 ## Operations commands
 

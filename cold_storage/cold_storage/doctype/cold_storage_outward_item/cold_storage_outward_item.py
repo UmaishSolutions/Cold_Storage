@@ -22,6 +22,7 @@ class ColdStorageOutwardItem(Document):
 		parentfield: DF.Data
 		parenttype: DF.Data
 		qty: DF.Float
+		rack: DF.Data | None
 		uom: DF.Link | None
 		warehouse: DF.Link | None
 

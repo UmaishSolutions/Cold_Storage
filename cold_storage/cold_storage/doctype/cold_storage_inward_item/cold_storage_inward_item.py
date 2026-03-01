@@ -20,6 +20,7 @@ class ColdStorageInwardItem(Document):
 		parentfield: DF.Data
 		parenttype: DF.Data
 		qty: DF.Float
+		rack: DF.Link | None
 		unloading_rate: DF.Currency
 		uom: DF.Link | None
 		warehouse: DF.Link | None

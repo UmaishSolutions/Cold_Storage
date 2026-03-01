@@ -14,6 +14,10 @@ required_apps = ["erpnext"]
 app_include_css = "/assets/cold_storage/css/cold_storage.css"
 app_include_js = "/assets/cold_storage/js/cold_storage.js"
 
+doctype_js = {
+	"Warehouse": "public/js/warehouse.js",
+}
+
 desktop_data = "cold_storage.config.desktop.get_data"
 
 add_to_apps_screen = [
