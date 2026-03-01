@@ -1,4 +1,5 @@
 {
+ "aggregate_function_based_on": "total_qty",
  "based_on": "",
  "chart_name": "Transfer Type Distribution",
  "chart_type": "Group By",
@@ -9,7 +10,7 @@
  "dynamic_filters_json": "[]",
  "filters_json": "[[\"Cold Storage Transfer\",\"docstatus\",\"=\",\"1\",false]]",
  "group_by_based_on": "transfer_type",
- "group_by_type": "Count",
+ "group_by_type": "Sum",
  "idx": 0,
  "is_public": 1,
  "is_standard": 1,

@@ -274,6 +274,26 @@ def _ensure_dashboard_chart_types() -> None:
 		frappe.cache.delete_key(f"chart-data:{chart_name}")
 
 
+def _ensure_transfer_type_distribution_chart() -> None:
+	"""Ensure Transfer Type Distribution shows summed transferred quantity by transfer type."""
+	if not frappe.db.exists("Dashboard Chart", "Transfer Type Distribution"):
+		return
+
+	frappe.db.set_value(
+		"Dashboard Chart",
+		"Transfer Type Distribution",
+		{
+			"chart_type": "Group By",
+			"group_by_based_on": "transfer_type",
+			"group_by_type": "Sum",
+			"aggregate_function_based_on": "total_qty",
+			"value_based_on": "",
+		},
+		update_modified=False,
+	)
+	frappe.cache.delete_key("chart-data:Transfer Type Distribution")
+
+
 def _ensure_top_customers_chart_source() -> None:
 	"""Ensure Top Customers chart is based on available stock (Customer Register)."""
 	if not frappe.db.exists("Dashboard Chart", "Top Customers"):
@@ -1340,6 +1360,7 @@ def after_install() -> None:
 	_ensure_website_view_tracking_enabled()
 	_ensure_batch_customizations()
 	_ensure_dashboard_chart_types()
+	_ensure_transfer_type_distribution_chart()
 	_ensure_top_customers_chart_source()
 	_ensure_client_portal_views_chart()
 	_ensure_non_currency_dashboard_charts()
@@ -1363,6 +1384,7 @@ def after_migrate() -> None:
 	_ensure_website_view_tracking_enabled()
 	_ensure_batch_customizations()
 	_ensure_dashboard_chart_types()
+	_ensure_transfer_type_distribution_chart()
 	_ensure_top_customers_chart_source()
 	_ensure_client_portal_views_chart()
 	_ensure_non_currency_dashboard_charts()
