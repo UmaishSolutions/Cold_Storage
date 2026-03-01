@@ -1,86 +1,87 @@
 {
-    "actions": [],
-    "creation": "2026-02-13 07:00:00.000000",
-    "doctype": "DocType",
-    "editable_grid": 1,
-    "engine": "InnoDB",
-    "field_order": [
-        "item_group",
-        "unloading_rate",
-        "handling_rate",
-        "loading_rate",
-        "column_break_rates",
-        "inter_warehouse_transfer_rate",
-        "intra_warehouse_transfer_rate"
-    ],
-    "fields": [
-        {
-            "fieldname": "item_group",
-            "fieldtype": "Link",
-            "in_list_view": 1,
-            "label": "Item Group",
-            "options": "Item Group",
-            "reqd": 1,
-            "description": "Specify item group."
-        },
-        {
-            "fieldname": "unloading_rate",
-            "fieldtype": "Currency",
-            "in_list_view": 1,
-            "label": "Unloading Rate",
-            "reqd": 1,
-            "description": "Specify unloading rate."
-        },
-        {
-            "fieldname": "handling_rate",
-            "fieldtype": "Currency",
-            "in_list_view": 1,
-            "label": "Handling Rate",
-            "reqd": 1,
-            "description": "Specify handling rate."
-        },
-        {
-            "fieldname": "loading_rate",
-            "fieldtype": "Currency",
-            "in_list_view": 1,
-            "label": "Loading Rate",
-            "reqd": 1,
-            "description": "Specify loading rate."
-        },
-        {
-            "fieldname": "column_break_rates",
-            "fieldtype": "Column Break"
-        },
-        {
-            "default": "0",
-            "fieldname": "inter_warehouse_transfer_rate",
-            "fieldtype": "Currency",
-            "in_list_view": 1,
-            "label": "Inter-Warehouse Transfer Rate",
-            "reqd": 1,
-            "description": "Specify inter-warehouse transfer rate."
-        },
-        {
-            "default": "0",
-            "fieldname": "intra_warehouse_transfer_rate",
-            "fieldtype": "Currency",
-            "in_list_view": 1,
-            "label": "Intra-Warehouse Transfer Rate",
-            "reqd": 1,
-            "description": "Specify intra-warehouse transfer rate."
-        }
-    ],
-    "index_web_pages_for_search": 0,
-    "istable": 1,
-    "links": [],
-    "modified": "2026-02-13 07:00:00.000000",
-    "modified_by": "Administrator",
-    "module": "Cold Storage",
-    "name": "Charge Configuration",
-    "naming_rule": "Random",
-    "owner": "Administrator",
-    "permissions": [],
-    "sort_field": "creation",
-    "sort_order": "DESC",
-    "states": []
+ "actions": [],
+ "creation": "2026-02-13 07:00:00",
+ "description": "Empower your sales team to negotiate diverse contracts. Define highly adaptable, item-group level service rates and recurring storage fees.",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "item_group",
+  "unloading_rate",
+  "handling_rate",
+  "loading_rate",
+  "column_break_rates",
+  "inter_warehouse_transfer_rate",
+  "intra_warehouse_transfer_rate"
+ ],
+ "fields": [
+  {
+   "description": "Specify item group.",
+   "fieldname": "item_group",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Item Group",
+   "options": "Item Group",
+   "reqd": 1
+  },
+  {
+   "description": "Specify unloading rate.",
+   "fieldname": "unloading_rate",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "Unloading Rate",
+   "reqd": 1
+  },
+  {
+   "description": "Specify handling rate.",
+   "fieldname": "handling_rate",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "Handling Rate",
+   "reqd": 1
+  },
+  {
+   "description": "Specify loading rate.",
+   "fieldname": "loading_rate",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "Loading Rate",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_rates",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "0",
+   "description": "Specify inter-warehouse transfer rate.",
+   "fieldname": "inter_warehouse_transfer_rate",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "Inter-Warehouse Transfer Rate",
+   "reqd": 1
+  },
+  {
+   "default": "0",
+   "description": "Specify intra-warehouse transfer rate.",
+   "fieldname": "intra_warehouse_transfer_rate",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "Intra-Warehouse Transfer Rate",
+   "reqd": 1
+  }
+ ],
+ "istable": 1,
+ "links": [],
+ "modified": "2026-03-01 14:07:11.101669",
+ "modified_by": "Administrator",
+ "module": "Cold Storage",
+ "name": "Charge Configuration",
+ "naming_rule": "Random",
+ "owner": "Administrator",
+ "permissions": [],
+ "row_format": "Dynamic",
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": []
 }

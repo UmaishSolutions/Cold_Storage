@@ -1,199 +1,197 @@
 {
-    "actions": [],
-    "allow_rename": 0,
-    "amend_after_cancel": 1,
-    "autoname": "naming_series:",
-    "creation": "2026-02-13 07:00:00.000000",
-    "default_print_format": "Cold Storage Outward Half A4",
-    "doctype": "DocType",
-    "engine": "InnoDB",
-    "field_order": [
-        "naming_series",
-        "company",
-        "customer",
-        "posting_date",
-        "column_break_main",
-        "total_qty",
-        "total_charges",
-        "items_section",
-        "items",
-        "remarks_section",
-        "remarks",
-        "references_section",
-        "sales_invoice",
-        "stock_entry",
-        "amended_from",
-        "submitted_qr_code_data_uri"
-    ],
-    "fields": [
-        {
-            "fieldname": "company",
-            "fieldtype": "Link",
-            "label": "Company",
-            "options": "Company",
-            "read_only": 1,
-            "reqd": 1,
-            "description": "Displays company."
-        },
-        {
-            "fieldname": "naming_series",
-            "fieldtype": "Select",
-            "label": "Naming Series",
-            "options": "CS-OUT-.YYYY.-",
-            "reqd": 1,
-            "set_only_once": 1,
-            "description": "Specify naming series."
-        },
-        {
-            "fieldname": "customer",
-            "fieldtype": "Link",
-            "in_list_view": 1,
-            "in_standard_filter": 1,
-            "label": "Customer",
-            "options": "Customer",
-            "reqd": 1,
-            "description": "Specify customer."
-        },
-        {
-            "default": "Today",
-            "fieldname": "posting_date",
-            "fieldtype": "Date",
-            "label": "Posting Date",
-            "reqd": 1,
-            "description": "Specify posting date."
-        },
-        {
-            "fieldname": "column_break_main",
-            "fieldtype": "Column Break"
-        },
-        {
-            "fieldname": "total_qty",
-            "fieldtype": "Float",
-            "label": "Total Quantity",
-            "read_only": 1,
-            "description": "Displays total quantity."
-        },
-        {
-            "fieldname": "total_charges",
-            "fieldtype": "Currency",
-            "label": "Total Charges",
-            "read_only": 1,
-            "description": "Displays total charges."
-        },
-        {
-            "fieldname": "items_section",
-            "fieldtype": "Section Break",
-            "label": "Items",
-            "description": "Section for items details."
-        },
-        {
-            "fieldname": "items",
-            "fieldtype": "Table",
-            "label": "Items",
-            "options": "Cold Storage Outward Item",
-            "reqd": 1,
-            "editable_grid": 1,
-            "description": "Child table for items."
-        },
-        {
-            "fieldname": "remarks_section",
-            "fieldtype": "Section Break",
-            "label": "Remarks",
-            "description": "Section for remarks details."
-        },
-        {
-            "fieldname": "remarks",
-            "fieldtype": "Small Text",
-            "label": "Remarks",
-            "description": "Specify remarks."
-        },
-        {
-            "fieldname": "references_section",
-            "fieldtype": "Section Break",
-            "label": "References",
-            "description": "Section for references details."
-        },
-        {
-            "fieldname": "sales_invoice",
-            "fieldtype": "Link",
-            "label": "Sales Invoice",
-            "no_copy": 1,
-            "options": "Sales Invoice",
-            "read_only": 1,
-            "description": "Displays sales invoice."
-        },
-        {
-            "fieldname": "stock_entry",
-            "fieldtype": "Link",
-            "label": "Stock Entry",
-            "no_copy": 1,
-            "options": "Stock Entry",
-            "read_only": 1,
-            "description": "Displays stock entry."
-        },
-        {
-            "fieldname": "amended_from",
-            "fieldtype": "Link",
-            "label": "Amended From",
-            "no_copy": 1,
-            "options": "Cold Storage Outward",
-            "print_hide": 1,
-            "read_only": 1,
-            "description": "Displays amended from."
-        },
-        {
-            "fieldname": "submitted_qr_code_data_uri",
-            "fieldtype": "Small Text",
-            "hidden": 1,
-            "label": "Submitted QR Code Data URI",
-            "no_copy": 1,
-            "read_only": 1,
-            "description": "Displays submitted qr code data uri."
-        }
-    ],
-    "index_web_pages_for_search": 0,
-    "is_submittable": 1,
-    "links": [],
-    "modified": "2026-02-13 08:10:00.000000",
-    "modified_by": "Administrator",
-    "module": "Cold Storage",
-    "name": "Cold Storage Outward",
-    "naming_rule": "By \"Naming Series\" field",
-    "owner": "Administrator",
-    "permissions": [
-        {
-            "amend": 1,
-            "cancel": 1,
-            "create": 1,
-            "delete": 1,
-            "email": 1,
-            "export": 1,
-            "print": 1,
-            "read": 1,
-            "report": 1,
-            "role": "System Manager",
-            "share": 1,
-            "submit": 1,
-            "write": 1
-        },
-        {
-            "amend": 1,
-            "cancel": 1,
-            "create": 1,
-            "email": 1,
-            "export": 1,
-            "print": 1,
-            "read": 1,
-            "report": 1,
-            "role": "Stock Manager",
-            "share": 1,
-            "submit": 1,
-            "write": 1
-        }
-    ],
-    "sort_field": "creation",
-    "sort_order": "DESC",
-    "states": [],
-    "title_field": "customer",
-    "track_changes": 1
+ "actions": [],
+ "autoname": "naming_series:",
+ "creation": "2026-02-13 07:00:00",
+ "default_print_format": "Cold Storage Outward Half A4",
+ "description": "Dispatch goods with zero margin for error. The outward process utilizes a strict, system-enforced batch-level validation matrix, absolutely ensuring that your floor staff only picks, packs, and dispatches inventory that definitively belongs to the requesting customer.",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "naming_series",
+  "company",
+  "customer",
+  "posting_date",
+  "column_break_main",
+  "total_qty",
+  "total_charges",
+  "items_section",
+  "items",
+  "remarks_section",
+  "remarks",
+  "references_section",
+  "sales_invoice",
+  "stock_entry",
+  "amended_from",
+  "submitted_qr_code_data_uri"
+ ],
+ "fields": [
+  {
+   "description": "Displays company.",
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "label": "Company",
+   "options": "Company",
+   "read_only": 1,
+   "reqd": 1
+  },
+  {
+   "description": "Specify naming series.",
+   "fieldname": "naming_series",
+   "fieldtype": "Select",
+   "label": "Naming Series",
+   "options": "CS-OUT-.YYYY.-",
+   "reqd": 1,
+   "set_only_once": 1
+  },
+  {
+   "description": "Defines who the goods belong to.",
+   "fieldname": "customer",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Customer",
+   "options": "Customer",
+   "reqd": 1
+  },
+  {
+   "default": "Today",
+   "description": "Specify posting date.",
+   "fieldname": "posting_date",
+   "fieldtype": "Date",
+   "label": "Posting Date",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_main",
+   "fieldtype": "Column Break"
+  },
+  {
+   "description": "Displays total quantity.",
+   "fieldname": "total_qty",
+   "fieldtype": "Float",
+   "label": "Total Quantity",
+   "read_only": 1
+  },
+  {
+   "description": "Displays total charges.",
+   "fieldname": "total_charges",
+   "fieldtype": "Currency",
+   "label": "Total Charges",
+   "read_only": 1
+  },
+  {
+   "description": "Section for items details.",
+   "fieldname": "items_section",
+   "fieldtype": "Section Break",
+   "label": "Items"
+  },
+  {
+   "description": "Child table for items.",
+   "fieldname": "items",
+   "fieldtype": "Table",
+   "label": "Items",
+   "options": "Cold Storage Outward Item",
+   "reqd": 1
+  },
+  {
+   "description": "Section for remarks details.",
+   "fieldname": "remarks_section",
+   "fieldtype": "Section Break",
+   "label": "Remarks"
+  },
+  {
+   "description": "Specify remarks.",
+   "fieldname": "remarks",
+   "fieldtype": "Small Text",
+   "label": "Remarks"
+  },
+  {
+   "description": "Section for references details.",
+   "fieldname": "references_section",
+   "fieldtype": "Section Break",
+   "label": "References"
+  },
+  {
+   "description": "Displays sales invoice.",
+   "fieldname": "sales_invoice",
+   "fieldtype": "Link",
+   "label": "Sales Invoice",
+   "no_copy": 1,
+   "options": "Sales Invoice",
+   "read_only": 1
+  },
+  {
+   "description": "Displays stock entry.",
+   "fieldname": "stock_entry",
+   "fieldtype": "Link",
+   "label": "Stock Entry",
+   "no_copy": 1,
+   "options": "Stock Entry",
+   "read_only": 1
+  },
+  {
+   "description": "Displays amended from.",
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Cold Storage Outward",
+   "print_hide": 1,
+   "read_only": 1
+  },
+  {
+   "description": "Displays submitted qr code data uri.",
+   "fieldname": "submitted_qr_code_data_uri",
+   "fieldtype": "Small Text",
+   "hidden": 1,
+   "label": "Submitted QR Code Data URI",
+   "no_copy": 1,
+   "read_only": 1
+  }
+ ],
+ "is_submittable": 1,
+ "links": [],
+ "modified": "2026-03-01 14:07:11.064267",
+ "modified_by": "Administrator",
+ "module": "Cold Storage",
+ "name": "Cold Storage Outward",
+ "naming_rule": "By \"Naming Series\" field",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "amend": 1,
+   "cancel": 1,
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "submit": 1,
+   "write": 1
+  },
+  {
+   "amend": 1,
+   "cancel": 1,
+   "create": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Stock Manager",
+   "share": 1,
+   "submit": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "title_field": "customer",
+ "track_changes": 1
 }
