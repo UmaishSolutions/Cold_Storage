@@ -38,3 +38,6 @@ bench --site <site-name> run-tests --app cold_storage
 - Include tests for behavior changes.
 - Document any new setup, fixtures, or patches.
 - Ensure CI is green before requesting review.
+- Target `develop` unless maintainers ask for a different base branch.
+- Link related issues and include clear validation notes in the PR description.
+- Follow the project `CODE_OF_CONDUCT.md`.

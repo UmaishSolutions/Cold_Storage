@@ -61,3 +61,16 @@ Before push, confirm:
 - New DocType/client script files are included.
 - README/CONTRIBUTING updates are included for any user-facing behavior changes.
 - CI workflows are present in `.github/workflows/`.
+
+## 7) Repository Settings on GitHub
+
+- Set the default branch (`main` or `develop`) and protect it.
+- Require pull requests and required checks (`CI`, `Linters`) before merge.
+- Enable Dependabot alerts/security updates.
+- Enable secret scanning and push protection (if available).
+- Confirm community health files are recognized:
+  - `README.md`
+  - `LICENSE`
+  - `CONTRIBUTING.md`
+  - `SECURITY.md`
+  - `CODE_OF_CONDUCT.md`
