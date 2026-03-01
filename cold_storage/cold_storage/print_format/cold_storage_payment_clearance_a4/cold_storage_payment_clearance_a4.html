@@ -1,0 +1,813 @@
+{% set qr_data_uri = get_document_qr_code_data_uri(doc.doctype, doc.name) %}
+{% set company_logo = frappe.db.get_value("Company", doc.company, "company_logo") if doc.company else None %}
+{% set header_logo = company_logo or "/assets/cold_storage/images/cold-storage-logo.svg" %}
+{% set company_address_row = frappe.db.sql(
+	"""
+		SELECT CONCAT_WS(
+			', ',
+			NULLIF(TRIM(a.address_line1), ''),
+			NULLIF(TRIM(a.address_line2), ''),
+			NULLIF(TRIM(a.city), ''),
+			NULLIF(TRIM(a.state), ''),
+			NULLIF(TRIM(a.pincode), '')
+		) AS one_line
+		FROM `tabAddress` a
+		INNER JOIN `tabDynamic Link` dl
+			ON dl.parent = a.name
+			AND dl.parenttype = 'Address'
+		WHERE dl.link_doctype = 'Company'
+			AND dl.link_name = %s
+		ORDER BY a.is_primary_address DESC, a.modified DESC
+		LIMIT 1
+	""",
+	(doc.company,),
+	as_dict=1
+) if doc.company else [] %}
+{% set company_address_line = company_address_row[0].one_line if company_address_row and company_address_row[0].one_line else "-" %}
+{% set company_phone = frappe.db.get_value("Company", doc.company, "phone_no") if doc.company else None %}
+{% set amount_in_words_urdu = doc.get("custom_amount_in_words_urdu") %}
+{% set remark_amount_words = amount_in_words_urdu or doc.get("in_words") or doc.get("base_in_words") %}
+{% set storage_terms_and_conditions = frappe.db.get_single_value("Cold Storage Settings", "storage_terms_and_conditions") %}
+{% set remark_amount = frappe.utils.flt(doc.received_amount or doc.paid_amount or doc.total_allocated_amount) %}
+{% set remark_party = doc.party or "-" %}
+{% if doc.payment_type == "Receive" %}
+	{% set payment_remark_summary = "Received " ~ "{:,.2f}".format(remark_amount) ~ " from " ~ remark_party %}
+{% elif doc.payment_type == "Pay" %}
+	{% set payment_remark_summary = "Paid " ~ "{:,.2f}".format(remark_amount) ~ " to " ~ remark_party %}
+{% else %}
+	{% set payment_remark_summary = "Amount " ~ "{:,.2f}".format(remark_amount) ~ " against " ~ remark_party %}
+{% endif %}
+{% if remark_amount_words %}
+	{% set payment_remark_summary = payment_remark_summary ~ " (" ~ remark_amount_words ~ ")" %}
+{% endif %}
+
+{% set totals = namespace(invoice_total=0, outstanding_before=0, allocated=0, remaining=0, full=0, partial=0, count=0) %}
+{% for row in (doc.references or []) %}
+	{% if row.reference_name %}
+		{% set ref_doctype = (row.reference_doctype or "").strip() %}
+		{% set ref_total = namespace(value=frappe.utils.flt(row.total_amount)) %}
+		{% set paid_now = frappe.utils.flt(row.allocated_amount) %}
+		{% set outstanding_before = namespace(value=frappe.utils.flt(row.outstanding_amount)) %}
+		{% set remaining_amount = namespace(value=0) %}
+
+		{% if ref_doctype and ref_total.value <= 0 %}
+			{% set ref_meta = frappe.get_meta(ref_doctype) %}
+			{% if ref_meta and ref_meta.has_field("rounded_total") %}
+				{% set fetched_total = frappe.db.get_value(ref_doctype, row.reference_name, "rounded_total") %}
+				{% if fetched_total and frappe.utils.flt(fetched_total) > 0 %}
+					{% set ref_total.value = frappe.utils.flt(fetched_total) %}
+				{% endif %}
+			{% endif %}
+			{% if ref_total.value <= 0 and ref_meta and ref_meta.has_field("base_rounded_total") %}
+				{% set fetched_total = frappe.db.get_value(ref_doctype, row.reference_name, "base_rounded_total") %}
+				{% if fetched_total and frappe.utils.flt(fetched_total) > 0 %}
+					{% set ref_total.value = frappe.utils.flt(fetched_total) %}
+				{% endif %}
+			{% endif %}
+			{% if ref_total.value <= 0 and ref_meta and ref_meta.has_field("grand_total") %}
+				{% set fetched_total = frappe.db.get_value(ref_doctype, row.reference_name, "grand_total") %}
+				{% if fetched_total and frappe.utils.flt(fetched_total) > 0 %}
+					{% set ref_total.value = frappe.utils.flt(fetched_total) %}
+				{% endif %}
+			{% endif %}
+			{% if ref_total.value <= 0 and ref_meta and ref_meta.has_field("base_grand_total") %}
+				{% set fetched_total = frappe.db.get_value(ref_doctype, row.reference_name, "base_grand_total") %}
+				{% if fetched_total and frappe.utils.flt(fetched_total) > 0 %}
+					{% set ref_total.value = frappe.utils.flt(fetched_total) %}
+				{% endif %}
+			{% endif %}
+		{% endif %}
+
+		{% if ref_doctype and doc.docstatus == 1 %}
+			{% set ref_meta = frappe.get_meta(ref_doctype) %}
+			{% if ref_meta and ref_meta.has_field("outstanding_amount") %}
+				{% set current_outstanding = frappe.db.get_value(ref_doctype, row.reference_name, "outstanding_amount") %}
+				{% if current_outstanding is not none %}
+					{% set remaining_amount.value = frappe.utils.flt(current_outstanding) %}
+					{% set outstanding_before.value = remaining_amount.value + paid_now %}
+				{% endif %}
+			{% endif %}
+		{% endif %}
+
+		{% if remaining_amount.value == 0 %}
+			{% set remaining_amount.value = outstanding_before.value - paid_now %}
+		{% endif %}
+		{% if remaining_amount.value < 0 %}
+			{% set remaining_amount.value = 0 %}
+		{% endif %}
+		{% if outstanding_before.value < paid_now %}
+			{% set outstanding_before.value = paid_now %}
+		{% endif %}
+
+		{% set totals.invoice_total = totals.invoice_total + ref_total.value %}
+		{% set totals.outstanding_before = totals.outstanding_before + outstanding_before.value %}
+		{% set totals.allocated = totals.allocated + paid_now %}
+		{% set totals.remaining = totals.remaining + remaining_amount.value %}
+		{% set totals.count = totals.count + 1 %}
+		{% if paid_now > 0 and remaining_amount.value == 0 %}
+			{% set totals.full = totals.full + 1 %}
+		{% elif paid_now > 0 %}
+			{% set totals.partial = totals.partial + 1 %}
+		{% endif %}
+	{% endif %}
+{% endfor %}
+
+{% set customer_total_outstanding_before = namespace(value=frappe.utils.flt(totals.outstanding_before)) %}
+{% if doc.party_type == "Customer" and doc.party and doc.company %}
+	{% set customer_current_outstanding = frappe.db.sql(
+		"""
+			SELECT COALESCE(SUM(outstanding_amount), 0)
+			FROM `tabSales Invoice`
+			WHERE docstatus = 1
+				AND company = %s
+				AND customer = %s
+				AND posting_date <= %s
+		""",
+		(doc.company, doc.party, doc.posting_date),
+		as_list=1
+	) %}
+	{% if customer_current_outstanding and customer_current_outstanding[0] %}
+		{% set customer_total_outstanding_before.value = frappe.utils.flt(customer_current_outstanding[0][0]) %}
+	{% endif %}
+	{% if doc.docstatus == 1 and doc.payment_type == "Receive" %}
+		{% set customer_total_outstanding_before.value = customer_total_outstanding_before.value + frappe.utils.flt(doc.total_allocated_amount) %}
+	{% endif %}
+{% endif %}
+
+<style>
+	@page {
+		size: A5 portrait;
+		margin: 0.17in;
+	}
+
+	:root {
+		--cp-bg-1: #f8fafc;
+		--cp-bg-2: #eff6ff;
+		--cp-surface: #ffffff;
+		--cp-border: #dbe4f0;
+		--cp-headline: #0f172a;
+		--cp-copy: #334155;
+		--cp-muted: #64748b;
+		--cp-accent: #1d4ed8;
+		--cp-accent-2: #1e40af;
+		--cp-highlight: #f59e0b;
+		--cp-success: #16a34a;
+		--cp-danger: #dc2626;
+		--cp-shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.08);
+		--cp-shadow-lg: 0 14px 26px rgba(15, 23, 42, 0.10), 0 4px 10px rgba(15, 23, 42, 0.06);
+	}
+
+	.cp-sheet,
+	.cp-sheet * {
+		-webkit-print-color-adjust: exact;
+		print-color-adjust: exact;
+	}
+
+	.cp-sheet {
+		font-family: "Manrope", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+		color: var(--cp-headline);
+		background: linear-gradient(180deg, #ffffff 0%, var(--cp-bg-1) 70%, var(--cp-bg-2) 100%);
+		border: 1px solid #d7e1e8;
+		border-radius: 14px;
+		overflow: hidden;
+		box-shadow: var(--cp-shadow-lg);
+		min-height: calc(8.27in - 0.34in);
+	}
+
+	.cp-sheet::before {
+		content: "";
+		display: block;
+		height: 3px;
+		background: linear-gradient(90deg, var(--cp-accent) 0%, var(--cp-highlight) 50%, var(--cp-success) 100%);
+	}
+
+	.cp-head {
+		position: relative;
+		overflow: hidden;
+		background: linear-gradient(135deg, #0f172a 0%, var(--cp-accent-2) 65%, #1e3a8a 100%);
+		color: #f8fafc;
+		padding: 10px 12px;
+		min-height: 132px;
+		border-bottom: 1px solid rgba(191, 219, 254, 0.25);
+	}
+
+	.cp-head-main {
+		padding: 0 166px;
+		text-align: center;
+	}
+
+	.cp-company-name {
+		margin-top: 2px;
+		font-family: "Sora", "Manrope", "Segoe UI", sans-serif;
+		font-size: 22px;
+		font-weight: 700;
+		color: #dbeafe;
+	}
+
+	.cp-company-address,
+	.cp-company-number {
+		margin-top: 1px;
+		font-size: 8.5px;
+		font-weight: 600;
+		color: #bfdbfe;
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
+	}
+
+	.cp-title {
+		display: inline-block;
+		margin: 4px 0 0;
+		padding: 2px 10px;
+		font-family: "Sora", "Manrope", "Segoe UI", sans-serif;
+		font-size: 15px;
+		font-weight: 700;
+		border: 1px solid rgba(251, 191, 36, 0.65);
+		border-radius: 999px;
+		background: linear-gradient(180deg, rgba(245, 158, 11, 0.30) 0%, rgba(245, 158, 11, 0.14) 100%);
+		color: #fffbeb;
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
+	}
+
+	.cp-subtitle {
+		margin-top: 4px;
+		font-size: 10px;
+		font-weight: 600;
+		letter-spacing: 0.02em;
+		color: #dbeafe;
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
+	}
+
+	.cp-logo,
+	.cp-qr {
+		position: absolute;
+		top: 0;
+		width: 152px;
+		height: 132px;
+		background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+		border: 1px solid #cbd5e1;
+		border-radius: 12px;
+		padding: 6px;
+		box-sizing: border-box;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		box-shadow: 0 6px 14px rgba(15, 23, 42, 0.16), 0 1px 2px rgba(15, 23, 42, 0.08);
+	}
+
+	.cp-logo { left: 10px; }
+	.cp-qr { right: 10px; width: 132px; }
+
+	.cp-logo img,
+	.cp-qr img {
+		max-width: 100%;
+		max-height: 100%;
+		object-fit: contain;
+		display: block;
+	}
+
+	.cp-body {
+		padding: 9px 11px 10px;
+	}
+
+	.cp-grid {
+		display: grid;
+		grid-template-columns: 1fr 1fr;
+		gap: 7px 10px;
+		margin-bottom: 9px;
+	}
+
+	.cp-card {
+		background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+		border: 1px solid var(--cp-border);
+		border-radius: 9px;
+		padding: 5px 8px;
+		box-shadow: var(--cp-shadow-sm);
+	}
+
+	.cp-inline-field {
+		display: flex;
+		align-items: center;
+		gap: 6px;
+		min-width: 0;
+		white-space: nowrap;
+	}
+
+	.cp-inline-field .cp-label {
+		flex: 0 0 auto;
+		margin: 0;
+	}
+
+	.cp-inline-field .cp-value {
+		flex: 1 1 auto;
+		min-width: 0;
+	}
+
+	.cp-label {
+		display: block;
+		font-size: 8px;
+		text-transform: uppercase;
+		letter-spacing: 0.06em;
+		font-weight: 700;
+		color: var(--cp-muted);
+	}
+
+	.cp-value {
+		font-size: 11px;
+		font-weight: 700;
+		color: var(--cp-headline);
+		display: block;
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
+	}
+
+	.cp-summary {
+		display: grid;
+		grid-template-columns: repeat(4, 1fr);
+		gap: 7px 8px;
+		margin: 3px 0 9px;
+	}
+
+	.cp-chip {
+		border: 1px solid #cfe0ff;
+		background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+		border-radius: 8px;
+		padding: 5px 6px;
+		font-size: 10px;
+		font-weight: 700;
+		color: #1e3a8a;
+		text-align: center;
+	}
+
+	.cp-table {
+		width: 100%;
+		border-collapse: collapse;
+		border-radius: 8px;
+		overflow: hidden;
+		background: #ffffff;
+		border: 1px solid var(--cp-border);
+		box-shadow: var(--cp-shadow-sm);
+	}
+
+	.cp-table th {
+		background: linear-gradient(180deg, #dbeafe 0%, #bfdbfe 100%);
+		color: #1e3a8a;
+		font-size: 8.3px;
+		font-weight: 800;
+		text-transform: uppercase;
+		letter-spacing: 0.05em;
+		padding: 5px 4px;
+		border: 1px solid #c7d6f7;
+	}
+
+	.cp-table td {
+		font-size: 10px;
+		padding: 4px;
+		border: 1px solid #e2e8f0;
+		color: var(--cp-copy);
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
+	}
+
+	.cp-table tbody tr:nth-child(even) td {
+		background: #f8fbff;
+	}
+
+	.cp-right { text-align: right; }
+	.cp-center { text-align: center; }
+
+	.cp-badge {
+		display: inline-block;
+		padding: 1px 6px;
+		border-radius: 999px;
+		font-size: 9px;
+		font-weight: 800;
+		letter-spacing: 0.02em;
+	}
+
+	.cp-badge-full {
+		background: #dcfce7;
+		color: #166534;
+		border: 1px solid #86efac;
+	}
+
+	.cp-badge-partial {
+		background: #fef3c7;
+		color: #92400e;
+		border: 1px solid #fcd34d;
+	}
+
+	.cp-badge-none {
+		background: #fee2e2;
+		color: #991b1b;
+		border: 1px solid #fca5a5;
+	}
+
+	.cp-foot {
+		margin-top: 8px;
+		display: flex;
+		justify-content: space-between;
+		gap: 10px;
+	}
+
+	.cp-note-stack {
+		flex: 1;
+		display: grid;
+		gap: 6px;
+	}
+
+	.cp-note {
+		padding: 6px 8px;
+		border: 1px solid #d9e4ec;
+		border-left: 4px solid var(--cp-highlight);
+		border-radius: 8px;
+		background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+		font-size: 15px;
+		color: var(--cp-copy);
+		font-family: "Jameel Noori Nastaleeq", "Noto Nastaliq Urdu", "Noto Naskh Arabic", serif;
+		direction: rtl;
+		unicode-bidi: plaintext;
+		text-align: right;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		line-height: 1.5;
+	}
+
+	.cp-note-remarks {
+		font-size: 10px;
+		font-family: "Manrope", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+		direction: ltr;
+		unicode-bidi: normal;
+		text-align: left;
+		white-space: normal;
+		word-break: break-word;
+		overflow-wrap: anywhere;
+		line-height: 1.3;
+	}
+
+	.cp-terms-full {
+		margin-top: 8px;
+		margin-bottom: 0;
+		width: 100%;
+		padding: 6px 8px;
+		border: 1px solid #d9e4ec;
+		border-left: 4px solid var(--cp-highlight);
+		border-radius: 8px;
+		background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+		font-size: 12px;
+		font-family: "Jameel Noori Nastaleeq", "Noto Nastaliq Urdu", "Noto Naskh Arabic", serif;
+		direction: rtl;
+		unicode-bidi: plaintext;
+		text-align: right;
+		white-space: normal;
+		word-break: break-word;
+		overflow-wrap: anywhere;
+		line-height: 1.5;
+	}
+
+	.cp-sign-gap {
+		height: 72px;
+	}
+
+	.cp-total-box {
+		min-width: 320px;
+		border: 1px solid #cfe0ff;
+		border-radius: 8px;
+		padding: 6px 8px;
+		background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+		font-size: 11px;
+		font-weight: 700;
+		color: #1e3a8a;
+	}
+
+	.cp-total-row {
+		display: flex;
+		justify-content: space-between;
+		gap: 10px;
+		white-space: nowrap;
+	}
+
+	.cp-total-main {
+		margin-top: 3px;
+		padding-top: 3px;
+		border-top: 1px solid rgba(30, 58, 138, 0.35);
+	}
+
+	.cp-signatures {
+		display: grid;
+		grid-template-columns: 1fr 1fr;
+		gap: 10px;
+		margin-top: 10px;
+	}
+
+	.cp-sign {
+		font-size: 10px;
+		font-weight: 600;
+		color: var(--cp-copy);
+		border-top: 1.5px dashed #94a3b8;
+		padding-top: 3px;
+		text-align: center;
+	}
+
+	.cp-print-repeat-header,
+	.cp-print-repeat-footer {
+		display: none;
+	}
+
+	@media print {
+		.cp-print-repeat-header,
+		.cp-print-repeat-footer {
+			display: block;
+			position: fixed;
+			left: 0.17in;
+			right: 0.17in;
+			z-index: 999;
+		}
+
+		.cp-print-repeat-header {
+			top: 0.17in;
+			padding: 5px 8px;
+			border: 1px solid #c7d6f7;
+			border-radius: 8px;
+			background: linear-gradient(180deg, #eff6ff 0%, #dbeafe 100%);
+			font-size: 9px;
+			font-weight: 700;
+			color: #1e3a8a;
+			display: grid;
+			grid-template-columns: 1fr 1fr;
+			gap: 8px;
+		}
+
+		.cp-print-repeat-header .cp-inline-field {
+			gap: 4px;
+		}
+
+		.cp-print-repeat-header .cp-label {
+			font-size: 8px;
+			color: #1e3a8a;
+		}
+
+		.cp-print-repeat-header .cp-value {
+			font-size: 9px;
+			color: #0f172a;
+		}
+
+		.cp-print-repeat-footer {
+			bottom: 0.17in;
+			padding-top: 4px;
+			background: #ffffff;
+		}
+
+		.cp-print-terms {
+			padding: 5px 8px;
+			border: 1px solid #d9e4ec;
+			border-left: 4px solid var(--cp-highlight);
+			border-radius: 8px;
+			background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+			font-size: 11px;
+			font-family: "Jameel Noori Nastaleeq", "Noto Nastaliq Urdu", "Noto Naskh Arabic", serif;
+			direction: rtl;
+			unicode-bidi: plaintext;
+			text-align: right;
+			line-height: 1.35;
+			max-height: 62px;
+			overflow: hidden;
+			word-break: break-word;
+			overflow-wrap: anywhere;
+		}
+
+		.cp-print-signatures {
+			margin-top: 6px;
+			display: grid;
+			grid-template-columns: 1fr 1fr;
+			gap: 12px;
+		}
+
+		.cp-print-sign {
+			font-size: 9px;
+			font-weight: 600;
+			color: #334155;
+			border-top: 1px dashed #94a3b8;
+			padding-top: 2px;
+			text-align: center;
+		}
+
+		.cp-page-number {
+			margin-top: 3px;
+			text-align: center;
+			font-size: 8px;
+			font-weight: 700;
+			color: #64748b;
+		}
+
+		.cp-page-number::after {
+			content: "Page " counter(page) " of " counter(pages) " | Original / Duplicate Payment Receipt";
+		}
+
+		.cp-grid {
+			display: none;
+		}
+
+		.cp-body {
+			padding-top: 56px;
+			padding-bottom: 146px;
+		}
+
+		.cp-terms-full,
+		.cp-sign-gap,
+		.cp-signatures {
+			display: none;
+		}
+	}
+</style>
+
+<div class="cp-sheet">
+	<div class="cp-print-repeat-header">
+		<div class="cp-inline-field">
+			<span class="cp-label">Party</span>
+			<span class="cp-value">{{ doc.party or "-" }}</span>
+		</div>
+		<div class="cp-inline-field">
+			<span class="cp-label">Posting Date</span>
+			<span class="cp-value">{{ frappe.utils.format_date(doc.posting_date) if doc.posting_date else "-" }}</span>
+		</div>
+	</div>
+
+	<div class="cp-head">
+		{% if header_logo %}
+		<div class="cp-logo">
+			<img src="{{ header_logo }}" alt="{{ doc.company or 'Company' }} Logo" />
+		</div>
+		{% endif %}
+
+		<div class="cp-head-main">
+			<div class="cp-company-name">{{ doc.company or "-" }}</div>
+			<div class="cp-company-address">{{ company_address_line }}</div>
+			<div class="cp-company-number">Phone: {{ company_phone or "-" }}</div>
+			<h2 class="cp-title">Payment Clearance Statement</h2>
+			<div class="cp-subtitle">Voucher: {{ doc.name }} | {{ doc.payment_type or "Payment" }}</div>
+		</div>
+
+		<div class="cp-qr">
+			{% if qr_data_uri %}
+			<img src="{{ qr_data_uri }}" alt="Document QR Code" />
+			{% endif %}
+		</div>
+	</div>
+
+	<div class="cp-body">
+		<div class="cp-grid">
+			<div class="cp-card">
+				<div class="cp-inline-field">
+					<span class="cp-label">Party</span>
+					<span class="cp-value">{{ doc.party or "-" }}</span>
+				</div>
+			</div>
+			<div class="cp-card">
+				<div class="cp-inline-field">
+					<span class="cp-label">Posting Date</span>
+					<span class="cp-value">{{ frappe.utils.format_date(doc.posting_date) if doc.posting_date else "-" }}</span>
+				</div>
+			</div>
+		</div>
+
+		<table class="cp-table">
+			<thead>
+				<tr>
+					<th style="width: 4%;">#</th>
+					<th style="width: 26%;">Invoice No</th>
+					<th style="width: 16%;" class="cp-right">Invoice Total</th>
+					<th style="width: 17%;" class="cp-right">Outstanding</th>
+					<th style="width: 15%;" class="cp-right">Paid Now</th>
+					<th style="width: 14%;" class="cp-center">Status</th>
+					<th style="width: 12%;" class="cp-right">Remaining</th>
+				</tr>
+			</thead>
+				<tbody>
+					{% for row in (doc.references or []) %}
+					{% if row.reference_name %}
+					{% set ref_doctype = (row.reference_doctype or "").strip() %}
+					{% set ref_total = namespace(value=frappe.utils.flt(row.total_amount)) %}
+					{% set paid_now = frappe.utils.flt(row.allocated_amount) %}
+					{% set outstanding_before = namespace(value=frappe.utils.flt(row.outstanding_amount)) %}
+					{% set row_remaining = namespace(value=0) %}
+
+					{% if ref_doctype and ref_total.value <= 0 %}
+						{% set ref_meta = frappe.get_meta(ref_doctype) %}
+						{% if ref_meta and ref_meta.has_field("rounded_total") %}
+							{% set fetched_total = frappe.db.get_value(ref_doctype, row.reference_name, "rounded_total") %}
+							{% if fetched_total and frappe.utils.flt(fetched_total) > 0 %}
+								{% set ref_total.value = frappe.utils.flt(fetched_total) %}
+							{% endif %}
+						{% endif %}
+						{% if ref_total.value <= 0 and ref_meta and ref_meta.has_field("base_rounded_total") %}
+							{% set fetched_total = frappe.db.get_value(ref_doctype, row.reference_name, "base_rounded_total") %}
+							{% if fetched_total and frappe.utils.flt(fetched_total) > 0 %}
+								{% set ref_total.value = frappe.utils.flt(fetched_total) %}
+							{% endif %}
+						{% endif %}
+						{% if ref_total.value <= 0 and ref_meta and ref_meta.has_field("grand_total") %}
+							{% set fetched_total = frappe.db.get_value(ref_doctype, row.reference_name, "grand_total") %}
+							{% if fetched_total and frappe.utils.flt(fetched_total) > 0 %}
+								{% set ref_total.value = frappe.utils.flt(fetched_total) %}
+							{% endif %}
+						{% endif %}
+						{% if ref_total.value <= 0 and ref_meta and ref_meta.has_field("base_grand_total") %}
+							{% set fetched_total = frappe.db.get_value(ref_doctype, row.reference_name, "base_grand_total") %}
+							{% if fetched_total and frappe.utils.flt(fetched_total) > 0 %}
+								{% set ref_total.value = frappe.utils.flt(fetched_total) %}
+							{% endif %}
+						{% endif %}
+					{% endif %}
+
+					{% if ref_doctype and doc.docstatus == 1 %}
+						{% set ref_meta = frappe.get_meta(ref_doctype) %}
+						{% if ref_meta and ref_meta.has_field("outstanding_amount") %}
+							{% set current_outstanding = frappe.db.get_value(ref_doctype, row.reference_name, "outstanding_amount") %}
+							{% if current_outstanding is not none %}
+								{% set row_remaining.value = frappe.utils.flt(current_outstanding) %}
+								{% set outstanding_before.value = row_remaining.value + paid_now %}
+							{% endif %}
+						{% endif %}
+					{% endif %}
+					{% if row_remaining.value == 0 %}
+						{% set row_remaining.value = outstanding_before.value - paid_now %}
+					{% endif %}
+					{% if row_remaining.value < 0 %}
+						{% set row_remaining.value = 0 %}
+					{% endif %}
+					{% if outstanding_before.value < paid_now %}
+						{% set outstanding_before.value = paid_now %}
+					{% endif %}
+					<tr>
+						<td>{{ loop.index }}</td>
+						<td>{{ row.reference_name }}</td>
+						<td class="cp-right">{{ "{:,.2f}".format(ref_total.value) }}</td>
+						<td class="cp-right">{{ "{:,.2f}".format(outstanding_before.value) }}</td>
+						<td class="cp-right">{{ "{:,.2f}".format(paid_now) }}</td>
+						<td class="cp-center">
+							{% if paid_now > 0 and row_remaining.value == 0 %}
+								<span class="cp-badge cp-badge-full">Fully Cleared</span>
+							{% elif paid_now > 0 %}
+								<span class="cp-badge cp-badge-partial">Partially Cleared</span>
+							{% else %}
+								<span class="cp-badge cp-badge-none">Not Cleared</span>
+							{% endif %}
+					</td>
+					<td class="cp-right">{{ "{:,.2f}".format(frappe.utils.flt(row_remaining.value)) }}</td>
+				</tr>
+				{% endif %}
+				{% endfor %}
+				{% if totals.count == 0 %}
+				<tr>
+					<td colspan="7" class="cp-center">No invoice references found on this payment.</td>
+				</tr>
+				{% endif %}
+			</tbody>
+		</table>
+
+		<div class="cp-foot">
+			{% if amount_in_words_urdu or payment_remark_summary %}
+			<div class="cp-note-stack">
+				{% if amount_in_words_urdu %}
+				<div class="cp-note">{{ amount_in_words_urdu }}</div>
+				{% endif %}
+				{% if payment_remark_summary %}
+				<div class="cp-note cp-note-remarks"><strong>Remarks:</strong> {{ payment_remark_summary }}</div>
+				{% endif %}
+			</div>
+			{% endif %}
+			<div class="cp-total-box">
+				<div class="cp-total-row"><span>Total Outstanding Before:</span><span>{{ "{:,.2f}".format(frappe.utils.flt(customer_total_outstanding_before.value)) }}</span></div>
+				<div class="cp-total-row"><span>Total Paid in This Entry:</span><span>{{ "{:,.2f}".format(frappe.utils.flt(totals.allocated)) }}</span></div>
+				<div class="cp-total-row cp-total-main"><span>Remaining Amount to be Paid:</span><span>{{ "{:,.2f}".format(frappe.utils.flt(totals.remaining)) }}</span></div>
+			</div>
+		</div>
+		{% if storage_terms_and_conditions %}
+		<div class="cp-terms-full">{{ storage_terms_and_conditions }}</div>
+		{% endif %}
+		<div class="cp-sign-gap"></div>
+
+		<div class="cp-signatures">
+			<div class="cp-sign">Payer Signature</div>
+			<div class="cp-sign">Authorized Signature</div>
+		</div>
+	</div>
+
+	<div class="cp-print-repeat-footer">
+		{% if storage_terms_and_conditions %}
+		<div class="cp-print-terms">{{ storage_terms_and_conditions }}</div>
+		{% endif %}
+		<div class="cp-print-signatures">
+			<div class="cp-print-sign">Payer Signature</div>
+			<div class="cp-print-sign">Authorized Signature</div>
+		</div>
+		<div class="cp-page-number"></div>
+	</div>
+</div>
